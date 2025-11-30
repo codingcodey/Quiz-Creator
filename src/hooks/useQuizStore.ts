@@ -1,7 +1,7 @@
 import { useCallback, useMemo } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 import type { Quiz, Question, QuizOption } from '../types/quiz';
-import { createQuiz, createQuestion, createOption } from '../types/quiz';
+import { createQuiz, createQuestion, createOption, isValidQuiz } from '../types/quiz';
 
 const STORAGE_KEY = 'quiz-creator-quizzes';
 
@@ -218,10 +218,17 @@ export function useQuizStore() {
     URL.revokeObjectURL(url);
   }, [quizzes]);
 
-  // Import a quiz from JSON
+  // Import a quiz from JSON (creates new quiz)
   const importQuiz = useCallback((jsonString: string) => {
     try {
-      const quiz = JSON.parse(jsonString) as Quiz;
+      const quiz = JSON.parse(jsonString);
+      
+      // Validate the imported data is a valid quiz
+      if (!isValidQuiz(quiz)) {
+        console.error('Invalid quiz format');
+        return null;
+      }
+      
       // Generate new IDs to avoid conflicts
       const newQuiz = createQuiz({
         ...quiz,

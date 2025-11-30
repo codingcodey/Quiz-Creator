@@ -4,6 +4,13 @@ interface HeroProps {
 }
 
 export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
+  const handleScrollDown = () => {
+    window.scrollTo({
+      top: window.innerHeight,
+      behavior: 'smooth',
+    });
+  };
+
   return (
     <section className="relative overflow-hidden min-h-screen flex flex-col items-center justify-center px-6">
       {/* Background gradient effect */}
@@ -75,6 +82,29 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
           </p>
         )}
       </div>
+
+      {/* Scroll down indicator */}
+      {quizCount > 0 && (
+        <button
+          onClick={handleScrollDown}
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-muted hover:text-accent transition-colors opacity-0 animate-fade-in-up stagger-5"
+          aria-label="Scroll down to view quizzes"
+        >
+          <svg
+            className="w-8 h-8"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </button>
+      )}
 
       {/* Decorative elements */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />

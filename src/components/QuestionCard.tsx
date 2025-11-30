@@ -29,6 +29,12 @@ export function QuestionCard({
   isDragging,
 }: QuestionCardProps) {
   const canDeleteOption = (question.options?.length ?? 0) > 2;
+  
+  // Validation checks
+  const isQuestionEmpty = !question.text.trim();
+  const emptyOptions = question.options?.filter(opt => !opt.text.trim()) ?? [];
+  const hasEmptyOptions = question.type === 'multiple-choice' && emptyOptions.length > 0;
+  const isExpectedAnswerEmpty = question.type === 'type-in' && !question.expectedAnswer?.trim();
 
   return (
     <div
@@ -75,8 +81,18 @@ export function QuestionCard({
             onChange={(e) => onUpdate({ text: e.target.value })}
             placeholder="Enter your question..."
             rows={2}
-            className="w-full bg-transparent text-text-primary text-lg placeholder-text-muted resize-none focus:outline-none"
+            className={`w-full bg-transparent text-text-primary text-lg placeholder-text-muted resize-none focus:outline-none ${
+              isQuestionEmpty ? 'border-b border-warning' : ''
+            }`}
           />
+          {isQuestionEmpty && (
+            <p className="text-xs text-warning mt-1 flex items-center gap-1">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              Question is required
+            </p>
+          )}
         </div>
 
         {/* Delete button */}
@@ -111,48 +127,62 @@ export function QuestionCard({
         <div className="space-y-3">
           <p className="text-sm text-text-muted">Answer options (click to mark correct):</p>
           
-          {question.options.map((option, optIndex) => (
-            <div key={option.id} className="flex items-center gap-3">
-              {/* Correct answer toggle */}
-              <button
-                onClick={() => onUpdateOption(option.id, { isCorrect: !option.isCorrect })}
-                className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
-                  option.isCorrect
-                    ? 'border-success bg-success text-bg-primary'
-                    : 'border-border hover:border-success/50'
-                }`}
-                title={option.isCorrect ? 'Correct answer' : 'Mark as correct'}
-              >
-                {option.isCorrect && (
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </button>
-
-              {/* Option text */}
-              <input
-                type="text"
-                value={option.text}
-                onChange={(e) => onUpdateOption(option.id, { text: e.target.value })}
-                placeholder={`Option ${optIndex + 1}`}
-                className="flex-1 bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent/50"
-              />
-
-              {/* Delete option */}
-              {canDeleteOption && (
+          {question.options.map((option, optIndex) => {
+            const isOptionEmpty = !option.text.trim();
+            return (
+              <div key={option.id} className="flex items-center gap-3">
+                {/* Correct answer toggle */}
                 <button
-                  onClick={() => onDeleteOption(option.id)}
-                  className="p-1 text-text-muted hover:text-error transition-colors"
-                  title="Remove option"
+                  onClick={() => onUpdateOption(option.id, { isCorrect: !option.isCorrect })}
+                  className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                    option.isCorrect
+                      ? 'border-success bg-success text-bg-primary'
+                      : 'border-border hover:border-success/50'
+                  }`}
+                  title={option.isCorrect ? 'Correct answer' : 'Mark as correct'}
                 >
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
+                  {option.isCorrect && (
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
                 </button>
-              )}
-            </div>
-          ))}
+
+                {/* Option text */}
+                <input
+                  type="text"
+                  value={option.text}
+                  onChange={(e) => onUpdateOption(option.id, { text: e.target.value })}
+                  placeholder={`Option ${optIndex + 1}`}
+                  className={`flex-1 bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 ${
+                    isOptionEmpty ? 'ring-1 ring-warning' : 'focus:ring-accent/50'
+                  }`}
+                />
+
+                {/* Delete option */}
+                {canDeleteOption && (
+                  <button
+                    onClick={() => onDeleteOption(option.id)}
+                    className="p-1 text-text-muted hover:text-error transition-colors"
+                    title="Remove option"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                )}
+              </div>
+            );
+          })}
+
+          {hasEmptyOptions && (
+            <p className="text-xs text-warning flex items-center gap-1">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              All options are required
+            </p>
+          )}
 
           {/* Add option button */}
           {(question.options?.length ?? 0) < 6 && (
@@ -175,11 +205,22 @@ export function QuestionCard({
             value={question.expectedAnswer || ''}
             onChange={(e) => onUpdate({ expectedAnswer: e.target.value })}
             placeholder="Enter the correct answer..."
-            className="w-full bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent/50"
+            className={`w-full bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 ${
+              isExpectedAnswerEmpty ? 'ring-1 ring-warning' : 'focus:ring-accent/50'
+            }`}
           />
-          <p className="text-xs text-text-muted">
-            This is the answer that will be checked against user input.
-          </p>
+          {isExpectedAnswerEmpty ? (
+            <p className="text-xs text-warning flex items-center gap-1">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              Expected answer is required
+            </p>
+          ) : (
+            <p className="text-xs text-text-muted">
+              This is the answer that will be checked against user input.
+            </p>
+          )}
         </div>
       )}
     </div>

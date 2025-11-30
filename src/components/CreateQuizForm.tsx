@@ -4,14 +4,42 @@ import { ImageUploader } from './ImageUploader';
 interface CreateQuizFormProps {
   onSubmit: (data: { title: string; description: string; coverImage?: string }) => void;
   onCancel: () => void;
+  onImport: (jsonString: string) => boolean;
 }
 
-export function CreateQuizForm({ onSubmit, onCancel }: CreateQuizFormProps) {
+export function CreateQuizForm({ onSubmit, onCancel, onImport }: CreateQuizFormProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [coverImage, setCoverImage] = useState<string | undefined>();
   const [showTitleError, setShowTitleError] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const content = event.target?.result as string;
+      const success = onImport(content);
+      if (!success) {
+        setImportError('Failed to import quiz. Please check the file format.');
+        setTimeout(() => setImportError(null), 3000);
+      }
+    };
+    reader.onerror = () => {
+      setImportError('Failed to read file.');
+      setTimeout(() => setImportError(null), 3000);
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
 
   const canSubmit = title.trim().length > 0;
 
@@ -113,25 +141,50 @@ export function CreateQuizForm({ onSubmit, onCancel }: CreateQuizFormProps) {
           </div>
 
           {/* Actions */}
-          <div className="flex items-center justify-end gap-4 pt-4 opacity-0 animate-fade-in-up stagger-5">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="px-6 py-3 text-text-secondary hover:text-text-primary transition-colors"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={!canSubmit}
-              className={`px-8 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                canSubmit
-                  ? 'bg-accent text-bg-primary hover:bg-accent-hover hover:scale-105 active:scale-100'
-                  : 'bg-bg-tertiary text-text-muted'
-              }`}
-            >
-              Create Quiz
-            </button>
+          <div className="flex items-center justify-between pt-4 opacity-0 animate-fade-in-up stagger-5">
+            <div className="flex items-center gap-3">
+              {/* Hidden file input for import */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json,application/json"
+                onChange={handleFileChange}
+                className="hidden"
+              />
+              <button
+                type="button"
+                onClick={handleImportClick}
+                className="flex items-center gap-2 px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all text-sm"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m4-8l-4-4m0 0l-4 4m4-4v12" />
+                </svg>
+                Import
+              </button>
+              {importError && (
+                <span className="text-sm text-error">{importError}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-4">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-6 py-3 text-text-secondary hover:text-text-primary transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                disabled={!canSubmit}
+                className={`px-8 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                  canSubmit
+                    ? 'bg-accent text-bg-primary hover:bg-accent-hover hover:scale-105 active:scale-100'
+                    : 'bg-bg-tertiary text-text-muted'
+                }`}
+              >
+                Create Quiz
+              </button>
+            </div>
           </div>
         </form>
       </div>
