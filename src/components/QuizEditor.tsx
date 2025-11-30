@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Quiz, Question, QuizOption } from '../types/quiz';
 import { QuestionCard } from './QuestionCard';
 import { ImageUploader } from './ImageUploader';
@@ -12,41 +12,14 @@ function isQuestionComplete(question: Question): boolean {
     // All options must have text
     if (!question.options || question.options.length < 2) return false;
     if (question.options.some(opt => !opt.text.trim())) return false;
+    // At least one option must be marked as correct
+    if (!question.options.some(opt => opt.isCorrect)) return false;
   } else if (question.type === 'type-in') {
     // Expected answer must not be empty
     if (!question.expectedAnswer?.trim()) return false;
   }
   
   return true;
-}
-
-// Get validation errors for the quiz
-function getQuizErrors(quiz: Quiz): string[] {
-  const errors: string[] = [];
-  
-  if (quiz.questions.length === 0) {
-    errors.push('Add at least one question to save the quiz');
-    return errors;
-  }
-  
-  quiz.questions.forEach((question, index) => {
-    if (!question.text.trim()) {
-      errors.push(`Question ${index + 1}: Question text is required`);
-    }
-    
-    if (question.type === 'multiple-choice') {
-      const emptyOptions = question.options?.filter(opt => !opt.text.trim()) || [];
-      if (emptyOptions.length > 0) {
-        errors.push(`Question ${index + 1}: All options must have text`);
-      }
-    } else if (question.type === 'type-in') {
-      if (!question.expectedAnswer?.trim()) {
-        errors.push(`Question ${index + 1}: Expected answer is required`);
-      }
-    }
-  });
-  
-  return errors;
 }
 
 interface QuizEditorProps {
@@ -78,7 +51,6 @@ export function QuizEditor({
 }: QuizEditorProps) {
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [showSaved, setShowSaved] = useState(false);
-  const [showErrors, setShowErrors] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const lastSavedStateRef = useRef<string>(JSON.stringify(quiz));
@@ -90,13 +62,29 @@ export function QuizEditor({
   }, [quiz]);
 
   // Validation
-  const validationErrors = useMemo(() => getQuizErrors(quiz), [quiz]);
   const canSave = quiz.questions.length > 0 && quiz.questions.every(isQuestionComplete);
+
+  // Find first incomplete question index
+  const findFirstIncompleteQuestion = useCallback((): number => {
+    if (quiz.questions.length === 0) return -1;
+    return quiz.questions.findIndex(q => !isQuestionComplete(q));
+  }, [quiz.questions]);
 
   // Handle save
   const handleSave = useCallback(() => {
     if (!canSave) {
-      setShowErrors(true);
+      // Scroll to the first problem area
+      if (quiz.questions.length === 0) {
+        // Scroll to the "add question" section
+        const addButtonSection = document.querySelector('[data-add-question]');
+        addButtonSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        const firstIncomplete = findFirstIncompleteQuestion();
+        if (firstIncomplete >= 0) {
+          const questionCard = document.querySelector(`[data-question-index="${firstIncomplete}"]`);
+          questionCard?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+      }
       return;
     }
     
@@ -104,11 +92,10 @@ export function QuizEditor({
     onUpdate({ updatedAt: Date.now() });
     lastSavedStateRef.current = JSON.stringify({ ...quiz, updatedAt: Date.now() });
     setHasUnsavedChanges(false);
-    setShowErrors(false);
     setShowSaved(true);
     const timer = setTimeout(() => setShowSaved(false), 2000);
     return () => clearTimeout(timer);
-  }, [canSave, onUpdate, quiz]);
+  }, [canSave, onUpdate, quiz, findFirstIncompleteQuestion]);
 
   // Handle back with confirmation
   const handleBackClick = useCallback(() => {
@@ -229,12 +216,11 @@ export function QuizEditor({
           {/* Save Button - Center */}
           <button
             onClick={handleSave}
-            disabled={showSaved}
             className={`flex items-center gap-2 px-5 py-2 rounded-lg font-medium transition-all ${
               showSaved
-                ? 'bg-success text-white'
+                ? 'bg-success text-white cursor-default'
                 : canSave
-                ? 'bg-success hover:bg-success/90 text-white shadow-lg shadow-success/25'
+                ? 'bg-success hover:bg-success/90 text-white shadow-lg shadow-success/25 cursor-pointer'
                 : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
             }`}
           >
@@ -259,35 +245,6 @@ export function QuizEditor({
           </button>
         </div>
       </header>
-
-      {/* Error Messages */}
-      {showErrors && validationErrors.length > 0 && (
-        <div className="max-w-4xl mx-auto px-6 mt-4">
-          <div className="bg-error/10 border border-error/30 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <svg className="w-5 h-5 text-error flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              <div>
-                <h4 className="font-medium text-error mb-2">Please fix the following issues to save:</h4>
-                <ul className="space-y-1">
-                  {validationErrors.map((error, i) => (
-                    <li key={i} className="text-sm text-error/80">• {error}</li>
-                  ))}
-                </ul>
-              </div>
-              <button
-                onClick={() => setShowErrors(false)}
-                className="ml-auto text-error/60 hover:text-error transition-colors"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       <main className="max-w-4xl mx-auto px-6 py-8">
         {/* Quiz Title */}
@@ -351,28 +308,29 @@ export function QuizEditor({
           ) : (
             <div className="space-y-4">
               {quiz.questions.map((question, index) => (
-                <QuestionCard
-                  key={question.id}
-                  question={question}
-                  index={index}
-                  onUpdate={(updates) => onUpdateQuestion(question.id, updates)}
-                  onDelete={() => onDeleteQuestion(question.id)}
-                  onAddOption={() => onAddOption(question.id)}
-                  onUpdateOption={(optionId, updates) =>
-                    onUpdateOption(question.id, optionId, updates)
-                  }
-                  onDeleteOption={(optionId) => onDeleteOption(question.id, optionId)}
-                  onDragStart={() => handleDragStart(index)}
-                  onDragOver={handleDragOver}
-                  onDrop={() => handleDrop(index)}
-                  isDragging={draggingIndex === index}
-                />
+                <div key={question.id} data-question-index={index}>
+                  <QuestionCard
+                    question={question}
+                    index={index}
+                    onUpdate={(updates) => onUpdateQuestion(question.id, updates)}
+                    onDelete={() => onDeleteQuestion(question.id)}
+                    onAddOption={() => onAddOption(question.id)}
+                    onUpdateOption={(optionId, updates) =>
+                      onUpdateOption(question.id, optionId, updates)
+                    }
+                    onDeleteOption={(optionId) => onDeleteOption(question.id, optionId)}
+                    onDragStart={() => handleDragStart(index)}
+                    onDragOver={handleDragOver}
+                    onDrop={() => handleDrop(index)}
+                    isDragging={draggingIndex === index}
+                  />
+                </div>
               ))}
             </div>
           )}
 
           {/* Add Question Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4">
+          <div className="flex flex-col sm:flex-row gap-3 pt-4" data-add-question>
             <button
               onClick={() => onAddQuestion('multiple-choice')}
               className="flex-1 flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:text-accent transition-all"
