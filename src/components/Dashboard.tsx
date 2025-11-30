@@ -8,7 +8,7 @@ interface DashboardProps {
   onDeleteQuiz: (id: string) => void;
   onDuplicateQuiz: (id: string) => void;
   onExportQuiz: (id: string) => void;
-  onPreviewQuiz: (id: string) => void;
+  onPlayQuiz: (id: string) => void;
 }
 
 export function Dashboard({
@@ -18,7 +18,7 @@ export function Dashboard({
   onDeleteQuiz,
   onDuplicateQuiz,
   onExportQuiz,
-  onPreviewQuiz,
+  onPlayQuiz,
 }: DashboardProps) {
   if (quizzes.length === 0) {
     return null;
@@ -57,7 +57,7 @@ export function Dashboard({
               onDelete={() => onDeleteQuiz(quiz.id)}
               onDuplicate={() => onDuplicateQuiz(quiz.id)}
               onExport={() => onExportQuiz(quiz.id)}
-              onPreview={() => onPreviewQuiz(quiz.id)}
+              onPlay={() => onPlayQuiz(quiz.id)}
             />
           ))}
         </div>

@@ -7,11 +7,11 @@ interface QuizCardProps {
   onDelete: () => void;
   onDuplicate: () => void;
   onExport: () => void;
-  onPreview: () => void;
+  onPlay: () => void;
   index: number;
 }
 
-export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPreview, index }: QuizCardProps) {
+export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay, index }: QuizCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const questionCount = quiz.questions.length;
   const formattedDate = new Date(quiz.updatedAt).toLocaleDateString('en-US', {
@@ -92,13 +92,13 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPrev
       </div>
 
       {/* Content */}
-      <div className="p-4">
-        <h3 className="font-serif text-xl text-text-primary line-clamp-1 group-hover:text-accent transition-colors">
+      <div className="p-4 relative">
+        <h3 className="font-serif text-xl text-text-primary line-clamp-1 group-hover:text-accent transition-colors pr-14">
           {quiz.title}
         </h3>
         
         {quiz.description && (
-          <p className="mt-1 text-sm text-text-secondary line-clamp-2">
+          <p className="mt-1 text-sm text-text-secondary line-clamp-2 pr-14">
             {quiz.description}
           </p>
         )}
@@ -106,26 +106,26 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPrev
         <p className="mt-3 text-xs text-text-muted">
           Updated {formattedDate}
         </p>
+
+        {/* Play button - bottom right */}
+        {quiz.questions.length > 0 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onPlay();
+            }}
+            className="absolute bottom-4 right-4 z-10 w-11 h-11 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent/25"
+            title="Play quiz"
+          >
+            <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </button>
+        )}
       </div>
 
         {/* Actions */}
         <div className="absolute top-3 right-3 z-10 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          {/* Preview button */}
-          {quiz.questions.length > 0 && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onPreview();
-              }}
-              className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-success transition-colors"
-              title="Preview quiz"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </button>
-          )}
           {/* Duplicate button */}
           <button
             onClick={(e) => {

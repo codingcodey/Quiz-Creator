@@ -5,12 +5,12 @@ import { Hero } from './components/Hero';
 import { Dashboard } from './components/Dashboard';
 import { QuizEditor } from './components/QuizEditor';
 import { CreateQuizForm } from './components/CreateQuizForm';
-import { QuizPreview } from './components/QuizPreview';
+import { QuizPlayer } from './components/QuizPlayer';
 import { ThemeToggle } from './components/ThemeToggle';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { createQuiz, type Quiz } from './types/quiz';
 
-type View = 'home' | 'create' | 'editor' | 'preview';
+type View = 'home' | 'create' | 'editor' | 'play';
 
 function App() {
   const [view, setView] = useState<View>('home');
@@ -49,9 +49,9 @@ function App() {
     setView('editor');
   };
 
-  const handlePreviewQuiz = (id: string) => {
+  const handlePlayQuiz = (id: string) => {
     setEditingQuizId(id);
-    setView('preview');
+    setView('play');
   };
 
   const handleDuplicateQuiz = (id: string) => {
@@ -165,13 +165,13 @@ function App() {
     );
   }
 
-  if (view === 'preview' && editingQuiz) {
+  if (view === 'play' && editingQuiz) {
     return (
       <ErrorBoundary>
         <div className="fixed top-4 right-4 z-50">
           <ThemeToggle theme={theme} onToggle={toggleTheme} />
         </div>
-        <QuizPreview quiz={editingQuiz} onBack={handleBack} />
+        <QuizPlayer quiz={editingQuiz} onBack={handleBack} />
       </ErrorBoundary>
     );
   }
@@ -211,7 +211,7 @@ function App() {
           onDeleteQuiz={deleteQuiz}
           onDuplicateQuiz={handleDuplicateQuiz}
           onExportQuiz={exportQuiz}
-          onPreviewQuiz={handlePreviewQuiz}
+          onPlayQuiz={handlePlayQuiz}
         />
       </div>
     </ErrorBoundary>

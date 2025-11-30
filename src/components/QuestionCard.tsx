@@ -100,12 +100,12 @@ export function QuestionCard({
         onDragLeave={onDragLeave}
         onDragEnd={onDragEnd}
         onDrop={onDrop}
-        className={`relative bg-bg-secondary border-2 rounded-xl p-5 transition-all ${
+        className={`relative bg-bg-secondary border-2 rounded-xl p-5 transition-all cursor-grab active:cursor-grabbing ${
           isDragging 
             ? 'opacity-50 scale-[0.98] border-border' 
             : isDragOver 
             ? 'border-accent border-dashed bg-accent/5' 
-            : 'border-border border-solid'
+            : 'border-border border-solid hover:border-accent/30 hover:shadow-md hover:shadow-accent/5 hover:-translate-y-0.5'
         }`}
       >
       {/* Header */}
