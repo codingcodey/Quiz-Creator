@@ -79,8 +79,8 @@ export function QuizEditor({
       className="min-h-screen pb-20"
       style={{
         background: `
-          radial-gradient(ellipse 80% 50% at 50% 0%, var(--color-accent-muted) 0%, transparent 50%),
-          radial-gradient(ellipse 60% 40% at 80% 100%, var(--color-accent-muted) 0%, transparent 40%),
+          radial-gradient(ellipse 100% 70% at 50% 0%, var(--color-accent-muted) 0%, transparent 60%),
+          radial-gradient(ellipse 80% 60% at 80% 100%, var(--color-accent-muted) 0%, transparent 50%),
           var(--color-bg-primary)
         `
       }}
@@ -210,13 +210,12 @@ export function QuizEditor({
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <button
               onClick={() => onAddQuestion('multiple-choice')}
-              className="flex-1 flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:text-accent transition-all group"
+              className="flex-1 flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:text-accent transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
               <span>Multiple Choice</span>
-              <span className="text-xs text-text-muted group-hover:text-accent/70">(Ctrl+N)</span>
             </button>
             <button
               onClick={() => onAddQuestion('type-in')}

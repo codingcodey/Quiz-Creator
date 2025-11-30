@@ -41,8 +41,8 @@ export function CreateQuizForm({ onSubmit, onCancel }: CreateQuizFormProps) {
       className="min-h-screen flex items-center justify-center p-6"
       style={{
         background: `
-          radial-gradient(ellipse 80% 50% at 50% 0%, var(--color-accent-muted) 0%, transparent 50%),
-          radial-gradient(ellipse 60% 40% at 80% 100%, var(--color-accent-muted) 0%, transparent 40%),
+          radial-gradient(ellipse 100% 70% at 50% 0%, var(--color-accent-muted) 0%, transparent 60%),
+          radial-gradient(ellipse 80% 60% at 80% 100%, var(--color-accent-muted) 0%, transparent 50%),
           var(--color-bg-primary)
         `
       }}
