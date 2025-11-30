@@ -25,7 +25,16 @@ export function Dashboard({
   }
 
   return (
-    <section className="py-12 px-6">
+    <section
+      className="py-12 px-6"
+      style={{
+        background: `
+          radial-gradient(ellipse 80% 50% at 20% 0%, var(--color-accent-muted) 0%, transparent 50%),
+          radial-gradient(ellipse 60% 40% at 90% 100%, var(--color-accent-muted) 0%, transparent 40%),
+          var(--color-bg-primary)
+        `,
+      }}
+    >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

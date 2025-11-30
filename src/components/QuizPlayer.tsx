@@ -1,9 +1,12 @@
 import { useState, useMemo, useCallback } from 'react';
 import type { Quiz, Question } from '../types/quiz';
+import { ThemeToggle } from './ThemeToggle';
 
 interface QuizPlayerProps {
   quiz: Quiz;
   onBack: () => void;
+  theme: 'dark' | 'light';
+  onToggleTheme: () => void;
 }
 
 interface Answer {
@@ -16,7 +19,7 @@ interface Answer {
 
 type GameState = 'intro' | 'playing' | 'feedback' | 'results';
 
-export function QuizPlayer({ quiz, onBack }: QuizPlayerProps) {
+export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerProps) {
   const [gameState, setGameState] = useState<GameState>('intro');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -65,6 +68,16 @@ export function QuizPlayer({ quiz, onBack }: QuizPlayerProps) {
         correctOptionIds.length === selectedIds.length &&
         correctOptionIds.every((id) => selectedIds.includes(id))
       );
+    } else if (question.type === 'multi-select') {
+      const correctOptionIds = question.options
+        ?.filter((opt) => opt.isCorrect)
+        .map((opt) => opt.id) ?? [];
+      const selectedIds = answer?.selectedOptionIds ?? [];
+      return (
+        correctOptionIds.length === selectedIds.length &&
+        correctOptionIds.every((id) => selectedIds.includes(id)) &&
+        selectedIds.every((id) => correctOptionIds.includes(id))
+      );
     } else if (question.type === 'type-in') {
       const expected = question.expectedAnswer?.toLowerCase().trim() ?? '';
       const given = answer?.typedAnswer?.toLowerCase().trim() ?? '';
@@ -87,6 +100,29 @@ export function QuizPlayer({ quiz, onBack }: QuizPlayerProps) {
         );
       }
       return [...prev, { questionId: currentQuestion.id, selectedOptionIds: [optionId] }];
+    });
+  };
+
+  const handleMultiOptionToggle = (optionId: string) => {
+    if (!currentQuestion || gameState === 'feedback') return;
+
+    // For multi-select, toggle the option
+    setAnswers((prev) => {
+      const existing = prev.find((a) => a.questionId === currentQuestion.id);
+      const selectedIds = existing?.selectedOptionIds ?? [];
+      
+      const newSelectedIds = selectedIds.includes(optionId)
+        ? selectedIds.filter((id) => id !== optionId)
+        : [...selectedIds, optionId];
+
+      if (existing) {
+        return prev.map((a) =>
+          a.questionId === currentQuestion.id
+            ? { ...a, selectedOptionIds: newSelectedIds }
+            : a
+        );
+      }
+      return [...prev, { questionId: currentQuestion.id, selectedOptionIds: newSelectedIds }];
     });
   };
 
@@ -158,7 +194,7 @@ export function QuizPlayer({ quiz, onBack }: QuizPlayerProps) {
 
   const currentAnswer = getCurrentAnswer();
   const hasAnswered =
-    currentQuestion?.type === 'multiple-choice'
+    currentQuestion?.type === 'multiple-choice' || currentQuestion?.type === 'multi-select'
       ? (currentAnswer?.selectedOptionIds?.length ?? 0) > 0
       : (currentAnswer?.typedAnswer?.trim().length ?? 0) > 0;
 
@@ -412,8 +448,13 @@ export function QuizPlayer({ quiz, onBack }: QuizPlayerProps) {
       }}
     >
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-bg-primary/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-2xl mx-auto px-6 py-4">
+      <header className="sticky top-0 z-20 bg-bg-primary/80 backdrop-blur-md border-b border-border">
+        {/* Theme toggle - fixed right on desktop */}
+        <div className="hidden md:block fixed top-4 right-4 z-50">
+          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 md:px-6 py-4">
           <div className="flex items-center justify-between mb-3">
             <button
               onClick={onBack}
@@ -436,6 +477,10 @@ export function QuizPlayer({ quiz, onBack }: QuizPlayerProps) {
               <div className="text-sm text-text-secondary">
                 <span className="text-accent font-bold">{currentScore}</span>
                 <span className="text-text-muted">/{totalQuestions}</span>
+              </div>
+              {/* Theme toggle - inline on mobile only */}
+              <div className="md:hidden">
+                <ThemeToggle theme={theme} onToggle={onToggleTheme} />
               </div>
             </div>
           </div>
@@ -462,10 +507,16 @@ export function QuizPlayer({ quiz, onBack }: QuizPlayerProps) {
               className={`inline-block text-xs px-2.5 py-1 rounded-full ${
                 currentQuestion.type === 'multiple-choice'
                   ? 'bg-accent/20 text-accent'
+                  : currentQuestion.type === 'multi-select'
+                  ? 'bg-purple-500/20 text-purple-400'
                   : 'bg-blue-500/20 text-blue-400'
               }`}
             >
-              {currentQuestion.type === 'multiple-choice' ? 'Multiple Choice' : 'Type Answer'}
+              {currentQuestion.type === 'multiple-choice' 
+                ? 'Single Choice' 
+                : currentQuestion.type === 'multi-select' 
+                ? 'Select All That Apply' 
+                : 'Type Answer'}
             </span>
           </div>
 
@@ -547,6 +598,67 @@ export function QuizPlayer({ quiz, onBack }: QuizPlayerProps) {
                   </button>
                 );
               })}
+            </div>
+          )}
+
+          {/* Answer Options - Multi-Select (Grid) */}
+          {currentQuestion.type === 'multi-select' && currentQuestion.options && (
+            <div className="space-y-3">
+              <p className="text-sm text-text-muted mb-2">Select all correct answers:</p>
+              <div className="grid grid-cols-2 gap-3">
+                {currentQuestion.options.map((option) => {
+                  const isSelected = currentAnswer?.selectedOptionIds?.includes(option.id);
+                  const showFeedback = gameState === 'feedback';
+                  const isCorrect = option.isCorrect;
+                  
+                  let buttonClass = 'border-border bg-bg-secondary text-text-secondary hover:border-purple-400/50';
+                  
+                  if (isSelected && !showFeedback) {
+                    buttonClass = 'border-purple-400 bg-purple-400/10 text-text-primary ring-2 ring-purple-400/30';
+                  } else if (showFeedback) {
+                    if (isCorrect && isSelected) {
+                      buttonClass = 'border-success bg-success/20 text-success';
+                    } else if (isCorrect && !isSelected) {
+                      buttonClass = 'border-success bg-success/10 text-success';
+                    } else if (isSelected && !isCorrect) {
+                      buttonClass = 'border-error bg-error/20 text-error animate-shake';
+                    } else {
+                      buttonClass = 'border-border/50 bg-bg-secondary/50 text-text-muted';
+                    }
+                  }
+
+                  return (
+                    <button
+                      key={option.id}
+                      onClick={() => handleMultiOptionToggle(option.id)}
+                      disabled={showFeedback}
+                      className={`relative text-center px-4 py-5 rounded-xl border-2 transition-all ${buttonClass} ${
+                        showFeedback ? 'cursor-default' : 'hover:scale-[1.02] active:scale-[0.98]'
+                      }`}
+                    >
+                      {/* Checkbox indicator */}
+                      <div
+                        className={`absolute top-2 right-2 w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                          showFeedback && isCorrect
+                            ? 'border-success bg-success'
+                            : showFeedback && isSelected && !isCorrect
+                            ? 'border-error bg-error'
+                            : isSelected
+                            ? 'border-purple-400 bg-purple-400'
+                            : 'border-current opacity-40'
+                        }`}
+                      >
+                        {(isSelected || (showFeedback && isCorrect)) && (
+                          <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                          </svg>
+                        )}
+                      </div>
+                      <span className="text-base font-medium">{option.text}</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
           )}
 

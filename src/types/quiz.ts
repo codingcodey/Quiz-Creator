@@ -6,7 +6,7 @@ export type QuizOption = {
 
 export type Question = {
   id: string;
-  type: 'multiple-choice' | 'type-in';
+  type: 'multiple-choice' | 'multi-select' | 'type-in';
   text: string;
   image?: string;
   options?: QuizOption[];
@@ -48,6 +48,13 @@ export function createQuestion(type: Question['type'], partial?: Partial<Questio
       { id: crypto.randomUUID(), text: '', isCorrect: true },
       { id: crypto.randomUUID(), text: '', isCorrect: false },
     ];
+  } else if (type === 'multi-select') {
+    base.options = partial?.options ?? [
+      { id: crypto.randomUUID(), text: '', isCorrect: true },
+      { id: crypto.randomUUID(), text: '', isCorrect: true },
+      { id: crypto.randomUUID(), text: '', isCorrect: false },
+      { id: crypto.randomUUID(), text: '', isCorrect: false },
+    ];
   } else {
     base.expectedAnswer = partial?.expectedAnswer ?? '';
   }
@@ -82,14 +89,14 @@ function isValidQuestion(obj: unknown): obj is Question {
   
   // Check required fields
   if (typeof question.id !== 'string') return false;
-  if (question.type !== 'multiple-choice' && question.type !== 'type-in') return false;
+  if (question.type !== 'multiple-choice' && question.type !== 'multi-select' && question.type !== 'type-in') return false;
   if (typeof question.text !== 'string') return false;
   
   // Check optional image field
   if (question.image !== undefined && typeof question.image !== 'string') return false;
   
   // Validate based on question type
-  if (question.type === 'multiple-choice') {
+  if (question.type === 'multiple-choice' || question.type === 'multi-select') {
     if (!Array.isArray(question.options)) return false;
     if (!question.options.every(isValidOption)) return false;
   } else if (question.type === 'type-in') {

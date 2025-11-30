@@ -3,13 +3,14 @@ import type { Quiz, Question, QuizOption } from '../types/quiz';
 import { createQuestion, createOption } from '../types/quiz';
 import { QuestionCard } from './QuestionCard';
 import { ImageUploader } from './ImageUploader';
+import { ThemeToggle } from './ThemeToggle';
 
 // Helper to check if a question is complete
 function isQuestionComplete(question: Question): boolean {
   // Question text must not be empty
   if (!question.text.trim()) return false;
   
-  if (question.type === 'multiple-choice') {
+  if (question.type === 'multiple-choice' || question.type === 'multi-select') {
     // All options must have text
     if (!question.options || question.options.length < 2) return false;
     if (question.options.some(opt => !opt.text.trim())) return false;
@@ -28,6 +29,8 @@ interface QuizEditorProps {
   onSave: (quiz: Quiz) => void;
   onExport: (quiz: Quiz) => void;
   onBack: () => void;
+  theme: 'dark' | 'light';
+  onToggleTheme: () => void;
 }
 
 export function QuizEditor({
@@ -35,6 +38,8 @@ export function QuizEditor({
   onSave,
   onExport,
   onBack,
+  theme,
+  onToggleTheme,
 }: QuizEditorProps) {
   // Local draft state - changes only affect this until saved
   const [draft, setDraft] = useState<Quiz>(() => JSON.parse(JSON.stringify(quiz)));
@@ -351,8 +356,14 @@ export function QuizEditor({
       )}
 
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-bg-primary/80 backdrop-blur-md border-b border-border">
-        <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-20 bg-bg-primary/80 backdrop-blur-md border-b border-border">
+        {/* Theme toggle - fixed right on desktop */}
+        <div className="hidden md:block fixed top-4 right-4 z-50">
+          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+        </div>
+        
+        {/* Mobile: 4 evenly spaced items */}
+        <div className="md:hidden px-4 py-3 flex items-center justify-between">
           <button
             onClick={handleBackClick}
             className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors"
@@ -363,7 +374,51 @@ export function QuizEditor({
             Back
           </button>
 
-          {/* Save Button - Center */}
+          <button
+            onClick={handleSave}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              showSaved
+                ? 'bg-success text-white cursor-default'
+                : canSave
+                ? 'bg-success hover:bg-success/90 text-white shadow-lg shadow-success/25 cursor-pointer'
+                : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
+            }`}
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              {showSaved ? (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              ) : (
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+              )}
+            </svg>
+            Save
+          </button>
+
+          <button
+            onClick={handleExport}
+            className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Export
+          </button>
+
+          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+        </div>
+
+        {/* Desktop: Original layout */}
+        <div className="hidden md:flex max-w-4xl mx-auto px-6 py-4 items-center justify-between">
+          <button
+            onClick={handleBackClick}
+            className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+
           <div className="flex items-center gap-2">
             {hasUnsavedChanges && (
               <span className="text-xs text-warning">Unsaved changes</span>
@@ -503,22 +558,31 @@ export function QuizEditor({
           )}
 
           {/* Add Question Buttons */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-4" data-add-question>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4" data-add-question>
             <button
               onClick={() => addQuestion('multiple-choice')}
-              className="flex-1 flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:text-accent transition-all"
+              className="flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:text-accent transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <span>Multiple Choice</span>
+              <span>Single Choice</span>
+            </button>
+            <button
+              onClick={() => addQuestion('multi-select')}
+              className="flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-purple-400/50 hover:text-purple-400 transition-all"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              </svg>
+              <span>Multi-Select</span>
             </button>
             <button
               onClick={() => addQuestion('type-in')}
-              className="flex-1 flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:text-accent transition-all"
+              className="flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-blue-400/50 hover:text-blue-400 transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
               <span>Type Answer</span>
             </button>

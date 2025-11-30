@@ -1,13 +1,16 @@
 import { useState, useRef } from 'react';
 import { ImageUploader } from './ImageUploader';
+import { ThemeToggle } from './ThemeToggle';
 
 interface CreateQuizFormProps {
   onSubmit: (data: { title: string; description: string; coverImage?: string }) => void;
   onCancel: () => void;
   onImport: (jsonString: string) => boolean;
+  theme: 'dark' | 'light';
+  onToggleTheme: () => void;
 }
 
-export function CreateQuizForm({ onSubmit, onCancel, onImport }: CreateQuizFormProps) {
+export function CreateQuizForm({ onSubmit, onCancel, onImport, theme, onToggleTheme }: CreateQuizFormProps) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [coverImage, setCoverImage] = useState<string | undefined>();
@@ -81,7 +84,7 @@ export function CreateQuizForm({ onSubmit, onCancel, onImport }: CreateQuizFormP
 
   return (
     <div 
-      className="min-h-screen flex items-center justify-center p-6"
+      className="min-h-screen flex items-center justify-center p-6 relative"
       style={{
         background: `
           radial-gradient(ellipse 100% 70% at 50% 0%, var(--color-accent-muted) 0%, transparent 60%),
@@ -90,6 +93,11 @@ export function CreateQuizForm({ onSubmit, onCancel, onImport }: CreateQuizFormP
         `
       }}
     >
+      {/* Theme Toggle */}
+      <div className="fixed top-4 right-4 z-50">
+        <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+      </div>
+
       <div className="w-full max-w-2xl">
         {/* Header */}
         <div className="text-center mb-10 opacity-0 animate-fade-in-up stagger-1">

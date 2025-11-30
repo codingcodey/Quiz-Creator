@@ -51,9 +51,9 @@ export function QuestionCard({
   // Validation checks
   const isQuestionEmpty = !question.text.trim();
   const emptyOptions = question.options?.filter(opt => !opt.text.trim()) ?? [];
-  const hasEmptyOptions = question.type === 'multiple-choice' && emptyOptions.length > 0;
+  const hasEmptyOptions = (question.type === 'multiple-choice' || question.type === 'multi-select') && emptyOptions.length > 0;
   const isExpectedAnswerEmpty = question.type === 'type-in' && !question.expectedAnswer?.trim();
-  const hasNoCorrectAnswer = question.type === 'multiple-choice' && !question.options?.some(opt => opt.isCorrect);
+  const hasNoCorrectAnswer = (question.type === 'multiple-choice' || question.type === 'multi-select') && !question.options?.some(opt => opt.isCorrect);
 
   return (
     <>
@@ -130,10 +130,12 @@ export function QuestionCard({
               className={`text-xs px-2 py-0.5 rounded-full ${
                 question.type === 'multiple-choice'
                   ? 'bg-accent/20 text-accent'
+                  : question.type === 'multi-select'
+                  ? 'bg-purple-500/20 text-purple-400'
                   : 'bg-blue-500/20 text-blue-400'
               }`}
             >
-              {question.type === 'multiple-choice' ? 'Multiple Choice' : 'Type Answer'}
+              {question.type === 'multiple-choice' ? 'Multiple Choice' : question.type === 'multi-select' ? 'Multi-Select' : 'Type Answer'}
             </span>
           </div>
 
@@ -241,6 +243,96 @@ export function QuestionCard({
 
           {/* Add option button */}
           {(question.options?.length ?? 0) < 6 && (
+            <button
+              onClick={onAddOption}
+              className="w-full py-2 border border-dashed border-border rounded-lg text-sm text-text-muted hover:border-accent/50 hover:text-accent transition-colors"
+            >
+              + Add Option
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Multi-select options (grid layout) */}
+      {question.type === 'multi-select' && question.options && (
+        <div className="space-y-3">
+          <p className="text-sm text-text-muted">Answer options (click to mark correct — multiple can be correct):</p>
+          
+          <div className="grid grid-cols-2 gap-3">
+            {question.options.map((option, optIndex) => {
+              const isOptionEmpty = !option.text.trim();
+              return (
+                <div 
+                  key={option.id} 
+                  className={`relative bg-bg-tertiary rounded-xl p-3 border-2 transition-all ${
+                    option.isCorrect 
+                      ? 'border-success/50 bg-success/5' 
+                      : 'border-transparent'
+                  } ${isOptionEmpty ? 'ring-1 ring-warning' : ''}`}
+                >
+                  {/* Correct toggle button */}
+                  <button
+                    onClick={() => onUpdateOption(option.id, { isCorrect: !option.isCorrect })}
+                    className={`absolute top-2 right-2 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                      option.isCorrect
+                        ? 'border-success bg-success text-bg-primary'
+                        : 'border-border hover:border-success/50'
+                    }`}
+                    title={option.isCorrect ? 'Correct answer' : 'Mark as correct'}
+                  >
+                    {option.isCorrect && (
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </button>
+
+                  {/* Delete button */}
+                  {canDeleteOption && (
+                    <button
+                      onClick={() => onDeleteOption(option.id)}
+                      className="absolute top-2 left-2 p-1 text-text-muted hover:text-error transition-colors rounded"
+                      title="Remove option"
+                    >
+                      <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  )}
+
+                  {/* Option text */}
+                  <input
+                    type="text"
+                    value={option.text}
+                    onChange={(e) => onUpdateOption(option.id, { text: e.target.value })}
+                    placeholder={`Option ${optIndex + 1}`}
+                    className="w-full bg-transparent text-text-primary placeholder-text-muted focus:outline-none text-center pt-6 pb-2"
+                  />
+                </div>
+              );
+            })}
+          </div>
+
+          {hasEmptyOptions && (
+            <p className="text-xs text-warning flex items-center gap-1">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              All options are required
+            </p>
+          )}
+
+          {hasNoCorrectAnswer && (
+            <p className="text-xs text-warning flex items-center gap-1">
+              <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              At least one correct answer is required
+            </p>
+          )}
+
+          {/* Add option button */}
+          {(question.options?.length ?? 0) < 8 && (
             <button
               onClick={onAddOption}
               className="w-full py-2 border border-dashed border-border rounded-lg text-sm text-text-muted hover:border-accent/50 hover:text-accent transition-colors"

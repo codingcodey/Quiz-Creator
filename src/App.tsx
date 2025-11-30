@@ -137,13 +137,12 @@ function App() {
   if (view === 'create') {
     return (
       <ErrorBoundary>
-        <div className="fixed top-4 right-4 z-50">
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
-        </div>
         <CreateQuizForm
           onSubmit={handleSubmitNewQuiz}
           onCancel={handleBack}
           onImport={handleImportQuiz}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
       </ErrorBoundary>
     );
@@ -152,14 +151,13 @@ function App() {
   if (view === 'editor' && editingQuiz) {
     return (
       <ErrorBoundary>
-        <div className="fixed top-4 right-4 z-50">
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
-        </div>
         <QuizEditor
           quiz={editingQuiz}
           onSave={handleSaveQuiz}
           onExport={exportQuizData}
           onBack={handleBack}
+          theme={theme}
+          onToggleTheme={toggleTheme}
         />
       </ErrorBoundary>
     );
@@ -168,10 +166,12 @@ function App() {
   if (view === 'play' && editingQuiz) {
     return (
       <ErrorBoundary>
-        <div className="fixed top-4 right-4 z-50">
-          <ThemeToggle theme={theme} onToggle={toggleTheme} />
-        </div>
-        <QuizPlayer quiz={editingQuiz} onBack={handleBack} />
+        <QuizPlayer
+          quiz={editingQuiz}
+          onBack={handleBack}
+          theme={theme}
+          onToggleTheme={toggleTheme}
+        />
       </ErrorBoundary>
     );
   }
