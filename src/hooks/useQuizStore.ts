@@ -200,7 +200,48 @@ export function useQuizStore() {
     [setQuizzes]
   );
 
-  // Export a quiz as JSON
+  // Save a complete quiz (replaces existing or adds new)
+  const saveQuiz = useCallback((quiz: Quiz) => {
+    setQuizzes((prev) => {
+      const existingIndex = prev.findIndex((q) => q.id === quiz.id);
+      if (existingIndex >= 0) {
+        // Update existing quiz
+        const updated = [...prev];
+        updated[existingIndex] = quiz;
+        return updated;
+      } else {
+        // Add new quiz
+        return [...prev, quiz];
+      }
+    });
+  }, [setQuizzes]);
+
+  // Duplicate a quiz
+  const duplicateQuiz = useCallback((quizId: string) => {
+    const quiz = quizzes.find((q) => q.id === quizId);
+    if (!quiz) return null;
+    
+    const duplicatedQuiz = createQuiz({
+      ...quiz,
+      id: crypto.randomUUID(),
+      title: quiz.title,
+      questions: quiz.questions.map((q) => ({
+        ...q,
+        id: crypto.randomUUID(),
+        options: q.options?.map((opt) => ({
+          ...opt,
+          id: crypto.randomUUID(),
+        })),
+      })),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
+    
+    setQuizzes((prev) => [...prev, duplicatedQuiz]);
+    return duplicatedQuiz;
+  }, [quizzes, setQuizzes]);
+
+  // Export a quiz by ID
   const exportQuiz = useCallback((quizId: string) => {
     const quiz = quizzes.find((q) => q.id === quizId);
     if (!quiz) return null;
@@ -217,6 +258,21 @@ export function useQuizStore() {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
   }, [quizzes]);
+
+  // Export a quiz object directly (for editor draft)
+  const exportQuizData = useCallback((quiz: Quiz) => {
+    const dataStr = JSON.stringify(quiz, null, 2);
+    const blob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${quiz.title.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.json`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, []);
 
   // Import a quiz from JSON (creates new quiz)
   const importQuiz = useCallback((jsonString: string) => {
@@ -248,8 +304,10 @@ export function useQuizStore() {
     quizzes: sortedQuizzes,
     getQuiz,
     addQuiz,
+    saveQuiz,
     updateQuiz,
     deleteQuiz,
+    duplicateQuiz,
     addQuestion,
     updateQuestion,
     deleteQuestion,
@@ -258,6 +316,7 @@ export function useQuizStore() {
     updateOption,
     deleteOption,
     exportQuiz,
+    exportQuizData,
     importQuiz,
   };
 }

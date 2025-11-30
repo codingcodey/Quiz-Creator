@@ -3,20 +3,34 @@ import { useLocalStorage } from './useLocalStorage';
 
 type Theme = 'dark' | 'light';
 
+const THEME_STORAGE_KEY = 'quiz-creator-theme';
+
 function getTimeBasedTheme(): Theme {
   const hour = new Date().getHours();
   // Day: 6 AM to 6 PM, Night: 6 PM to 6 AM
   return hour >= 6 && hour < 18 ? 'light' : 'dark';
 }
 
-export function useTheme() {
-  // Initialize with time-based theme
-  const [theme, setTheme] = useLocalStorage<Theme>('quiz-creator-theme', getTimeBasedTheme());
+function getInitialTheme(): Theme {
+  // Check if user has a saved preference
+  try {
+    const saved = localStorage.getItem(THEME_STORAGE_KEY);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed === 'dark' || parsed === 'light') {
+        return parsed;
+      }
+    }
+  } catch {
+    // Ignore errors
+  }
+  // Fall back to time-based theme for first-time visitors
+  return getTimeBasedTheme();
+}
 
-  // On mount, update to current time-based theme
-  useEffect(() => {
-    setTheme(getTimeBasedTheme());
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+export function useTheme() {
+  // Initialize with saved preference or time-based theme for new users
+  const [theme, setTheme] = useLocalStorage<Theme>(THEME_STORAGE_KEY, getInitialTheme());
 
   useEffect(() => {
     const root = document.documentElement;

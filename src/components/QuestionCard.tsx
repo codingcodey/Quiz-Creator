@@ -1,34 +1,52 @@
+import { useState } from 'react';
 import type { Question, QuizOption } from '../types/quiz';
 import { ImageUploader } from './ImageUploader';
 
 interface QuestionCardProps {
   question: Question;
   index: number;
+  totalQuestions: number;
   onUpdate: (updates: Partial<Question>) => void;
   onDelete: () => void;
+  onDuplicate: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
   onAddOption: () => void;
   onUpdateOption: (optionId: string, updates: Partial<QuizOption>) => void;
   onDeleteOption: (optionId: string) => void;
   onDragStart: () => void;
   onDragOver: (e: React.DragEvent) => void;
+  onDragLeave: () => void;
+  onDragEnd: () => void;
   onDrop: () => void;
   isDragging: boolean;
+  isDragOver: boolean;
 }
 
 export function QuestionCard({
   question,
   index,
+  totalQuestions,
   onUpdate,
   onDelete,
+  onDuplicate,
+  onMoveUp,
+  onMoveDown,
   onAddOption,
   onUpdateOption,
   onDeleteOption,
   onDragStart,
   onDragOver,
+  onDragLeave,
+  onDragEnd,
   onDrop,
   isDragging,
+  isDragOver,
 }: QuestionCardProps) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const canDeleteOption = (question.options?.length ?? 0) > 2;
+  const canMoveUp = index > 0;
+  const canMoveDown = index < totalQuestions - 1;
   
   // Validation checks
   const isQuestionEmpty = !question.text.trim();
@@ -38,15 +56,58 @@ export function QuestionCard({
   const hasNoCorrectAnswer = question.type === 'multiple-choice' && !question.options?.some(opt => opt.isCorrect);
 
   return (
-    <div
-      draggable
-      onDragStart={onDragStart}
-      onDragOver={onDragOver}
-      onDrop={onDrop}
-      className={`relative bg-bg-secondary border border-border rounded-xl p-5 transition-all ${
-        isDragging ? 'opacity-50 scale-98' : ''
-      }`}
-    >
+    <>
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-fade-in">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-error/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <h3 className="font-serif text-xl text-text-primary">Delete Question</h3>
+            </div>
+            <p className="text-text-secondary mb-6">
+              Are you sure you want to delete this question? This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-text-secondary hover:text-text-primary transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  onDelete();
+                }}
+                className="px-4 py-2 bg-error text-white rounded-lg hover:bg-error/90 transition-colors"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
+      <div
+        draggable
+        onDragStart={onDragStart}
+        onDragOver={onDragOver}
+        onDragLeave={onDragLeave}
+        onDragEnd={onDragEnd}
+        onDrop={onDrop}
+        className={`relative bg-bg-secondary border-2 rounded-xl p-5 transition-all ${
+          isDragging 
+            ? 'opacity-50 scale-[0.98] border-border' 
+            : isDragOver 
+            ? 'border-accent border-dashed bg-accent/5' 
+            : 'border-border border-solid'
+        }`}
+      >
       {/* Header */}
       <div className="flex items-start gap-3 mb-4">
         {/* Drag handle */}
@@ -95,22 +156,6 @@ export function QuestionCard({
             </p>
           )}
         </div>
-
-        {/* Delete button */}
-        <button
-          onClick={onDelete}
-          className="p-2 text-text-muted hover:text-error transition-colors rounded-lg hover:bg-error/10"
-          title="Delete question"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-            />
-          </svg>
-        </button>
       </div>
 
       {/* Image upload */}
@@ -233,6 +278,66 @@ export function QuestionCard({
           )}
         </div>
       )}
-    </div>
+
+      {/* Action buttons */}
+      <div className="flex items-center justify-between mt-4 pt-4 border-t border-border">
+        <div className="flex items-center gap-1">
+          {/* Move up */}
+          <button
+            onClick={onMoveUp}
+            disabled={!canMoveUp}
+            className={`p-1.5 rounded-lg transition-colors ${
+              canMoveUp 
+                ? 'text-text-muted hover:text-text-primary hover:bg-bg-tertiary' 
+                : 'text-text-muted/30 cursor-not-allowed'
+            }`}
+            title="Move up (keyboard: hold question and press ↑)"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+          </button>
+          {/* Move down */}
+          <button
+            onClick={onMoveDown}
+            disabled={!canMoveDown}
+            className={`p-1.5 rounded-lg transition-colors ${
+              canMoveDown 
+                ? 'text-text-muted hover:text-text-primary hover:bg-bg-tertiary' 
+                : 'text-text-muted/30 cursor-not-allowed'
+            }`}
+            title="Move down (keyboard: hold question and press ↓)"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+            </svg>
+          </button>
+        </div>
+        
+        <div className="flex items-center gap-1">
+          {/* Duplicate */}
+          <button
+            onClick={onDuplicate}
+            className="p-1.5 text-text-muted hover:text-accent hover:bg-accent/10 rounded-lg transition-colors"
+            title="Duplicate question"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
+          {/* Delete */}
+          <button
+            onClick={() => setShowDeleteConfirm(true)}
+            className="p-1.5 text-text-muted hover:text-error hover:bg-error/10 rounded-lg transition-colors"
+            title="Delete question"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      </div>
+    </>
   );
 }

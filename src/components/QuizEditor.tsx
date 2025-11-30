@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Quiz, Question, QuizOption } from '../types/quiz';
+import { createQuestion, createOption } from '../types/quiz';
 import { QuestionCard } from './QuestionCard';
 import { ImageUploader } from './ImageUploader';
 
@@ -24,58 +25,136 @@ function isQuestionComplete(question: Question): boolean {
 
 interface QuizEditorProps {
   quiz: Quiz;
-  onUpdate: (updates: Partial<Quiz>) => void;
-  onAddQuestion: (type: Question['type']) => void;
-  onUpdateQuestion: (questionId: string, updates: Partial<Question>) => void;
-  onDeleteQuestion: (questionId: string) => void;
-  onReorderQuestions: (fromIndex: number, toIndex: number) => void;
-  onAddOption: (questionId: string) => void;
-  onUpdateOption: (questionId: string, optionId: string, updates: Partial<QuizOption>) => void;
-  onDeleteOption: (questionId: string, optionId: string) => void;
-  onExport: () => void;
+  onSave: (quiz: Quiz) => void;
+  onExport: (quiz: Quiz) => void;
   onBack: () => void;
 }
 
 export function QuizEditor({
   quiz,
-  onUpdate,
-  onAddQuestion,
-  onUpdateQuestion,
-  onDeleteQuestion,
-  onReorderQuestions,
-  onAddOption,
-  onUpdateOption,
-  onDeleteOption,
+  onSave,
   onExport,
   onBack,
 }: QuizEditorProps) {
+  // Local draft state - changes only affect this until saved
+  const [draft, setDraft] = useState<Quiz>(() => JSON.parse(JSON.stringify(quiz)));
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [showSaved, setShowSaved] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
-  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
-  const lastSavedStateRef = useRef<string>(JSON.stringify(quiz));
+  const originalQuizRef = useRef<string>(JSON.stringify(quiz));
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Check if quiz has unsaved changes
-  useEffect(() => {
-    const currentState = JSON.stringify(quiz);
-    setHasUnsavedChanges(currentState !== lastSavedStateRef.current);
-  }, [quiz]);
+  // Check if there are unsaved changes
+  const hasUnsavedChanges = JSON.stringify(draft) !== originalQuizRef.current;
 
   // Validation
-  const canSave = quiz.questions.length > 0 && quiz.questions.every(isQuestionComplete);
+  const canSave = draft.questions.length > 0 && draft.questions.every(isQuestionComplete);
 
   // Find first incomplete question index
   const findFirstIncompleteQuestion = useCallback((): number => {
-    if (quiz.questions.length === 0) return -1;
-    return quiz.questions.findIndex(q => !isQuestionComplete(q));
-  }, [quiz.questions]);
+    if (draft.questions.length === 0) return -1;
+    return draft.questions.findIndex(q => !isQuestionComplete(q));
+  }, [draft.questions]);
+
+  // Cleanup timer on unmount
+  useEffect(() => {
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, []);
+
+  // Update draft
+  const updateDraft = useCallback((updates: Partial<Quiz>) => {
+    setDraft(prev => ({ ...prev, ...updates }));
+  }, []);
+
+  // Add question
+  const addQuestion = useCallback((type: Question['type']) => {
+    const newQuestion = createQuestion(type);
+    setDraft(prev => ({
+      ...prev,
+      questions: [...prev.questions, newQuestion],
+    }));
+  }, []);
+
+  // Update question
+  const updateQuestion = useCallback((questionId: string, updates: Partial<Question>) => {
+    setDraft(prev => ({
+      ...prev,
+      questions: prev.questions.map(q =>
+        q.id === questionId ? { ...q, ...updates } : q
+      ),
+    }));
+  }, []);
+
+  // Delete question
+  const deleteQuestion = useCallback((questionId: string) => {
+    setDraft(prev => ({
+      ...prev,
+      questions: prev.questions.filter(q => q.id !== questionId),
+    }));
+  }, []);
+
+  // Reorder questions
+  const reorderQuestions = useCallback((fromIndex: number, toIndex: number) => {
+    setDraft(prev => {
+      const newQuestions = [...prev.questions];
+      const [removed] = newQuestions.splice(fromIndex, 1);
+      newQuestions.splice(toIndex, 0, removed);
+      return { ...prev, questions: newQuestions };
+    });
+  }, []);
+
+  // Add option
+  const addOption = useCallback((questionId: string) => {
+    const newOption = createOption();
+    setDraft(prev => ({
+      ...prev,
+      questions: prev.questions.map(q =>
+        q.id === questionId && q.options
+          ? { ...q, options: [...q.options, newOption] }
+          : q
+      ),
+    }));
+  }, []);
+
+  // Update option
+  const updateOption = useCallback((questionId: string, optionId: string, updates: Partial<QuizOption>) => {
+    setDraft(prev => ({
+      ...prev,
+      questions: prev.questions.map(q =>
+        q.id === questionId && q.options
+          ? {
+              ...q,
+              options: q.options.map(opt =>
+                opt.id === optionId ? { ...opt, ...updates } : opt
+              ),
+            }
+          : q
+      ),
+    }));
+  }, []);
+
+  // Delete option
+  const deleteOption = useCallback((questionId: string, optionId: string) => {
+    setDraft(prev => ({
+      ...prev,
+      questions: prev.questions.map(q =>
+        q.id === questionId && q.options
+          ? { ...q, options: q.options.filter(opt => opt.id !== optionId) }
+          : q
+      ),
+    }));
+  }, []);
 
   // Handle save
   const handleSave = useCallback(() => {
     if (!canSave) {
       // Scroll to the first problem area
-      if (quiz.questions.length === 0) {
-        // Scroll to the "add question" section
+      if (draft.questions.length === 0) {
         const addButtonSection = document.querySelector('[data-add-question]');
         addButtonSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {
@@ -88,14 +167,20 @@ export function QuizEditor({
       return;
     }
     
-    // Update the quiz (triggers localStorage save)
-    onUpdate({ updatedAt: Date.now() });
-    lastSavedStateRef.current = JSON.stringify({ ...quiz, updatedAt: Date.now() });
-    setHasUnsavedChanges(false);
+    // Save the draft to the store
+    const savedQuiz = { ...draft, updatedAt: Date.now() };
+    onSave(savedQuiz);
+    
+    // Update our reference to match what we saved
+    originalQuizRef.current = JSON.stringify(savedQuiz);
+    setDraft(savedQuiz);
+    
     setShowSaved(true);
-    const timer = setTimeout(() => setShowSaved(false), 2000);
-    return () => clearTimeout(timer);
-  }, [canSave, onUpdate, quiz, findFirstIncompleteQuestion]);
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+    saveTimerRef.current = setTimeout(() => setShowSaved(false), 2000);
+  }, [canSave, draft, onSave, findFirstIncompleteQuestion]);
 
   // Handle back with confirmation
   const handleBackClick = useCallback(() => {
@@ -124,7 +209,7 @@ export function QuizEditor({
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
         e.preventDefault();
-        onAddQuestion('multiple-choice');
+        addQuestion('multiple-choice');
       }
       if ((e.ctrlKey || e.metaKey) && e.key === 's') {
         e.preventDefault();
@@ -133,25 +218,74 @@ export function QuizEditor({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onAddQuestion, handleSave]);
+  }, [addQuestion, handleSave]);
 
   const handleDragStart = useCallback((index: number) => {
     setDraggingIndex(index);
   }, []);
 
-  const handleDragOver = useCallback((e: React.DragEvent) => {
+  const handleDragOver = useCallback((e: React.DragEvent, index: number) => {
     e.preventDefault();
+    setDragOverIndex(index);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverIndex(null);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggingIndex(null);
+    setDragOverIndex(null);
   }, []);
 
   const handleDrop = useCallback(
     (toIndex: number) => {
       if (draggingIndex !== null && draggingIndex !== toIndex) {
-        onReorderQuestions(draggingIndex, toIndex);
+        reorderQuestions(draggingIndex, toIndex);
       }
       setDraggingIndex(null);
+      setDragOverIndex(null);
     },
-    [draggingIndex, onReorderQuestions]
+    [draggingIndex, reorderQuestions]
   );
+
+  // Keyboard reordering
+  const handleMoveQuestion = useCallback((index: number, direction: 'up' | 'down') => {
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    if (newIndex >= 0 && newIndex < draft.questions.length) {
+      reorderQuestions(index, newIndex);
+    }
+  }, [draft.questions.length, reorderQuestions]);
+
+  // Duplicate question
+  const handleDuplicateQuestion = useCallback((index: number) => {
+    const question = draft.questions[index];
+    if (!question) return;
+    
+    const duplicatedQuestion: Question = {
+      ...question,
+      id: crypto.randomUUID(),
+      text: question.text,
+      options: question.options?.map(opt => ({
+        ...opt,
+        id: crypto.randomUUID(),
+      })),
+    };
+    
+    setDraft(prev => ({
+      ...prev,
+      questions: [
+        ...prev.questions.slice(0, index + 1),
+        duplicatedQuestion,
+        ...prev.questions.slice(index + 1),
+      ],
+    }));
+  }, [draft.questions]);
+
+  // Handle export (exports current draft)
+  const handleExport = useCallback(() => {
+    onExport(draft);
+  }, [draft, onExport]);
 
   return (
     <div 
@@ -214,28 +348,33 @@ export function QuizEditor({
           </button>
 
           {/* Save Button - Center */}
-          <button
-            onClick={handleSave}
-            className={`flex items-center gap-2 px-5 py-2 rounded-lg font-medium transition-all ${
-              showSaved
-                ? 'bg-success text-white cursor-default'
-                : canSave
-                ? 'bg-success hover:bg-success/90 text-white shadow-lg shadow-success/25 cursor-pointer'
-                : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
-            }`}
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {showSaved ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-              )}
-            </svg>
-            {showSaved ? 'Saved' : 'Save'}
-          </button>
+          <div className="flex items-center gap-2">
+            {hasUnsavedChanges && (
+              <span className="text-xs text-warning">Unsaved changes</span>
+            )}
+            <button
+              onClick={handleSave}
+              className={`flex items-center gap-2 px-5 py-2 rounded-lg font-medium transition-all ${
+                showSaved
+                  ? 'bg-success text-white cursor-default'
+                  : canSave
+                  ? 'bg-success hover:bg-success/90 text-white shadow-lg shadow-success/25 cursor-pointer'
+                  : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
+              }`}
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {showSaved ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                )}
+              </svg>
+              {showSaved ? 'Saved' : 'Save'}
+            </button>
+          </div>
 
           <button
-            onClick={onExport}
+            onClick={handleExport}
             className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -251,14 +390,14 @@ export function QuizEditor({
         <div className="mb-8">
           <input
             type="text"
-            value={quiz.title}
-            onChange={(e) => onUpdate({ title: e.target.value })}
+            value={draft.title}
+            onChange={(e) => updateDraft({ title: e.target.value })}
             placeholder="Quiz Title"
             className="w-full bg-transparent font-serif text-4xl md:text-5xl text-text-primary placeholder-text-muted focus:outline-none"
           />
           <textarea
-            value={quiz.description}
-            onChange={(e) => onUpdate({ description: e.target.value })}
+            value={draft.description}
+            onChange={(e) => updateDraft({ description: e.target.value })}
             placeholder="Add a description..."
             rows={2}
             className="w-full mt-4 bg-transparent text-lg text-text-secondary placeholder-text-muted resize-none focus:outline-none"
@@ -269,8 +408,8 @@ export function QuizEditor({
         <div className="mb-10">
           <p className="text-sm text-text-muted mb-2">Cover Image</p>
           <ImageUploader
-            image={quiz.coverImage}
-            onImageChange={(coverImage) => onUpdate({ coverImage })}
+            image={draft.coverImage}
+            onImageChange={(coverImage) => updateDraft({ coverImage })}
             className="h-48"
             placeholder="Add cover image"
           />
@@ -281,11 +420,11 @@ export function QuizEditor({
           <div className="flex items-center justify-between">
             <h2 className="font-serif text-2xl text-text-primary">Questions</h2>
             <span className="text-sm text-text-muted">
-              {quiz.questions.length} question{quiz.questions.length !== 1 ? 's' : ''}
+              {draft.questions.length} question{draft.questions.length !== 1 ? 's' : ''}
             </span>
           </div>
 
-          {quiz.questions.length === 0 ? (
+          {draft.questions.length === 0 ? (
             <div className="py-12 text-center border-2 border-dashed border-border rounded-xl">
               <svg
                 className="w-12 h-12 mx-auto text-text-muted mb-4"
@@ -307,22 +446,29 @@ export function QuizEditor({
             </div>
           ) : (
             <div className="space-y-4">
-              {quiz.questions.map((question, index) => (
+              {draft.questions.map((question, index) => (
                 <div key={question.id} data-question-index={index}>
                   <QuestionCard
                     question={question}
                     index={index}
-                    onUpdate={(updates) => onUpdateQuestion(question.id, updates)}
-                    onDelete={() => onDeleteQuestion(question.id)}
-                    onAddOption={() => onAddOption(question.id)}
+                    totalQuestions={draft.questions.length}
+                    onUpdate={(updates) => updateQuestion(question.id, updates)}
+                    onDelete={() => deleteQuestion(question.id)}
+                    onDuplicate={() => handleDuplicateQuestion(index)}
+                    onMoveUp={() => handleMoveQuestion(index, 'up')}
+                    onMoveDown={() => handleMoveQuestion(index, 'down')}
+                    onAddOption={() => addOption(question.id)}
                     onUpdateOption={(optionId, updates) =>
-                      onUpdateOption(question.id, optionId, updates)
+                      updateOption(question.id, optionId, updates)
                     }
-                    onDeleteOption={(optionId) => onDeleteOption(question.id, optionId)}
+                    onDeleteOption={(optionId) => deleteOption(question.id, optionId)}
                     onDragStart={() => handleDragStart(index)}
-                    onDragOver={handleDragOver}
+                    onDragOver={(e) => handleDragOver(e, index)}
+                    onDragLeave={handleDragLeave}
+                    onDragEnd={handleDragEnd}
                     onDrop={() => handleDrop(index)}
                     isDragging={draggingIndex === index}
+                    isDragOver={dragOverIndex === index && draggingIndex !== index}
                   />
                 </div>
               ))}
@@ -332,7 +478,7 @@ export function QuizEditor({
           {/* Add Question Buttons */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4" data-add-question>
             <button
-              onClick={() => onAddQuestion('multiple-choice')}
+              onClick={() => addQuestion('multiple-choice')}
               className="flex-1 flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:text-accent transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -341,7 +487,7 @@ export function QuizEditor({
               <span>Multiple Choice</span>
             </button>
             <button
-              onClick={() => onAddQuestion('type-in')}
+              onClick={() => addQuestion('type-in')}
               className="flex-1 flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:text-accent transition-all"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

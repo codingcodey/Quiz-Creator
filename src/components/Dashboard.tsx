@@ -6,7 +6,9 @@ interface DashboardProps {
   onCreateQuiz: () => void;
   onEditQuiz: (id: string) => void;
   onDeleteQuiz: (id: string) => void;
+  onDuplicateQuiz: (id: string) => void;
   onExportQuiz: (id: string) => void;
+  onPreviewQuiz: (id: string) => void;
 }
 
 export function Dashboard({
@@ -14,7 +16,9 @@ export function Dashboard({
   onCreateQuiz,
   onEditQuiz,
   onDeleteQuiz,
+  onDuplicateQuiz,
   onExportQuiz,
+  onPreviewQuiz,
 }: DashboardProps) {
   if (quizzes.length === 0) {
     return null;
@@ -51,7 +55,9 @@ export function Dashboard({
               index={index}
               onEdit={() => onEditQuiz(quiz.id)}
               onDelete={() => onDeleteQuiz(quiz.id)}
+              onDuplicate={() => onDuplicateQuiz(quiz.id)}
               onExport={() => onExportQuiz(quiz.id)}
+              onPreview={() => onPreviewQuiz(quiz.id)}
             />
           ))}
         </div>

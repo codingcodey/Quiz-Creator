@@ -1,14 +1,18 @@
+import { useState } from 'react';
 import type { Quiz } from '../types/quiz';
 
 interface QuizCardProps {
   quiz: Quiz;
   onEdit: () => void;
   onDelete: () => void;
+  onDuplicate: () => void;
   onExport: () => void;
+  onPreview: () => void;
   index: number;
 }
 
-export function QuizCard({ quiz, onEdit, onDelete, onExport, index }: QuizCardProps) {
+export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPreview, index }: QuizCardProps) {
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const questionCount = quiz.questions.length;
   const formattedDate = new Date(quiz.updatedAt).toLocaleDateString('en-US', {
     month: 'short',
@@ -17,10 +21,50 @@ export function QuizCard({ quiz, onEdit, onDelete, onExport, index }: QuizCardPr
   });
 
   return (
-    <article
-      className="group relative bg-bg-secondary border border-border rounded-2xl overflow-hidden hover:border-accent/50 transition-all duration-300 hover:shadow-lg hover:shadow-accent/5 opacity-0 animate-fade-in-up"
-      style={{ animationDelay: `${0.1 + index * 0.05}s` }}
-    >
+    <>
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-fade-in">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-error/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </div>
+              <h3 className="font-serif text-xl text-text-primary">Delete Quiz</h3>
+            </div>
+            <p className="text-text-secondary mb-2">
+              Are you sure you want to delete <strong className="text-text-primary">"{quiz.title}"</strong>?
+            </p>
+            <p className="text-sm text-text-muted mb-6">
+              This will permanently delete the quiz and {quiz.questions.length} question{quiz.questions.length !== 1 ? 's' : ''}. This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-text-secondary hover:text-text-primary transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowDeleteConfirm(false);
+                  onDelete();
+                }}
+                className="px-4 py-2 bg-error text-white rounded-lg hover:bg-error/90 transition-colors"
+              >
+                Delete Quiz
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <article
+        className="group relative bg-bg-secondary border border-border rounded-2xl overflow-hidden hover:border-accent/50 transition-all duration-300 hover:shadow-lg hover:shadow-accent/5 opacity-0 animate-fade-in-up"
+        style={{ animationDelay: `${0.1 + index * 0.05}s` }}
+      >
       {/* Cover Image or Placeholder */}
       <div className="relative h-40 bg-bg-tertiary overflow-hidden">
         {quiz.coverImage ? (
@@ -64,42 +108,72 @@ export function QuizCard({ quiz, onEdit, onDelete, onExport, index }: QuizCardPr
         </p>
       </div>
 
-      {/* Actions */}
-      <div className="absolute top-3 right-3 z-10 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onExport();
-          }}
-          className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent transition-colors"
-          title="Export as JSON"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-          </svg>
-        </button>
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            if (confirm('Are you sure you want to delete this quiz?')) {
-              onDelete();
-            }
-          }}
-          className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-error transition-colors"
-          title="Delete quiz"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
-      </div>
+        {/* Actions */}
+        <div className="absolute top-3 right-3 z-10 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {/* Preview button */}
+          {quiz.questions.length > 0 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onPreview();
+              }}
+              className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-success transition-colors"
+              title="Preview quiz"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </button>
+          )}
+          {/* Duplicate button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onDuplicate();
+            }}
+            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent transition-colors"
+            title="Duplicate quiz"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+          </button>
+          {/* Export button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onExport();
+            }}
+            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent transition-colors"
+            title="Export as JSON"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+          </button>
+          {/* Delete button */}
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDeleteConfirm(true);
+            }}
+            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-error transition-colors"
+            title="Delete quiz"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
 
-      {/* Click overlay to edit */}
-      <button
-        onClick={onEdit}
-        className="absolute inset-0 w-full h-full cursor-pointer"
-        aria-label={`Edit ${quiz.title}`}
-      />
-    </article>
+        {/* Click overlay to edit */}
+        <button
+          onClick={onEdit}
+          className="absolute inset-0 w-full h-full cursor-pointer"
+          aria-label={`Edit ${quiz.title}`}
+        />
+      </article>
+    </>
   );
 }
