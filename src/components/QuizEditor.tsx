@@ -45,21 +45,25 @@ export function QuizEditor({
   const [draft, setDraft] = useState<Quiz>(() => JSON.parse(JSON.stringify(quiz)));
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
-  const [showSaved, setShowSaved] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [shakeTitle, setShakeTitle] = useState(false);
   const originalQuizRef = useRef<string>(JSON.stringify(quiz));
-  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Check if there are unsaved changes
   const hasUnsavedChanges = JSON.stringify(draft) !== originalQuizRef.current;
 
   // Validation
   const isTitleEmpty = !draft.title.trim();
-  const canSave = !isTitleEmpty && draft.questions.length > 0 && draft.questions.every(isQuestionComplete);
+  const isQuizValid = !isTitleEmpty && draft.questions.length > 0 && draft.questions.every(isQuestionComplete);
+  
+  // Can save only if quiz is valid AND there are unsaved changes
+  const canSave = isQuizValid && hasUnsavedChanges;
+  
+  // Show "Saved" state when quiz is valid and there are no unsaved changes
+  const showSaved = isQuizValid && !hasUnsavedChanges;
   
   // Show confirmation if quiz is incomplete OR has unsaved changes
-  const needsConfirmation = !canSave || hasUnsavedChanges;
+  const needsConfirmation = !isQuizValid || hasUnsavedChanges;
 
   // Find first incomplete question index
   const findFirstIncompleteQuestion = useCallback((): number => {
@@ -67,14 +71,6 @@ export function QuizEditor({
     return draft.questions.findIndex(q => !isQuestionComplete(q));
   }, [draft.questions]);
 
-  // Cleanup timer on unmount
-  useEffect(() => {
-    return () => {
-      if (saveTimerRef.current) {
-        clearTimeout(saveTimerRef.current);
-      }
-    };
-  }, []);
 
   // Update draft
   const updateDraft = useCallback((updates: Partial<Quiz>) => {
@@ -162,7 +158,7 @@ export function QuizEditor({
 
   // Handle save
   const handleSave = useCallback(() => {
-    if (!canSave) {
+    if (!isQuizValid) {
       // Scroll to the first problem area
       if (isTitleEmpty) {
         const titleInput = document.querySelector('[data-quiz-title]');
@@ -183,6 +179,8 @@ export function QuizEditor({
       return;
     }
     
+    if (!hasUnsavedChanges) return; // Already saved, nothing to do
+    
     // Save the draft to the store
     const savedQuiz = { ...draft, updatedAt: Date.now() };
     onSave(savedQuiz);
@@ -190,13 +188,7 @@ export function QuizEditor({
     // Update our reference to match what we saved
     originalQuizRef.current = JSON.stringify(savedQuiz);
     setDraft(savedQuiz);
-    
-    setShowSaved(true);
-    if (saveTimerRef.current) {
-      clearTimeout(saveTimerRef.current);
-    }
-    saveTimerRef.current = setTimeout(() => setShowSaved(false), 2000);
-  }, [canSave, isTitleEmpty, draft, onSave, findFirstIncompleteQuestion]);
+  }, [isQuizValid, hasUnsavedChanges, isTitleEmpty, draft, onSave, findFirstIncompleteQuestion]);
 
   // Handle back with confirmation
   const handleBackClick = useCallback(() => {
@@ -325,11 +317,11 @@ export function QuizEditor({
                 </svg>
               </div>
               <h3 className="font-serif text-xl text-text-primary">
-                {!canSave ? 'Quiz Not Complete' : 'Unsaved Changes'}
+                {!isQuizValid ? 'Quiz Not Complete' : 'Unsaved Changes'}
               </h3>
             </div>
             <p className="text-text-secondary mb-6">
-              {!canSave 
+              {!isQuizValid 
                 ? 'Your quiz is not complete. Add at least one complete question to save it. Are you sure you want to leave?'
                 : 'You have unsaved changes that will be lost. Are you sure you want to leave?'
               }

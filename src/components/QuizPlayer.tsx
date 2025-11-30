@@ -360,7 +360,7 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
                     <p className="text-sm text-text-muted mb-1">Question {index + 1}</p>
                     <p className="text-text-primary font-medium">{result.question.text}</p>
                     
-                    {result.question.type === 'multiple-choice' ? (
+                    {(result.question.type === 'multiple-choice' || result.question.type === 'multi-select') ? (
                       <div className="mt-3 space-y-1.5">
                         {result.question.options?.map((opt) => {
                           const wasSelected = result.answer?.selectedOptionIds?.includes(opt.id);
@@ -714,8 +714,8 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
             </div>
           )}
 
-          {/* Feedback message for multiple choice */}
-          {gameState === 'feedback' && currentQuestion.type === 'multiple-choice' && (
+          {/* Feedback message for multiple choice and multi-select */}
+          {gameState === 'feedback' && (currentQuestion.type === 'multiple-choice' || currentQuestion.type === 'multi-select') && (
             <div className={`mt-4 flex items-center gap-2 px-4 py-3 rounded-xl animate-fade-in ${
               currentAnswer?.isCorrect
                 ? 'bg-success/20 text-success'
@@ -735,7 +735,7 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
-                  <span className="font-medium">Not quite. See the correct answer above.</span>
+                  <span className="font-medium">Not quite. See the correct answers above.</span>
                 </>
               )}
             </div>
