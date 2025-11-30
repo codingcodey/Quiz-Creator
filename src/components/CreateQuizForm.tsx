@@ -12,6 +12,7 @@ export function CreateQuizForm({ onSubmit, onCancel, onImport }: CreateQuizFormP
   const [description, setDescription] = useState('');
   const [coverImage, setCoverImage] = useState<string | undefined>();
   const [showTitleError, setShowTitleError] = useState(false);
+  const [shakeTitle, setShakeTitle] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,9 +46,12 @@ export function CreateQuizForm({ onSubmit, onCancel, onImport }: CreateQuizFormP
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!canSubmit) {
       setShowTitleError(true);
+      setShakeTitle(true);
       titleInputRef.current?.focus();
+      setTimeout(() => setShakeTitle(false), 500);
       return;
     }
     onSubmit({
@@ -55,6 +59,17 @@ export function CreateQuizForm({ onSubmit, onCancel, onImport }: CreateQuizFormP
       description: description.trim(),
       coverImage,
     });
+  };
+
+  const handleCreateClick = (e: React.MouseEvent) => {
+    if (!canSubmit) {
+      e.preventDefault();
+      e.stopPropagation();
+      setShowTitleError(true);
+      setShakeTitle(true);
+      titleInputRef.current?.focus();
+      setTimeout(() => setShakeTitle(false), 500);
+    }
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +117,7 @@ export function CreateQuizForm({ onSubmit, onCancel, onImport }: CreateQuizFormP
           </div>
 
           {/* Title */}
-          <div className="opacity-0 animate-fade-in-up stagger-3">
+          <div className={`opacity-0 animate-fade-in-up stagger-3 ${shakeTitle ? 'animate-shake' : ''}`}>
             <label className={`block text-sm font-medium mb-2 transition-colors ${showTitleError ? 'text-error' : 'text-text-secondary'}`}>
               Title
               <span className="text-error ml-1">*</span>
@@ -175,11 +190,11 @@ export function CreateQuizForm({ onSubmit, onCancel, onImport }: CreateQuizFormP
               </button>
               <button
                 type="submit"
-                disabled={!canSubmit}
+                onClick={handleCreateClick}
                 className={`px-8 py-3 rounded-xl font-semibold transition-all duration-300 ${
                   canSubmit
-                    ? 'bg-accent text-bg-primary hover:bg-accent-hover hover:scale-105 active:scale-100'
-                    : 'bg-bg-tertiary text-text-muted'
+                    ? 'bg-accent text-bg-primary hover:bg-accent-hover hover:scale-105 active:scale-100 cursor-pointer'
+                    : 'bg-bg-tertiary text-text-muted cursor-not-allowed'
                 }`}
               >
                 Create Quiz

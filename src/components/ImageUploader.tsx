@@ -103,6 +103,7 @@ export function ImageUploader({
           />
           <div className="absolute inset-0 bg-bg-primary/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl flex items-center justify-center gap-2">
             <button
+              type="button"
               onClick={() => fileInputRef.current?.click()}
               className="p-2 bg-bg-secondary rounded-lg text-text-primary hover:text-accent transition-colors"
               title="Change image"
@@ -112,6 +113,7 @@ export function ImageUploader({
               </svg>
             </button>
             <button
+              type="button"
               onClick={handleRemove}
               className="p-2 bg-bg-secondary rounded-lg text-text-primary hover:text-error transition-colors"
               title="Remove image"
@@ -124,6 +126,7 @@ export function ImageUploader({
         </div>
       ) : (
         <button
+          type="button"
           onClick={() => fileInputRef.current?.click()}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}

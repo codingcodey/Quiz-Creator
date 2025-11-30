@@ -42,6 +42,7 @@ export function QuizEditor({
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [showSaved, setShowSaved] = useState(false);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [shakeTitle, setShakeTitle] = useState(false);
   const originalQuizRef = useRef<string>(JSON.stringify(quiz));
   const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -49,7 +50,11 @@ export function QuizEditor({
   const hasUnsavedChanges = JSON.stringify(draft) !== originalQuizRef.current;
 
   // Validation
-  const canSave = draft.questions.length > 0 && draft.questions.every(isQuestionComplete);
+  const isTitleEmpty = !draft.title.trim();
+  const canSave = !isTitleEmpty && draft.questions.length > 0 && draft.questions.every(isQuestionComplete);
+  
+  // Show confirmation if quiz is incomplete OR has unsaved changes
+  const needsConfirmation = !canSave || hasUnsavedChanges;
 
   // Find first incomplete question index
   const findFirstIncompleteQuestion = useCallback((): number => {
@@ -154,7 +159,13 @@ export function QuizEditor({
   const handleSave = useCallback(() => {
     if (!canSave) {
       // Scroll to the first problem area
-      if (draft.questions.length === 0) {
+      if (isTitleEmpty) {
+        const titleInput = document.querySelector('[data-quiz-title]');
+        titleInput?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        (titleInput as HTMLInputElement)?.focus();
+        setShakeTitle(true);
+        setTimeout(() => setShakeTitle(false), 500);
+      } else if (draft.questions.length === 0) {
         const addButtonSection = document.querySelector('[data-add-question]');
         addButtonSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       } else {
@@ -180,21 +191,21 @@ export function QuizEditor({
       clearTimeout(saveTimerRef.current);
     }
     saveTimerRef.current = setTimeout(() => setShowSaved(false), 2000);
-  }, [canSave, draft, onSave, findFirstIncompleteQuestion]);
+  }, [canSave, isTitleEmpty, draft, onSave, findFirstIncompleteQuestion]);
 
   // Handle back with confirmation
   const handleBackClick = useCallback(() => {
-    if (hasUnsavedChanges) {
+    if (needsConfirmation) {
       setShowLeaveConfirm(true);
     } else {
       onBack();
     }
-  }, [hasUnsavedChanges, onBack]);
+  }, [needsConfirmation, onBack]);
 
-  // Warn before leaving page with unsaved changes
+  // Warn before leaving page with incomplete or unsaved quiz
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (hasUnsavedChanges) {
+      if (needsConfirmation) {
         e.preventDefault();
         e.returnValue = '';
         return '';
@@ -202,7 +213,7 @@ export function QuizEditor({
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [hasUnsavedChanges]);
+  }, [needsConfirmation]);
 
   // Handle keyboard shortcuts
   useEffect(() => {
@@ -308,10 +319,15 @@ export function QuizEditor({
                   <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
                 </svg>
               </div>
-              <h3 className="font-serif text-xl text-text-primary">Unsaved Changes</h3>
+              <h3 className="font-serif text-xl text-text-primary">
+                {!canSave ? 'Quiz Not Complete' : 'Unsaved Changes'}
+              </h3>
             </div>
             <p className="text-text-secondary mb-6">
-              Are you sure you want to leave? You have unsaved changes that will be lost.
+              {!canSave 
+                ? 'Your quiz is not complete. Add at least one complete question to save it. Are you sure you want to leave?'
+                : 'You have unsaved changes that will be lost. Are you sure you want to leave?'
+              }
             </p>
             <div className="flex gap-3 justify-end">
               <button
@@ -387,14 +403,25 @@ export function QuizEditor({
 
       <main className="max-w-4xl mx-auto px-6 py-8">
         {/* Quiz Title */}
-        <div className="mb-8">
+        <div className={`mb-8 ${shakeTitle ? 'animate-shake' : ''}`}>
           <input
             type="text"
+            data-quiz-title
             value={draft.title}
             onChange={(e) => updateDraft({ title: e.target.value })}
             placeholder="Quiz Title"
-            className="w-full bg-transparent font-serif text-4xl md:text-5xl text-text-primary placeholder-text-muted focus:outline-none"
+            className={`w-full bg-transparent font-serif text-4xl md:text-5xl text-text-primary placeholder-text-muted focus:outline-none ${
+              isTitleEmpty ? 'border-b-2 border-warning' : ''
+            }`}
           />
+          {isTitleEmpty && (
+            <p className="text-sm text-warning mt-2 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
+              Title is required
+            </p>
+          )}
           <textarea
             value={draft.description}
             onChange={(e) => updateDraft({ description: e.target.value })}
