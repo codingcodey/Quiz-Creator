@@ -1,0 +1,188 @@
+import type { Question, QuizOption } from '../types/quiz';
+import { ImageUploader } from './ImageUploader';
+
+interface QuestionCardProps {
+  question: Question;
+  index: number;
+  onUpdate: (updates: Partial<Question>) => void;
+  onDelete: () => void;
+  onAddOption: () => void;
+  onUpdateOption: (optionId: string, updates: Partial<QuizOption>) => void;
+  onDeleteOption: (optionId: string) => void;
+  onDragStart: () => void;
+  onDragOver: (e: React.DragEvent) => void;
+  onDrop: () => void;
+  isDragging: boolean;
+}
+
+export function QuestionCard({
+  question,
+  index,
+  onUpdate,
+  onDelete,
+  onAddOption,
+  onUpdateOption,
+  onDeleteOption,
+  onDragStart,
+  onDragOver,
+  onDrop,
+  isDragging,
+}: QuestionCardProps) {
+  const canDeleteOption = (question.options?.length ?? 0) > 2;
+
+  return (
+    <div
+      draggable
+      onDragStart={onDragStart}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+      className={`relative bg-bg-secondary border border-border rounded-xl p-5 transition-all ${
+        isDragging ? 'opacity-50 scale-98' : ''
+      }`}
+    >
+      {/* Header */}
+      <div className="flex items-start gap-3 mb-4">
+        {/* Drag handle */}
+        <button
+          className="mt-1 p-1 text-text-muted hover:text-text-secondary cursor-grab active:cursor-grabbing"
+          title="Drag to reorder"
+        >
+          <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm0 6a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm-2 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm8-14a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm-2 8a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm2 4a2 2 0 1 1-4 0 2 2 0 0 1 4 0z" />
+          </svg>
+        </button>
+
+        <div className="flex-1">
+          {/* Question number and type badge */}
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-sm font-medium text-text-muted">
+              Question {index + 1}
+            </span>
+            <span
+              className={`text-xs px-2 py-0.5 rounded-full ${
+                question.type === 'multiple-choice'
+                  ? 'bg-accent/20 text-accent'
+                  : 'bg-blue-500/20 text-blue-400'
+              }`}
+            >
+              {question.type === 'multiple-choice' ? 'Multiple Choice' : 'Type Answer'}
+            </span>
+          </div>
+
+          {/* Question text */}
+          <textarea
+            value={question.text}
+            onChange={(e) => onUpdate({ text: e.target.value })}
+            placeholder="Enter your question..."
+            rows={2}
+            className="w-full bg-transparent text-text-primary text-lg placeholder-text-muted resize-none focus:outline-none"
+          />
+        </div>
+
+        {/* Delete button */}
+        <button
+          onClick={onDelete}
+          className="p-2 text-text-muted hover:text-error transition-colors rounded-lg hover:bg-error/10"
+          title="Delete question"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+            />
+          </svg>
+        </button>
+      </div>
+
+      {/* Image upload */}
+      <div className="mb-4">
+        <ImageUploader
+          image={question.image}
+          onImageChange={(image) => onUpdate({ image })}
+          className="h-32"
+          placeholder="Add image (optional)"
+        />
+      </div>
+
+      {/* Multiple choice options */}
+      {question.type === 'multiple-choice' && question.options && (
+        <div className="space-y-3">
+          <p className="text-sm text-text-muted">Answer options (click to mark correct):</p>
+          
+          {question.options.map((option, optIndex) => (
+            <div key={option.id} className="flex items-center gap-3">
+              {/* Correct answer toggle */}
+              <button
+                onClick={() => onUpdateOption(option.id, { isCorrect: !option.isCorrect })}
+                className={`flex-shrink-0 w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${
+                  option.isCorrect
+                    ? 'border-success bg-success text-bg-primary'
+                    : 'border-border hover:border-success/50'
+                }`}
+                title={option.isCorrect ? 'Correct answer' : 'Mark as correct'}
+              >
+                {option.isCorrect && (
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </button>
+
+              {/* Option text */}
+              <input
+                type="text"
+                value={option.text}
+                onChange={(e) => onUpdateOption(option.id, { text: e.target.value })}
+                placeholder={`Option ${optIndex + 1}`}
+                className="flex-1 bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent/50"
+              />
+
+              {/* Delete option */}
+              {canDeleteOption && (
+                <button
+                  onClick={() => onDeleteOption(option.id)}
+                  className="p-1 text-text-muted hover:text-error transition-colors"
+                  title="Remove option"
+                >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
+            </div>
+          ))}
+
+          {/* Add option button */}
+          {(question.options?.length ?? 0) < 6 && (
+            <button
+              onClick={onAddOption}
+              className="w-full py-2 border border-dashed border-border rounded-lg text-sm text-text-muted hover:border-accent/50 hover:text-accent transition-colors"
+            >
+              + Add Option
+            </button>
+          )}
+        </div>
+      )}
+
+      {/* Type-in answer */}
+      {question.type === 'type-in' && (
+        <div className="space-y-2">
+          <p className="text-sm text-text-muted">Expected answer:</p>
+          <input
+            type="text"
+            value={question.expectedAnswer || ''}
+            onChange={(e) => onUpdate({ expectedAnswer: e.target.value })}
+            placeholder="Enter the correct answer..."
+            className="w-full bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent/50"
+          />
+          <p className="text-xs text-text-muted">
+            This is the answer that will be checked against user input.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
