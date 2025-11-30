@@ -15,8 +15,8 @@ export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
       
       {/* Sliding circle with icon */}
       <span
-        className={`absolute top-1 w-6 h-6 rounded-full bg-accent flex items-center justify-center transition-all duration-300 ease-out shadow-lg ${
-          theme === 'dark' ? 'left-1' : 'left-6'
+        className={`absolute top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-accent flex items-center justify-center transition-all duration-300 ease-out shadow-lg ${
+          theme === 'dark' ? 'left-1' : 'left-7'
         }`}
       >
         {theme === 'dark' ? (
@@ -40,4 +40,3 @@ export function ThemeToggle({ theme, onToggle }: ThemeToggleProps) {
     </button>
   );
 }
-

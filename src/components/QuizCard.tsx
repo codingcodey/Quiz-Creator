@@ -103,4 +103,3 @@ export function QuizCard({ quiz, onEdit, onDelete, onExport, index }: QuizCardPr
     </article>
   );
 }
-

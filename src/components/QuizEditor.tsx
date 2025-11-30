@@ -75,7 +75,16 @@ export function QuizEditor({
   );
 
   return (
-    <div className="min-h-screen bg-bg-primary pb-20">
+    <div 
+      className="min-h-screen pb-20"
+      style={{
+        background: `
+          radial-gradient(ellipse 80% 50% at 50% 0%, var(--color-accent-muted) 0%, transparent 50%),
+          radial-gradient(ellipse 60% 40% at 80% 100%, var(--color-accent-muted) 0%, transparent 40%),
+          var(--color-bg-primary)
+        `
+      }}
+    >
       {/* Header */}
       <header className="sticky top-0 z-10 bg-bg-primary/80 backdrop-blur-md border-b border-border">
         <div className="max-w-4xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -224,4 +233,3 @@ export function QuizEditor({
     </div>
   );
 }
-

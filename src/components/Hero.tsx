@@ -5,11 +5,11 @@ interface HeroProps {
 
 export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
   return (
-    <section className="relative overflow-hidden py-20 px-6 md:py-32">
+    <section className="relative overflow-hidden min-h-screen flex flex-col items-center justify-center px-6">
       {/* Background gradient effect */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent/5 rounded-full blur-3xl" />
-        <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-accent/10 rounded-full blur-2xl" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent/10 rounded-full blur-3xl" />
+        <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-accent/15 rounded-full blur-2xl" />
       </div>
 
       <div className="relative max-w-4xl mx-auto text-center">
@@ -64,7 +64,7 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
                 d="M12 4v16m8-8H4"
               />
             </svg>
-            Create Your First Quiz
+            {quizCount === 0 ? 'Create Your First Quiz' : 'Create New Quiz'}
           </button>
         </div>
 
@@ -81,4 +81,3 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
     </section>
   );
 }
-
