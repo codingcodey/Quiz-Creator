@@ -109,7 +109,7 @@ export function AuthScreen({ theme, onToggleTheme }: AuthScreenProps) {
           <button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="btn-shimmer w-full flex items-center justify-center gap-3 px-6 py-4 bg-bg-primary border border-border rounded-xl hover:border-accent/50 hover:bg-bg-tertiary hover:shadow-lg hover:shadow-accent/10 hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 group"
+            className="btn-shimmer w-full flex items-center justify-center gap-3 px-6 py-4 bg-bg-primary border-2 border-border rounded-xl hover:border-accent/60 hover:bg-bg-tertiary hover:shadow-xl hover:shadow-accent/20 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 group"
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-text-muted border-t-accent rounded-full animate-spin" />
@@ -147,7 +147,7 @@ export function AuthScreen({ theme, onToggleTheme }: AuthScreenProps) {
         </div>
 
         {/* Features preview */}
-        <div className="mt-10 grid grid-cols-3 gap-4">
+        <div className="mt-10 grid grid-cols-3 gap-2 sm:gap-4">
           {[
             { icon: '✨', label: 'Create', delay: 'stagger-5' },
             { icon: '🎯', label: 'Practice', delay: 'stagger-6' },
@@ -155,10 +155,10 @@ export function AuthScreen({ theme, onToggleTheme }: AuthScreenProps) {
           ].map((item) => (
             <div
               key={item.label}
-              className={`opacity-0 animate-feature-pop ${item.delay} flex flex-col items-center gap-2 p-4 bg-bg-secondary/50 border border-border/50 rounded-xl hover:border-accent/30 hover:bg-bg-secondary/70 hover:-translate-y-1 transition-all duration-300 cursor-default`}
+              className={`opacity-0 animate-feature-pop ${item.delay} flex flex-col items-center gap-1 sm:gap-2 p-3 sm:p-4 bg-bg-secondary/50 border border-border/50 rounded-xl hover:border-accent/30 hover:bg-bg-secondary/70 hover:-translate-y-1 transition-all duration-300 cursor-default`}
             >
-              <span className="text-2xl">{item.icon}</span>
-              <span className="text-text-secondary text-sm">{item.label}</span>
+              <span className="text-xl sm:text-2xl">{item.icon}</span>
+              <span className="text-text-secondary text-xs sm:text-sm">{item.label}</span>
             </div>
           ))}
         </div>

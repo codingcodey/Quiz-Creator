@@ -37,18 +37,18 @@ export function Dashboard({
     >
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex items-center justify-between mb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           <div>
             <h2 className="font-serif text-3xl text-text-primary">Your Quizzes</h2>
             <p className="mt-1 text-text-secondary">
-              {quizzes.length} quiz{quizzes.length !== 1 ? 'zes' : ''} saved
+              <span className="text-accent font-medium">{quizzes.length}</span> quiz{quizzes.length !== 1 ? 'zes' : ''} saved
             </p>
           </div>
           <button
             onClick={onCreateQuiz}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300"
+            className="btn-shimmer inline-flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 transition-all duration-300 group"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
             </svg>
             New Quiz

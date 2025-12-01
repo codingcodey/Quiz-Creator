@@ -13,18 +13,25 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
 
   return (
     <section className="relative overflow-hidden min-h-screen flex flex-col items-center justify-center px-6">
-      {/* Background gradient effect */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent/10 rounded-full blur-3xl" />
-        <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-accent/15 rounded-full blur-2xl" />
+      {/* Animated background orbs */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent/10 rounded-full blur-3xl animate-glow-pulse" />
+        <div className="absolute top-1/4 right-1/4 w-[400px] h-[400px] bg-accent/15 rounded-full blur-2xl animate-orb-1" />
+        <div className="absolute bottom-1/3 left-1/5 w-[300px] h-[300px] bg-accent/10 rounded-full blur-2xl animate-orb-2" />
+        
+        {/* Sparkle particles */}
+        <div className="absolute top-1/3 left-1/4 w-1.5 h-1.5 bg-accent/50 rounded-full animate-sparkle" style={{ animationDelay: '0s' }} />
+        <div className="absolute top-1/4 right-1/3 w-2 h-2 bg-accent/40 rounded-full animate-sparkle" style={{ animationDelay: '0.5s' }} />
+        <div className="absolute bottom-1/4 left-1/3 w-1 h-1 bg-accent/60 rounded-full animate-sparkle" style={{ animationDelay: '1s' }} />
+        <div className="absolute top-2/3 right-1/4 w-1.5 h-1.5 bg-accent/50 rounded-full animate-sparkle" style={{ animationDelay: '1.5s' }} />
       </div>
 
       <div className="relative max-w-4xl mx-auto text-center">
         {/* Badge */}
-        <div className="opacity-0 animate-fade-in-up stagger-1">
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-muted text-accent text-sm font-medium border border-accent/20">
+        <div className="opacity-0 animate-fade-in-scale stagger-1">
+          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-muted text-accent text-sm font-medium border border-accent/20 hover-lift">
             <svg
-              className="w-4 h-4"
+              className="w-4 h-4 animate-float-subtle"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -43,7 +50,7 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
         {/* Main heading */}
         <h1 className="mt-8 font-serif text-5xl md:text-7xl lg:text-8xl text-text-primary leading-[1.1] opacity-0 animate-fade-in-up stagger-2">
           Craft Beautiful{' '}
-          <span className="text-accent italic">Quizzes</span>
+          <span className="text-accent italic animate-text-glow">Quizzes</span>
         </h1>
 
         {/* Subheading */}
@@ -56,10 +63,10 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0 animate-fade-in-up stagger-4">
           <button
             onClick={onCreateQuiz}
-            className="group relative inline-flex items-center gap-2 px-8 py-4 bg-accent text-bg-primary font-semibold rounded-xl hover:bg-accent-hover transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            className="btn-shimmer group relative inline-flex items-center gap-2 px-8 py-4 bg-accent text-bg-primary font-semibold rounded-xl hover:bg-accent-hover transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-accent/30 active:scale-[0.98] press-scale"
           >
             <svg
-              className="w-5 h-5 transition-transform group-hover:rotate-90"
+              className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -78,7 +85,7 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
         {/* Stats */}
         {quizCount > 0 && (
           <p className="mt-8 text-text-muted text-sm opacity-0 animate-fade-in-up stagger-5">
-            You have {quizCount} quiz{quizCount !== 1 ? 'zes' : ''} saved locally
+            You have <span className="text-accent font-medium">{quizCount}</span> quiz{quizCount !== 1 ? 'zes' : ''} saved locally
           </p>
         )}
       </div>
@@ -87,7 +94,7 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
       {quizCount > 0 && (
         <button
           onClick={handleScrollDown}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-muted hover:text-accent transition-colors opacity-0 animate-fade-in-up stagger-5 animate-bounce-slow"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-muted hover:text-accent transition-colors opacity-0 animate-fade-in-up stagger-6 animate-bounce-slow"
           aria-label="Scroll down to view quizzes"
         >
           <svg
@@ -106,8 +113,8 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
         </button>
       )}
 
-      {/* Decorative elements */}
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+      {/* Decorative bottom line */}
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent opacity-0 animate-fade-in stagger-5" />
     </section>
   );
 }

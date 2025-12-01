@@ -217,7 +217,7 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
   if (gameState === 'intro') {
     return (
       <div
-        className="min-h-screen flex items-center justify-center py-12 px-6"
+        className="min-h-screen flex items-center justify-center py-12 px-6 relative overflow-hidden"
         style={{
           background: `
             radial-gradient(ellipse 100% 70% at 50% 0%, var(--color-accent-muted) 0%, transparent 60%),
@@ -226,25 +226,31 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
           `,
         }}
       >
-        <div className="fixed top-4 right-4 z-50">
+        {/* Background orbs */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] bg-accent/10 rounded-full blur-2xl animate-orb-1" />
+          <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] bg-accent/15 rounded-full blur-2xl animate-orb-2" />
+        </div>
+
+        <div className="fixed top-4 right-4 z-50 opacity-0 animate-fade-in stagger-1">
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
         </div>
 
-        <div className="max-w-lg w-full text-center animate-fade-in">
+        <div className="max-w-lg w-full text-center relative z-10">
           {quiz.coverImage ? (
-            <div className="relative w-28 h-28 mx-auto mb-6 rounded-2xl overflow-hidden shadow-xl">
+            <div className="relative w-28 h-28 mx-auto mb-6 rounded-2xl overflow-hidden shadow-xl opacity-0 animate-fade-in-scale stagger-1 animate-float-subtle">
               <img src={quiz.coverImage} alt={quiz.title} className="w-full h-full object-cover" />
             </div>
           ) : (
-            <div className="w-28 h-28 mx-auto mb-6 rounded-2xl bg-bg-secondary border border-border flex items-center justify-center">
+            <div className="w-28 h-28 mx-auto mb-6 rounded-2xl bg-bg-secondary border border-border flex items-center justify-center opacity-0 animate-fade-in-scale stagger-1 animate-float-subtle">
               <span className="text-4xl text-accent font-serif">Q</span>
             </div>
           )}
 
-          <h1 className="font-serif text-3xl md:text-4xl text-text-primary mb-2">{quiz.title}</h1>
-          {quiz.description && <p className="text-text-secondary mb-6">{quiz.description}</p>}
+          <h1 className="font-serif text-3xl md:text-4xl text-text-primary mb-2 opacity-0 animate-fade-in-up stagger-2">{quiz.title}</h1>
+          {quiz.description && <p className="text-text-secondary mb-6 opacity-0 animate-fade-in-up stagger-3">{quiz.description}</p>}
 
-          <div className="flex items-center justify-center gap-4 mb-8 text-sm text-text-muted">
+          <div className="flex items-center justify-center gap-4 mb-8 text-sm text-text-muted opacity-0 animate-fade-in-up stagger-3">
             <span className="flex items-center gap-1.5">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -255,14 +261,14 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
 
           <button
             onClick={handleStartQuiz}
-            className="w-full py-4 bg-accent text-bg-primary rounded-xl font-medium text-lg hover:bg-accent-hover transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] mb-3"
+            className="btn-shimmer w-full py-4 bg-accent text-bg-primary rounded-xl font-medium text-lg hover:bg-accent-hover hover:shadow-xl hover:shadow-accent/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] mb-3 opacity-0 animate-fade-in-up stagger-4"
           >
             Start Quiz
           </button>
-          <button onClick={onBack} className="w-full py-3 text-text-secondary hover:text-text-primary transition-colors text-sm">
+          <button onClick={onBack} className="w-full py-3 text-text-secondary hover:text-text-primary transition-colors text-sm opacity-0 animate-fade-in stagger-5">
             Back to Dashboard
           </button>
-          <p className="mt-4 text-xs text-text-muted">Press Enter or Space to start</p>
+          <p className="mt-4 text-xs text-text-muted opacity-0 animate-fade-in stagger-5">Press Enter or Space to start</p>
         </div>
       </div>
     );
@@ -288,7 +294,7 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
 
     return (
       <div
-        className="min-h-screen py-12 px-6"
+        className="min-h-screen py-12 px-6 relative overflow-hidden"
         style={{
           background: `
             radial-gradient(ellipse 100% 70% at 50% 0%, var(--color-accent-muted) 0%, transparent 60%),
@@ -297,32 +303,40 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
           `,
         }}
       >
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8 animate-fade-in">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-accent/20 mb-4 animate-bounce-slow">
+        {/* Celebration orbs for good scores */}
+        {results.percentage >= 60 && (
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute top-1/4 left-1/4 w-[200px] h-[200px] bg-success/10 rounded-full blur-2xl animate-orb-1" />
+            <div className="absolute bottom-1/3 right-1/4 w-[250px] h-[250px] bg-accent/15 rounded-full blur-2xl animate-orb-2" />
+          </div>
+        )}
+
+        <div className="max-w-2xl mx-auto relative z-10">
+          <div className="text-center mb-8">
+            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-accent/20 mb-4 opacity-0 animate-feature-pop stagger-1">
               <span className="text-4xl">{getEmoji()}</span>
             </div>
-            <h1 className="font-serif text-3xl md:text-4xl text-text-primary mb-1">{getMessage()}</h1>
-            <p className="text-text-secondary text-sm">{quiz.title}</p>
+            <h1 className="font-serif text-3xl md:text-4xl text-text-primary mb-1 opacity-0 animate-fade-in-up stagger-2">{getMessage()}</h1>
+            <p className="text-text-secondary text-sm opacity-0 animate-fade-in stagger-3">{quiz.title}</p>
           </div>
 
-          <div className="bg-bg-secondary border border-border rounded-2xl p-6 mb-6 text-center animate-fade-in-up">
-            <p className="text-6xl font-bold text-accent mb-1">{results.percentage}%</p>
+          <div className="bg-bg-secondary border border-border rounded-2xl p-6 mb-6 text-center opacity-0 animate-card-entrance stagger-3">
+            <p className="text-6xl font-bold text-accent mb-1 animate-count-up">{results.percentage}%</p>
             <p className="text-text-secondary">
               <span className="text-text-primary font-semibold">{results.correct}</span> of{' '}
               <span className="text-text-primary font-semibold">{results.total}</span> correct
             </p>
 
             <div className="flex items-center justify-center gap-6 mt-4 pt-4 border-t border-border text-sm">
-              <div className="text-center">
+              <div className="text-center opacity-0 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
                 <p className="text-xl font-bold text-accent">{results.maxStreak}</p>
                 <p className="text-text-muted">Best Streak 🔥</p>
               </div>
-              <div className="text-center">
+              <div className="text-center opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
                 <p className="text-xl font-bold text-success">{results.correct}</p>
                 <p className="text-text-muted">Correct ✓</p>
               </div>
-              <div className="text-center">
+              <div className="text-center opacity-0 animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
                 <p className="text-xl font-bold text-error">{results.total - results.correct}</p>
                 <p className="text-text-muted">Wrong ✗</p>
               </div>
@@ -332,11 +346,12 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
           <QuestionDots />
 
           <div className="space-y-3 mb-6 mt-4">
-            <h2 className="font-serif text-lg text-text-primary">Review</h2>
+            <h2 className="font-serif text-lg text-text-primary opacity-0 animate-fade-in-up stagger-4">Review</h2>
             {results.questionResults.map((result, index) => (
               <div
                 key={result.question.id}
-                className={`bg-bg-secondary border-2 rounded-xl p-3 ${result.isCorrect ? 'border-success/30' : 'border-error/30'}`}
+                className={`bg-bg-secondary border-2 rounded-xl p-3 opacity-0 animate-fade-in-up hover:-translate-y-0.5 transition-transform duration-200 ${result.isCorrect ? 'border-success/30' : 'border-error/30'}`}
+                style={{ animationDelay: `${0.5 + index * 0.05}s` }}
               >
                 <div className="flex items-start gap-2">
                   <div className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-white text-xs ${result.isCorrect ? 'bg-success' : 'bg-error'}`}>
@@ -351,11 +366,11 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
             ))}
           </div>
 
-          <div className="flex gap-3 justify-center">
-            <button onClick={handleRestart} className="px-5 py-2.5 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 transition-all duration-300">
+          <div className="flex gap-3 justify-center opacity-0 animate-fade-in-up stagger-5">
+            <button onClick={handleRestart} className="px-5 py-2.5 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 transition-all duration-300">
               Play Again
             </button>
-            <button onClick={onBack} className="px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover transition-all duration-300">
+            <button onClick={onBack} className="btn-shimmer px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30 active:translate-y-0 transition-all duration-300">
               Done
             </button>
           </div>
@@ -543,8 +558,8 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
             <button
               onClick={handleSubmitAnswer}
               disabled={!hasAnswered}
-              className={`w-full py-3.5 rounded-xl font-medium transition-all duration-300 ${
-                hasAnswered ? 'bg-accent text-bg-primary hover:bg-accent-hover' : 'bg-bg-tertiary text-text-muted cursor-not-allowed'
+              className={`btn-shimmer w-full py-3.5 rounded-xl font-medium transition-all duration-300 ${
+                hasAnswered ? 'bg-accent text-bg-primary hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 active:translate-y-0' : 'bg-bg-tertiary text-text-muted cursor-not-allowed'
               }`}
             >
               Check Answer
@@ -552,10 +567,10 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
           ) : (
             <button
               onClick={handleNext}
-              className="w-full py-3.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover transition-all duration-300 flex items-center justify-center gap-2"
+              className="btn-shimmer w-full py-3.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 flex items-center justify-center gap-2 group"
             >
               {currentIndex === totalQuestions - 1 ? 'See Results' : 'Next'}
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>

@@ -8,7 +8,7 @@ A beautiful quiz creation and practice app built with React, TypeScript, and Tai
 - Practice quizzes with instant feedback
 - Import/export quizzes as JSON
 - Dark/light theme support
-- Google authentication
+- Google authentication via Supabase
 - Local storage for quiz data
 
 ## Getting Started
@@ -17,6 +17,7 @@ A beautiful quiz creation and practice app built with React, TypeScript, and Tai
 
 - Node.js 18+
 - npm or yarn
+- Supabase project
 
 ### Installation
 
@@ -26,24 +27,19 @@ A beautiful quiz creation and practice app built with React, TypeScript, and Tai
    npm install
    ```
 
-### Firebase Setup (Required for Authentication)
+### Supabase Setup (Required for Authentication)
 
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Create a new project (or use an existing one)
-3. Go to **Authentication** → **Sign-in method** → Enable **Google**
-4. Go to **Project Settings** → **General** → **Your apps** → Click **Add app** (Web)
-5. Copy the config values and create a `.env` file in the project root:
+1. Go to your [Supabase Dashboard](https://supabase.com/dashboard)
+2. Select your project (or create one)
+3. Go to **Authentication** → **Providers** → Enable **Google**
+4. Add your Google OAuth credentials (Client ID and Secret from Google Cloud Console)
+5. Go to **Project Settings** → **API** and copy your credentials
+6. Create a `.env` file in the project root:
 
 ```env
-VITE_FIREBASE_API_KEY=your_api_key_here
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-anon-key-here
 ```
-
-6. In Firebase Console, go to **Authentication** → **Settings** → **Authorized domains** and add your domain (for local dev, `localhost` is already included)
 
 ### Running the App
 
@@ -65,7 +61,7 @@ npm run build
 - TypeScript
 - Tailwind CSS 4
 - Vite 7
-- Firebase Authentication
+- Supabase Authentication
 
 ## License
 

@@ -86,8 +86,12 @@ function App() {
   // Show loading state
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg-primary flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
+      <div className="min-h-screen bg-bg-primary flex items-center justify-center relative overflow-hidden">
+        {/* Background glow */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-accent/10 rounded-full blur-3xl animate-glow-pulse" />
+        </div>
+        <div className="flex flex-col items-center gap-4 relative z-10 animate-fade-in">
           <div className="w-12 h-12 border-3 border-accent/30 border-t-accent rounded-full animate-spin" />
           <p className="text-text-secondary">Loading...</p>
         </div>
@@ -130,7 +134,7 @@ function App() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-bg-primary">
-        <div className="fixed top-4 left-4 z-50 flex items-center gap-3">
+        <div className="fixed top-4 left-4 z-50 flex items-center gap-3 opacity-0 animate-slide-in-left stagger-1">
           <input
             ref={fileInputRef}
             type="file"
@@ -144,30 +148,30 @@ function App() {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="flex items-center gap-2 px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300 text-sm"
+            className="group flex items-center gap-2 px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 transition-all duration-300 text-sm"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m4-8l-4-4m0 0l-4 4m4-4v12" />
             </svg>
             Import
           </button>
         </div>
-        <div className="fixed top-4 right-4 z-50 flex items-center gap-3">
+        <div className="fixed top-4 right-4 z-50 flex items-center gap-3 opacity-0 animate-slide-in-right stagger-1">
           {/* User info */}
-          <div className="flex items-center gap-3 px-3 py-2 bg-bg-secondary border border-border rounded-lg">
-            {user.photoURL && (
+          <div className="flex items-center gap-3 px-3 py-2 bg-bg-secondary border border-border rounded-lg hover:border-accent/30 transition-colors duration-300">
+            {user.user_metadata?.avatar_url && (
               <img
-                src={user.photoURL}
-                alt={user.displayName || 'User'}
-                className="w-7 h-7 rounded-full border border-border"
+                src={user.user_metadata.avatar_url}
+                alt={user.user_metadata?.full_name || 'User'}
+                className="w-7 h-7 rounded-full border border-border transition-transform duration-300 hover:scale-110"
               />
             )}
             <span className="text-text-secondary text-sm hidden sm:block max-w-[120px] truncate">
-              {user.displayName || user.email}
+              {user.user_metadata?.full_name || user.email}
             </span>
             <button
               onClick={signOut}
-              className="text-text-muted hover:text-error transition-colors"
+              className="text-text-muted hover:text-error hover:scale-110 active:scale-95 transition-all duration-200"
               title="Sign out"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
