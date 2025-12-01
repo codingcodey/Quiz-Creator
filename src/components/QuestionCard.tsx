@@ -100,12 +100,12 @@ export function QuestionCard({
         onDragLeave={onDragLeave}
         onDragEnd={onDragEnd}
         onDrop={onDrop}
-        className={`relative bg-bg-secondary border-2 rounded-xl p-5 transition-all cursor-grab active:cursor-grabbing ${
+        className={`relative bg-bg-secondary border-2 rounded-2xl p-5 transition-all duration-300 cursor-grab active:cursor-grabbing ${
           isDragging 
             ? 'opacity-50 scale-[0.98] border-border' 
             : isDragOver 
             ? 'border-accent border-dashed bg-accent/5' 
-            : 'border-border border-solid hover:border-accent/30 hover:shadow-md hover:shadow-accent/5 hover:-translate-y-0.5'
+            : 'border-border border-solid hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5'
         }`}
       >
       {/* Header */}
@@ -166,7 +166,7 @@ export function QuestionCard({
           image={question.image}
           onImageChange={(image) => onUpdate({ image })}
           className="h-32"
-          placeholder="Add image (optional)"
+          placeholder="Add image"
         />
       </div>
 

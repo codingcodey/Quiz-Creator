@@ -56,7 +56,7 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0 animate-fade-in-up stagger-4">
           <button
             onClick={onCreateQuiz}
-            className="group relative inline-flex items-center gap-2 px-8 py-4 bg-accent text-bg-primary font-semibold rounded-xl hover:bg-accent-hover transition-all duration-300 hover:scale-105 active:scale-100"
+            className="group relative inline-flex items-center gap-2 px-8 py-4 bg-accent text-bg-primary font-semibold rounded-xl hover:bg-accent-hover transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
           >
             <svg
               className="w-5 h-5 transition-transform group-hover:rotate-90"

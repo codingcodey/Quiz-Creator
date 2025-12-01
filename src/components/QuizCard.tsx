@@ -114,7 +114,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
               e.stopPropagation();
               onPlay();
             }}
-            className="absolute bottom-4 right-4 z-10 w-11 h-11 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-105 active:scale-95 transition-all shadow-lg shadow-accent/25"
+            className="absolute bottom-4 right-4 z-10 w-11 h-11 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 shadow-lg shadow-accent/25"
             title="Play quiz"
           >
             <svg className="w-5 h-5 ml-0.5" fill="currentColor" viewBox="0 0 24 24">

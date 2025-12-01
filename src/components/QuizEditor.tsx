@@ -309,7 +309,7 @@ export function QuizEditor({
       {/* Leave Confirmation Modal */}
       {showLeaveConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl">
+          <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-fade-in">
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
                 <svg className="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
@@ -388,7 +388,7 @@ export function QuizEditor({
 
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -438,7 +438,7 @@ export function QuizEditor({
 
           <button
             onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all"
+            className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -499,23 +499,23 @@ export function QuizEditor({
           </div>
 
           {draft.questions.length === 0 ? (
-            <div className="py-12 text-center border-2 border-dashed border-border rounded-xl">
-              <svg
-                className="w-12 h-12 mx-auto text-text-muted mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <p className="text-text-muted mb-2">No questions yet</p>
-              <p className="text-sm text-text-muted">
-                Add your first question using the buttons below
+            <div className="py-12 text-center border-2 border-dashed border-warning/50 bg-warning/5 rounded-xl">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-warning/20 flex items-center justify-center">
+                <svg
+                  className="w-6 h-6 text-warning"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              </div>
+              <p className="text-warning font-medium mb-2">No questions yet</p>
+              <p className="text-sm text-text-secondary">
+                Add at least one question to save your quiz
               </p>
             </div>
           ) : (
@@ -553,7 +553,7 @@ export function QuizEditor({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-4" data-add-question>
             <button
               onClick={() => addQuestion('multiple-choice')}
-              className="flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:text-accent transition-all"
+              className="flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -562,7 +562,7 @@ export function QuizEditor({
             </button>
             <button
               onClick={() => addQuestion('multi-select')}
-              className="flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-purple-400/50 hover:text-purple-400 transition-all"
+              className="flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-purple-400/50 hover:text-purple-400 transition-all duration-300"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
@@ -571,7 +571,7 @@ export function QuizEditor({
             </button>
             <button
               onClick={() => addQuestion('type-in')}
-              className="flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-blue-400/50 hover:text-blue-400 transition-all"
+              className="flex items-center justify-center gap-2 py-4 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-blue-400/50 hover:text-blue-400 transition-all duration-300"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
