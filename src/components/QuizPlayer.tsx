@@ -366,7 +366,7 @@ export function QuizPlayer({ quiz, onBack, onExitDemoMode, theme, onToggleTheme,
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
         </div>
 
-        <div className="max-w-lg w-full text-center relative z-10">
+        <div className="max-w-lg w-full text-center relative z-10 -mt-[6vh]">
           {quiz.coverImage ? (
             <div className="relative w-28 h-28 mx-auto mb-6 rounded-2xl overflow-hidden shadow-xl opacity-0 animate-fade-in-scale stagger-1 animate-float-subtle">
               <img src={quiz.coverImage} alt={quiz.title} className="w-full h-full object-cover" />

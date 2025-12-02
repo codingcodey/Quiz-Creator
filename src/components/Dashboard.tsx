@@ -45,6 +45,7 @@ export function Dashboard({
   totalStats,
 }: DashboardProps) {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'title'>('newest');
+  const [isSortOpen, setIsSortOpen] = useState(false);
 
   // Sort quizzes
   const sortedQuizzes = [...quizzes].sort((a, b) => {
@@ -141,7 +142,7 @@ export function Dashboard({
               </div>
             )}
             
-            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
               {/* Favorites filter */}
               {onToggleFavoritesOnly && (
                 <button
@@ -159,16 +160,49 @@ export function Dashboard({
                 </button>
               )}
 
-              {/* Sort dropdown */}
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="px-4 py-2.5 bg-bg-tertiary border border-border rounded-xl text-sm text-text-primary focus:outline-none focus:border-accent focus:ring focus:ring-accent/10 cursor-pointer hover:border-accent/30 transition-all duration-300"
-              >
-                <option value="newest">Newest</option>
-                <option value="oldest">Oldest</option>
-                <option value="title">A-Z</option>
-              </select>
+              {/* Sort dropdown - custom to avoid heavy native highlight */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setIsSortOpen((open) => !open)}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-bg-tertiary border border-border rounded-xl text-sm text-text-primary hover:border-accent/40 hover:text-accent transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
+                >
+                  <span>
+                    {sortBy === 'newest' && 'Newest'}
+                    {sortBy === 'oldest' && 'Oldest'}
+                    {sortBy === 'title' && 'A-Z'}
+                  </span>
+                  <svg className="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {isSortOpen && (
+                  <div className="absolute right-0 mt-2 w-40 rounded-xl bg-bg-secondary border border-border shadow-xl z-30 py-1">
+                    {[
+                      { value: 'newest' as const, label: 'Newest' },
+                      { value: 'oldest' as const, label: 'Oldest' },
+                      { value: 'title' as const, label: 'A-Z' },
+                    ].map((opt) => (
+                      <button
+                        key={opt.value}
+                        type="button"
+                        onClick={() => {
+                          setSortBy(opt.value);
+                          setIsSortOpen(false);
+                        }}
+                        className={`w-full px-3 py-2 text-left text-sm flex items-center gap-2 hover:bg-bg-tertiary ${
+                          sortBy === opt.value ? 'text-accent' : 'text-text-primary'
+                        }`}
+                      >
+                        {sortBy === opt.value && (
+                          <span className="text-accent text-xs">✓</span>
+                        )}
+                        <span>{opt.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}

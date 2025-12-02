@@ -32,6 +32,7 @@ interface QuizEditorProps {
   onExport: (quiz: Quiz) => void;
   onBack: () => void;
   onPlay?: () => void;
+  disableLeaveConfirm?: boolean;
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
   onEnableSharing?: () => string;
@@ -44,6 +45,7 @@ export function QuizEditor({
   onExport,
   onBack,
   onPlay,
+  disableLeaveConfirm,
   theme,
   onToggleTheme,
   onEnableSharing,
@@ -226,12 +228,12 @@ export function QuizEditor({
 
   // Handle back with confirmation
   const handleBackClick = useCallback(() => {
-    if (needsConfirmation) {
+    if (!disableLeaveConfirm && needsConfirmation) {
       setShowLeaveConfirm(true);
     } else {
       onBack();
     }
-  }, [needsConfirmation, onBack]);
+  }, [needsConfirmation, disableLeaveConfirm, onBack]);
 
   // Handle enable sharing
   const handleEnableSharing = useCallback(() => {
@@ -443,10 +445,9 @@ export function QuizEditor({
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
         </div>
         
-        {/* Mobile: Two rows for better organization */}
+        {/* Mobile: Single compact row with horizontal actions */}
         <div className="md:hidden px-4 py-3">
-          {/* First row: Back, Save, and Play */}
-          <div className="flex items-center justify-between mb-2 gap-2">
+          <div className="flex items-center justify-between gap-2">
             <button
               onClick={handleBackClick}
               className="flex items-center gap-2 px-2 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300 group rounded-lg hover:bg-bg-secondary min-h-[44px]"
@@ -456,11 +457,10 @@ export function QuizEditor({
               </svg>
               <span className="font-medium">Back</span>
             </button>
-
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 overflow-x-auto">
               <button
                 onClick={handleSave}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg font-medium transition-all min-h-[44px] ${
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg font-medium transition-all min-h-[44px] whitespace-nowrap ${
                   showSaved
                     ? 'bg-success text-white cursor-default'
                     : canSave
@@ -480,7 +480,7 @@ export function QuizEditor({
 
               <button
                 onClick={handlePlay}
-                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg font-medium transition-all min-h-[44px] ${
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg font-medium transition-all min-h-[44px] whitespace-nowrap ${
                   isQuizValid
                     ? 'bg-accent text-bg-primary hover:bg-accent-hover shadow-lg shadow-accent/25 cursor-pointer'
                     : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
@@ -491,11 +491,8 @@ export function QuizEditor({
                 </svg>
                 <span className="hidden xs:inline">Play</span>
               </button>
-            </div>
-          </div>
 
-          {/* Second row: Settings, Share, Export, Theme */}
-          <div className="flex items-center justify-between gap-2">
+              {/* Secondary icon buttons */}
             <button
               onClick={() => setShowSettings(true)}
               className="flex items-center justify-center p-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300 min-h-[44px] min-w-[44px]"
@@ -532,6 +529,7 @@ export function QuizEditor({
             </button>
 
             <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+            </div>
           </div>
         </div>
 
