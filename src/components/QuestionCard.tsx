@@ -108,7 +108,7 @@ export function QuestionCard({
               Question {index + 1}
             </span>
             <span
-              className={`text-xs px-2 py-0.5 rounded-full ${
+              className={`text-xs px-2 py-0.5 rounded-full whitespace-nowrap ${
                 question.type === 'multiple-choice'
                   ? 'bg-accent/20 text-accent'
                   : question.type === 'multi-select'
@@ -116,7 +116,7 @@ export function QuestionCard({
                   : 'bg-blue-500/20 text-blue-400'
               }`}
             >
-              {question.type === 'multiple-choice' ? 'Multiple Choice' : question.type === 'multi-select' ? 'Multi-Select' : 'Type Answer'}
+              {question.type === 'multiple-choice' ? 'Multiple Choice' : question.type === 'multi-select' ? 'Multi Select' : 'Type Answer'}
             </span>
           </div>
 

@@ -360,8 +360,9 @@ export function QuizEditor({
     >
       {/* Leave Confirmation Modal */}
       {showLeaveConfirm && (
-        <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
-          <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-modal">
+        <div className="modal-backdrop fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop overflow-y-auto">
+          <div className="min-h-screen w-full flex items-center justify-center p-4">
+            <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md w-full shadow-2xl animate-modal" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
                 <svg className="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
@@ -395,6 +396,7 @@ export function QuizEditor({
                 Leave Without Saving
               </button>
             </div>
+            </div>
           </div>
         </div>
       )}
@@ -417,9 +419,9 @@ export function QuizEditor({
       />
 
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-bg-primary/80 backdrop-blur-md border-b border-border">
+      <header className="sticky top-0 z-[100] bg-bg-primary/80 backdrop-blur-md border-b border-border">
         {/* Theme toggle - fixed right on desktop */}
-        <div className="hidden md:block fixed top-4 right-4 z-50">
+        <div className="hidden md:block fixed top-4 right-4 z-[110]">
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
         </div>
         
@@ -665,24 +667,22 @@ export function QuizEditor({
           </div>
 
           {draft.questions.length === 0 ? (
-            <div className="py-12 text-center border-2 border-dashed border-border rounded-xl">
-              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-bg-tertiary flex items-center justify-center">
+            <div className="py-12 text-center border-2 border-dashed border-warning/50 bg-warning/10 rounded-xl">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-warning/20 flex items-center justify-center">
                 <svg
-                  className="w-6 h-6 text-text-muted"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+                  className="w-6 h-6 text-warning"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
                 >
                   <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 4v16m8-8H4"
+                    fillRule="evenodd"
+                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+                    clipRule="evenodd"
                   />
                 </svg>
               </div>
-              <p className="text-text-secondary font-medium mb-2">No questions yet</p>
-              <p className="text-sm text-text-muted">
+              <p className="text-warning font-semibold mb-2 bg-warning/20 inline-block px-3 py-1 rounded-lg">No questions yet</p>
+              <p className="text-sm text-text-secondary mt-2">
                 Add at least one question to save your quiz
               </p>
             </div>
@@ -735,7 +735,7 @@ export function QuizEditor({
               <svg className="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
               </svg>
-              <span>Multi-Select</span>
+              <span className="whitespace-nowrap">Multi Select</span>
             </button>
             <button
               onClick={() => addQuestion('type-in')}

@@ -45,14 +45,16 @@ export function Modal({ isOpen, onClose, children, maxWidth = 'md' }: ModalProps
 
   return (
     <div
-      className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop"
+      className="modal-backdrop fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop overflow-y-auto"
       onClick={onClose}
     >
-      <div
-        className={`bg-bg-secondary border border-border rounded-2xl p-6 ${maxWidthClasses[maxWidth]} mx-4 shadow-2xl animate-modal`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {children}
+      <div className="min-h-screen w-full flex items-center justify-center p-4">
+        <div
+          className={`bg-bg-secondary border border-border rounded-2xl p-6 ${maxWidthClasses[maxWidth]} w-full shadow-2xl animate-modal`}
+          onClick={(e) => e.stopPropagation()}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
