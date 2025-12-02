@@ -38,13 +38,24 @@ export function AccessibilitySettings({ isOpen, onClose }: AccessibilitySettings
   ];
 
   return (
-    <div 
-      className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop"
+    <div
+      className="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-backdrop"
       role="dialog"
       aria-modal="true"
       aria-labelledby="accessibility-title"
     >
-      <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl animate-modal">
+      <div
+        className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl animate-modal"
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          maxHeight: 'calc(100vh - 2rem)',
+          margin: 0,
+          boxSizing: 'border-box'
+        }}
+      >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">

@@ -380,8 +380,20 @@ export function QuizEditor({
     >
       {/* Leave Confirmation Modal */}
       {showLeaveConfirm && (
-        <div className="modal-backdrop fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop p-4">
-          <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md w-full max-h-[90vh] shadow-2xl animate-modal overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <div className="modal-backdrop fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm animate-backdrop">
+          <div
+            className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl animate-modal overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              maxHeight: 'calc(100vh - 2rem)',
+              margin: 0,
+              boxSizing: 'border-box'
+            }}
+          >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
                 <svg className="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20">

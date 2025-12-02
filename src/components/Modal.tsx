@@ -53,7 +53,7 @@ export function Modal({ isOpen, onClose, children, maxWidth = 'md' }: ModalProps
         onClick={(e) => e.stopPropagation()}
         style={{
           position: 'fixed',
-          top: '50vh',
+          top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
           maxHeight: 'calc(100vh - 2rem)',

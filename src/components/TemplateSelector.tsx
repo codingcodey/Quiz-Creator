@@ -56,11 +56,22 @@ export function TemplateSelector({ isOpen, onClose, onSelectTemplate, onCreateBl
   };
 
   return (
-    <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
+    <div className="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-backdrop">
       {/* Close Confirmation Modal */}
       {showCloseConfirm && (
-        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-backdrop">
-          <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-modal">
+        <div className="absolute inset-0 z-10 bg-black/40 backdrop-blur-sm animate-backdrop">
+          <div
+            className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-modal"
+            style={{
+              position: 'fixed',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              maxHeight: 'calc(100vh - 2rem)',
+              margin: 0,
+              boxSizing: 'border-box'
+            }}
+          >
             <div className="flex items-center gap-3 mb-4">
               <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
                 <svg className="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
@@ -90,7 +101,18 @@ export function TemplateSelector({ isOpen, onClose, onSelectTemplate, onCreateBl
         </div>
       )}
 
-      <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-4xl w-full mx-4 shadow-2xl animate-modal max-h-[85vh] overflow-hidden flex flex-col">
+      <div
+        className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-4xl w-full mx-4 shadow-2xl animate-modal overflow-hidden flex flex-col"
+        style={{
+          position: 'fixed',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          maxHeight: 'calc(100vh - 2rem)',
+          margin: 0,
+          boxSizing: 'border-box'
+        }}
+      >
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
