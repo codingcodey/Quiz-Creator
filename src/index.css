@@ -344,7 +344,7 @@ body {
   animation: sparkle 2s ease-in-out infinite;
 }
 
-/* Shimmer effect for buttons - enhanced for light mode */
+/* Shimmer effect for buttons */
 .btn-shimmer {
   position: relative;
   overflow: hidden;
@@ -368,36 +368,6 @@ body {
 
 .btn-shimmer:hover::before {
   animation: shimmer 0.8s ease forwards;
-}
-
-/* Light mode enhanced shimmer */
-html.light .btn-shimmer::before {
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.6),
-    rgba(255, 255, 255, 0.8),
-    rgba(255, 255, 255, 0.6),
-    transparent
-  );
-}
-
-html.light .btn-shimmer::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(
-    135deg,
-    rgba(255, 255, 255, 0.3) 0%,
-    transparent 50%,
-    rgba(255, 255, 255, 0.1) 100%
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-html.light .btn-shimmer:hover::after {
-  opacity: 1;
 }
 
 /* Playful hover lift for cards and buttons */
@@ -624,3 +594,350 @@ html.light .btn-shimmer:hover::after {
 .stagger-5 { animation-delay: 0.65s; }
 .stagger-6 { animation-delay: 0.75s; }
 .stagger-7 { animation-delay: 0.85s; }
+
+/* Confetti animations */
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotateZ(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotateZ(720deg);
+    opacity: 0;
+  }
+}
+
+@keyframes confetti-spin {
+  0% { transform: rotateX(0deg) rotateY(0deg); }
+  25% { transform: rotateX(180deg) rotateY(0deg); }
+  50% { transform: rotateX(180deg) rotateY(180deg); }
+  75% { transform: rotateX(0deg) rotateY(180deg); }
+  100% { transform: rotateX(0deg) rotateY(360deg); }
+}
+
+.animate-confetti-fall {
+  animation: confetti-fall linear forwards;
+}
+
+.animate-confetti-spin {
+  animation: confetti-spin 1s linear infinite;
+}
+
+/* Star burst animation */
+@keyframes star-burst {
+  0% {
+    transform: rotate(var(--rotation, 0deg)) translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: rotate(var(--rotation, 0deg)) translateY(-40px) scale(0);
+    opacity: 0;
+  }
+}
+
+.animate-star-burst {
+  animation: star-burst 0.6s ease-out forwards;
+}
+
+/* Achievement unlock animation */
+@keyframes achievement-unlock {
+  0% {
+    transform: scale(0) rotate(-180deg);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.2) rotate(10deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
+}
+
+.animate-achievement {
+  animation: achievement-unlock 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* Streak fire animation */
+@keyframes fire-flicker {
+  0%, 100% {
+    transform: scaleY(1) scaleX(1);
+    filter: brightness(1);
+  }
+  25% {
+    transform: scaleY(1.1) scaleX(0.95);
+    filter: brightness(1.1);
+  }
+  50% {
+    transform: scaleY(0.95) scaleX(1.05);
+    filter: brightness(0.9);
+  }
+  75% {
+    transform: scaleY(1.05) scaleX(0.98);
+    filter: brightness(1.05);
+  }
+}
+
+.animate-fire {
+  animation: fire-flicker 0.5s ease-in-out infinite;
+}
+
+/* Timer pulse when low */
+@keyframes timer-pulse {
+  0%, 100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--color-error);
+  }
+  50% {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px 5px var(--color-error);
+  }
+}
+
+.animate-timer-pulse {
+  animation: timer-pulse 1s ease-in-out infinite;
+}
+
+/* Score counter animation */
+@keyframes score-pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-score-pop {
+  animation: score-pop 0.3s ease-out;
+}
+
+/* Checkbox tick animation */
+@keyframes checkbox-tick {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-checkbox-tick {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 24;
+  animation: checkbox-tick 0.3s ease forwards;
+}
+
+/* Markdown content styles */
+.markdown-content {
+  line-height: 1.6;
+}
+
+.markdown-content strong {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.markdown-content em {
+  font-style: italic;
+}
+
+.markdown-content .inline-code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.9em;
+  padding: 0.2em 0.4em;
+  background: var(--color-bg-tertiary);
+  border-radius: 4px;
+  color: var(--color-accent);
+}
+
+.markdown-content .code-block {
+  display: block;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.9em;
+  padding: 1em;
+  background: var(--color-bg-tertiary);
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 1em 0;
+}
+
+.markdown-content .md-link {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.markdown-content .md-link:hover {
+  opacity: 0.8;
+}
+
+/* Code syntax highlighting */
+.syntax-keyword {
+  color: #c678dd;
+}
+
+.syntax-string {
+  color: #98c379;
+}
+
+.syntax-number {
+  color: #d19a66;
+}
+
+.syntax-comment {
+  color: #5c6370;
+  font-style: italic;
+}
+
+.syntax-function {
+  color: #61afef;
+}
+
+/* Light mode syntax colors */
+html.light .syntax-keyword {
+  color: #a626a4;
+}
+
+html.light .syntax-string {
+  color: #50a14f;
+}
+
+html.light .syntax-number {
+  color: #986801;
+}
+
+html.light .syntax-comment {
+  color: #a0a1a7;
+}
+
+html.light .syntax-function {
+  color: #4078f2;
+}
+
+/* Math renderer styles */
+.math-frac {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  padding: 0 0.2em;
+}
+
+.math-num {
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 0.1em;
+}
+
+.math-denom {
+  padding-top: 0.1em;
+}
+
+.math-block {
+  font-size: 1.25em;
+}
+
+/* Accessibility styles */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* High contrast mode */
+html.high-contrast {
+  --color-bg-primary: #000000;
+  --color-bg-secondary: #111111;
+  --color-bg-tertiary: #222222;
+  --color-accent: #ffdd00;
+  --color-accent-hover: #ffee44;
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #eeeeee;
+  --color-text-muted: #cccccc;
+  --color-border: #666666;
+  --color-success: #00ff00;
+  --color-error: #ff4444;
+  --color-warning: #ffaa00;
+}
+
+html.high-contrast.light {
+  --color-bg-primary: #ffffff;
+  --color-bg-secondary: #f5f5f5;
+  --color-bg-tertiary: #eeeeee;
+  --color-accent: #0066cc;
+  --color-accent-hover: #0055aa;
+  --color-text-primary: #000000;
+  --color-text-secondary: #222222;
+  --color-text-muted: #444444;
+  --color-border: #000000;
+}
+
+html.high-contrast button,
+html.high-contrast a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+html.high-contrast *:focus {
+  outline: 3px solid var(--color-accent) !important;
+  outline-offset: 2px !important;
+}
+
+/* Reduced motion */
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Large text mode */
+html.large-text {
+  font-size: 18px;
+}
+
+html.large-text h1 {
+  font-size: 2.5rem;
+}
+
+html.large-text h2 {
+  font-size: 2rem;
+}
+
+html.large-text h3 {
+  font-size: 1.5rem;
+}
+
+html.large-text button,
+html.large-text input,
+html.large-text textarea {
+  font-size: 1.1rem;
+  padding: 0.75em 1em;
+}
+
+/* Focus visible for keyboard navigation */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+/* Better focus for interactive elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px var(--color-accent-muted);
+}

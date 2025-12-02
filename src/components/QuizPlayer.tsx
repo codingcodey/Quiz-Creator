@@ -1,12 +1,16 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
-import type { Quiz, Question } from '../types/quiz';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import type { Quiz, Question, QuizAttempt } from '../types/quiz';
+import { shuffleArray } from '../types/quiz';
 import { ThemeToggle } from './ThemeToggle';
+import { Timer, CircularTimer } from './Timer';
 
 interface QuizPlayerProps {
   quiz: Quiz;
   onBack: () => void;
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
+  onComplete?: (attempt: Omit<QuizAttempt, 'id' | 'completedAt'>) => void;
+  previousAttempts?: QuizAttempt[];
 }
 
 interface Answer {
@@ -15,26 +19,56 @@ interface Answer {
   typedAnswer?: string;
   isCorrect?: boolean;
   hasSubmitted?: boolean;
+  timeSpent: number;
 }
 
 type GameState = 'intro' | 'playing' | 'feedback' | 'results';
 
-export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerProps) {
+export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, previousAttempts = [] }: QuizPlayerProps) {
   const [gameState, setGameState] = useState<GameState>('intro');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
   const [streak, setStreak] = useState(0);
   const [maxStreak, setMaxStreak] = useState(0);
+  const [showHint, setShowHint] = useState(false);
+  const [totalTimeSpent, setTotalTimeSpent] = useState(0);
+  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now());
+  const [totalTimeRemaining, setTotalTimeRemaining] = useState<number | null>(null);
+  const hasCompletedRef = useRef(false);
 
-  const currentQuestion = quiz.questions[currentIndex];
-  const totalQuestions = quiz.questions.length;
+  // Prepare shuffled questions and options based on settings
+  const preparedQuestions = useMemo(() => {
+    let questions = [...quiz.questions];
+    
+    if (quiz.settings?.shuffleQuestions) {
+      questions = shuffleArray(questions);
+    }
+    
+    if (quiz.settings?.shuffleOptions) {
+      questions = questions.map((q) => ({
+        ...q,
+        options: q.options ? shuffleArray(q.options) : undefined,
+      }));
+    }
+    
+    return questions;
+  }, [quiz.questions, quiz.settings?.shuffleQuestions, quiz.settings?.shuffleOptions]);
+
+  const currentQuestion = preparedQuestions[currentIndex];
+  const totalQuestions = preparedQuestions.length;
 
   const currentScore = useMemo(() => answers.filter((a) => a.isCorrect).length, [answers]);
+
+  // Best previous score
+  const bestPreviousScore = useMemo(() => {
+    if (previousAttempts.length === 0) return null;
+    return Math.max(...previousAttempts.map((a) => a.percentage));
+  }, [previousAttempts]);
 
   const results = useMemo(() => {
     if (gameState !== 'results') return null;
     const correct = answers.filter((a) => a.isCorrect).length;
-    const questionResults = quiz.questions.map((question) => {
+    const questionResults = preparedQuestions.map((question) => {
       const answer = answers.find((a) => a.questionId === question.id);
       return { question, answer, isCorrect: answer?.isCorrect ?? false };
     });
@@ -44,8 +78,31 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
       percentage: Math.round((correct / totalQuestions) * 100),
       maxStreak,
       questionResults,
+      totalTimeSpent,
+      isNewBest: bestPreviousScore === null || Math.round((correct / totalQuestions) * 100) > bestPreviousScore,
     };
-  }, [gameState, quiz.questions, answers, totalQuestions, maxStreak]);
+  }, [gameState, preparedQuestions, answers, totalQuestions, maxStreak, totalTimeSpent, bestPreviousScore]);
+
+  // Call onComplete when results are ready
+  useEffect(() => {
+    if (gameState === 'results' && results && onComplete && !hasCompletedRef.current) {
+      hasCompletedRef.current = true;
+      onComplete({
+        quizId: quiz.id,
+        score: results.correct,
+        totalQuestions: results.total,
+        percentage: results.percentage,
+        maxStreak: results.maxStreak,
+        timeSpent: results.totalTimeSpent,
+        timeRemaining: totalTimeRemaining ?? undefined,
+        answers: answers.map((a) => ({
+          questionId: a.questionId,
+          isCorrect: a.isCorrect ?? false,
+          timeSpent: a.timeSpent,
+        })),
+      });
+    }
+  }, [gameState, results, onComplete, quiz.id, answers, totalTimeRemaining]);
 
   const getCurrentAnswer = useCallback(
     () => answers.find((a) => a.questionId === currentQuestion?.id),
@@ -70,7 +127,7 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
       if (existing) {
         return prev.map((a) => (a.questionId === currentQuestion.id ? { ...a, selectedOptionIds: [optionId] } : a));
       }
-      return [...prev, { questionId: currentQuestion.id, selectedOptionIds: [optionId] }];
+      return [...prev, { questionId: currentQuestion.id, selectedOptionIds: [optionId], timeSpent: 0 }];
     });
   };
 
@@ -85,7 +142,7 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
       if (existing) {
         return prev.map((a) => (a.questionId === currentQuestion.id ? { ...a, selectedOptionIds: newSelectedIds } : a));
       }
-      return [...prev, { questionId: currentQuestion.id, selectedOptionIds: newSelectedIds }];
+      return [...prev, { questionId: currentQuestion.id, selectedOptionIds: newSelectedIds, timeSpent: 0 }];
     });
   };
 
@@ -96,7 +153,7 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
       if (existing) {
         return prev.map((a) => (a.questionId === currentQuestion.id ? { ...a, typedAnswer: value } : a));
       }
-      return [...prev, { questionId: currentQuestion.id, typedAnswer: value }];
+      return [...prev, { questionId: currentQuestion.id, typedAnswer: value, timeSpent: 0 }];
     });
   };
 
@@ -105,10 +162,13 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
     const currentAnswer = getCurrentAnswer();
     if (!currentAnswer) return;
 
+    const timeSpent = Math.round((Date.now() - questionStartTime) / 1000);
     const isCorrect = checkAnswer(currentQuestion, currentAnswer);
+    
     setAnswers((prev) =>
-      prev.map((a) => (a.questionId === currentQuestion.id ? { ...a, isCorrect, hasSubmitted: true } : a))
+      prev.map((a) => (a.questionId === currentQuestion.id ? { ...a, isCorrect, hasSubmitted: true, timeSpent } : a))
     );
+    setTotalTimeSpent((prev) => prev + timeSpent);
 
     if (isCorrect) {
       setStreak((prev) => {
@@ -119,33 +179,95 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
     } else {
       setStreak(0);
     }
+    setShowHint(false);
     setGameState('feedback');
-  }, [currentQuestion, getCurrentAnswer, checkAnswer]);
+  }, [currentQuestion, getCurrentAnswer, checkAnswer, questionStartTime]);
 
   const handleNext = useCallback(() => {
     if (currentIndex < totalQuestions - 1) {
       setCurrentIndex(currentIndex + 1);
       setGameState('playing');
+      setShowHint(false);
+      setQuestionStartTime(Date.now());
     } else {
       setGameState('results');
     }
   }, [currentIndex, totalQuestions]);
 
-  const handleStartQuiz = () => setGameState('playing');
+  const handleStartQuiz = () => {
+    setGameState('playing');
+    setQuestionStartTime(Date.now());
+    hasCompletedRef.current = false;
+    if (quiz.settings?.totalTimeLimit) {
+      setTotalTimeRemaining(quiz.settings.totalTimeLimit);
+    }
+  };
 
   const handleRestart = () => {
     setAnswers([]);
     setCurrentIndex(0);
     setStreak(0);
     setMaxStreak(0);
+    setTotalTimeSpent(0);
+    setShowHint(false);
     setGameState('intro');
+    hasCompletedRef.current = false;
   };
+
+  // Handle time up for question timer
+  const handleQuestionTimeUp = useCallback(() => {
+    if (gameState === 'playing') {
+      // Auto-submit with current answer (or no answer)
+      const currentAnswer = getCurrentAnswer();
+      const timeSpent = quiz.settings?.timePerQuestion || 0;
+      
+      if (currentAnswer) {
+        const isCorrect = checkAnswer(currentQuestion, currentAnswer);
+        setAnswers((prev) =>
+          prev.map((a) => (a.questionId === currentQuestion.id ? { ...a, isCorrect, hasSubmitted: true, timeSpent } : a))
+        );
+        if (isCorrect) {
+          setStreak((prev) => {
+            const newStreak = prev + 1;
+            setMaxStreak((max) => Math.max(max, newStreak));
+            return newStreak;
+          });
+        } else {
+          setStreak(0);
+        }
+      } else {
+        // No answer provided
+        setAnswers((prev) => [
+          ...prev,
+          { questionId: currentQuestion.id, isCorrect: false, hasSubmitted: true, timeSpent },
+        ]);
+        setStreak(0);
+      }
+      setTotalTimeSpent((prev) => prev + timeSpent);
+      setGameState('feedback');
+    }
+  }, [gameState, getCurrentAnswer, checkAnswer, currentQuestion, quiz.settings?.timePerQuestion]);
+
+  // Handle total time up
+  const handleTotalTimeUp = useCallback(() => {
+    // End quiz immediately
+    setGameState('results');
+  }, []);
 
   const currentAnswer = getCurrentAnswer();
   const hasAnswered =
     currentQuestion?.type === 'multiple-choice' || currentQuestion?.type === 'multi-select'
       ? (currentAnswer?.selectedOptionIds?.length ?? 0) > 0
       : (currentAnswer?.typedAnswer?.trim().length ?? 0) > 0;
+
+  // Get timer duration for current question
+  const questionTimerDuration = useMemo(() => {
+    if (currentQuestion?.timeLimit) return currentQuestion.timeLimit;
+    if (quiz.settings?.timerEnabled && quiz.settings?.timePerQuestion) {
+      return quiz.settings.timePerQuestion;
+    }
+    return null;
+  }, [currentQuestion?.timeLimit, quiz.settings?.timerEnabled, quiz.settings?.timePerQuestion]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -171,6 +293,10 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
           e.preventDefault();
           handleSubmitAnswer();
         }
+        // H for hint
+        if (e.key === 'h' && quiz.settings?.showHints && currentQuestion.hint) {
+          setShowHint((prev) => !prev);
+        }
       }
 
       if (gameState === 'feedback') {
@@ -183,12 +309,12 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [gameState, currentQuestion, hasAnswered, handleSubmitAnswer, handleNext]);
+  }, [gameState, currentQuestion, hasAnswered, handleSubmitAnswer, handleNext, quiz.settings?.showHints]);
 
   // Question dots component
   const QuestionDots = () => (
     <div className="flex items-center justify-center gap-1.5 py-2">
-      {quiz.questions.map((q, idx) => {
+      {preparedQuestions.map((q, idx) => {
         const answer = answers.find((a) => a.questionId === q.id);
         const isCurrent = idx === currentIndex;
         const isAnswered = answer?.hasSubmitted;
@@ -250,20 +376,46 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
           <h1 className="font-serif text-3xl md:text-4xl text-text-primary mb-2 opacity-0 animate-fade-in-up stagger-2">{quiz.title}</h1>
           {quiz.description && <p className="text-text-secondary mb-6 opacity-0 animate-fade-in-up stagger-3">{quiz.description}</p>}
 
-          <div className="flex items-center justify-center gap-4 mb-8 text-sm text-text-muted opacity-0 animate-fade-in-up stagger-3">
+          <div className="flex items-center justify-center gap-4 mb-8 text-sm text-text-muted opacity-0 animate-fade-in-up stagger-3 flex-wrap">
             <span className="flex items-center gap-1.5">
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               {totalQuestions} questions
             </span>
+            {quiz.settings?.timerEnabled && (
+              <span className="flex items-center gap-1.5 text-warning">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Timed
+              </span>
+            )}
+            {quiz.settings?.shuffleQuestions && (
+              <span className="flex items-center gap-1.5">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Shuffled
+              </span>
+            )}
           </div>
+
+          {/* Previous attempts info */}
+          {previousAttempts.length > 0 && (
+            <div className="mb-6 p-4 bg-bg-secondary/50 border border-border rounded-xl opacity-0 animate-fade-in-up stagger-3">
+              <p className="text-sm text-text-secondary">
+                You've played this quiz <span className="text-accent font-medium">{previousAttempts.length}</span> time{previousAttempts.length !== 1 ? 's' : ''}.
+                Best score: <span className="text-accent font-medium">{bestPreviousScore}%</span>
+              </p>
+            </div>
+          )}
 
           <button
             onClick={handleStartQuiz}
             className="btn-shimmer w-full py-4 bg-accent text-bg-primary rounded-xl font-medium text-lg hover:bg-accent-hover hover:shadow-xl hover:shadow-accent/30 transition-all duration-300 hover:scale-[1.02] active:scale-[0.98] mb-3 opacity-0 animate-fade-in-up stagger-4"
           >
-            Start Quiz
+            {previousAttempts.length > 0 ? 'Play Again' : 'Start Quiz'}
           </button>
           <button onClick={onBack} className="w-full py-3 text-text-secondary hover:text-text-primary transition-colors text-sm opacity-0 animate-fade-in stagger-5">
             Back to Dashboard
@@ -318,6 +470,13 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
             </div>
             <h1 className="font-serif text-3xl md:text-4xl text-text-primary mb-1 opacity-0 animate-fade-in-up stagger-2">{getMessage()}</h1>
             <p className="text-text-secondary text-sm opacity-0 animate-fade-in stagger-3">{quiz.title}</p>
+            
+            {/* New best badge */}
+            {results.isNewBest && previousAttempts.length > 0 && (
+              <div className="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-success/20 text-success rounded-full text-sm font-medium opacity-0 animate-fade-in-up stagger-3">
+                <span>🎉</span> New Personal Best!
+              </div>
+            )}
           </div>
 
           <div className="bg-bg-secondary border border-border rounded-2xl p-6 mb-6 text-center opacity-0 animate-card-entrance stagger-3">
@@ -341,6 +500,15 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
                 <p className="text-text-muted">Wrong ✗</p>
               </div>
             </div>
+            
+            {/* Time spent */}
+            {results.totalTimeSpent > 0 && (
+              <div className="mt-4 pt-4 border-t border-border opacity-0 animate-fade-in" style={{ animationDelay: '0.8s' }}>
+                <p className="text-sm text-text-muted">
+                  Completed in <span className="text-accent font-medium">{Math.floor(results.totalTimeSpent / 60)}:{(results.totalTimeSpent % 60).toString().padStart(2, '0')}</span>
+                </p>
+              </div>
+            )}
           </div>
 
           <QuestionDots />
@@ -360,6 +528,10 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
                   <div className="flex-1 min-w-0">
                     <p className="text-xs text-text-muted">Q{index + 1}</p>
                     <p className="text-text-primary text-sm">{result.question.text}</p>
+                    {/* Show explanation if available */}
+                    {quiz.settings?.showExplanations && result.question.explanation && (
+                      <p className="text-xs text-text-muted mt-1 italic">{result.question.explanation}</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -406,6 +578,27 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
             </button>
 
             <div className="flex items-center gap-3">
+              {/* Question Timer */}
+              {questionTimerDuration && gameState === 'playing' && (
+                <Timer
+                  key={currentIndex}
+                  initialTime={questionTimerDuration}
+                  onTimeUp={handleQuestionTimeUp}
+                  isPaused={gameState !== 'playing'}
+                  size="sm"
+                />
+              )}
+              
+              {/* Total Timer */}
+              {quiz.settings?.totalTimeLimit && (
+                <CircularTimer
+                  initialTime={quiz.settings.totalTimeLimit}
+                  onTimeUp={handleTotalTimeUp}
+                  isPaused={gameState !== 'playing'}
+                  radius={20}
+                />
+              )}
+              
               {streak > 0 && (
                 <div className="flex items-center gap-1 text-orange-400 text-sm">
                   <span>🔥</span>
@@ -446,6 +639,26 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
           {currentQuestion.image && (
             <div className="mb-5">
               <img src={currentQuestion.image} alt="Question" className="max-w-full max-h-48 rounded-xl shadow-lg" />
+            </div>
+          )}
+
+          {/* Hint button and display */}
+          {quiz.settings?.showHints && currentQuestion.hint && gameState === 'playing' && (
+            <div className="mb-4">
+              <button
+                onClick={() => setShowHint(!showHint)}
+                className="flex items-center gap-2 text-sm text-text-muted hover:text-accent transition-colors"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                </svg>
+                {showHint ? 'Hide Hint' : 'Show Hint'} (H)
+              </button>
+              {showHint && (
+                <div className="mt-2 p-3 bg-accent/10 border border-accent/30 rounded-lg text-sm text-accent animate-fade-in">
+                  💡 {currentQuestion.hint}
+                </div>
+              )}
             </div>
           )}
 
@@ -549,6 +762,14 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme }: QuizPlayerPro
               ) : (
                 <span className="font-medium">Not quite.</span>
               )}
+            </div>
+          )}
+          
+          {/* Show explanation in feedback */}
+          {gameState === 'feedback' && quiz.settings?.showExplanations && currentQuestion.explanation && (
+            <div className="mt-3 px-4 py-3 bg-bg-tertiary border border-border rounded-xl text-sm text-text-secondary animate-fade-in">
+              <p className="font-medium text-text-primary mb-1">💡 Explanation</p>
+              {currentQuestion.explanation}
             </div>
           )}
         </div>

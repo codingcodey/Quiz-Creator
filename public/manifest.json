@@ -1,0 +1,43 @@
+{
+  "name": "Quiz Creator",
+  "short_name": "Quiz Creator",
+  "description": "Create engaging multiple-choice and fill-in-the-blank quizzes in minutes",
+  "start_url": "/Quiz-Creator/",
+  "display": "standalone",
+  "background_color": "#0f0f0f",
+  "theme_color": "#d4a853",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/Quiz-Creator/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Quiz-Creator/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["education", "productivity"],
+  "screenshots": [
+    {
+      "src": "/Quiz-Creator/screenshots/home.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "label": "Home screen showing your quizzes"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Create New Quiz",
+      "short_name": "New Quiz",
+      "description": "Start creating a new quiz",
+      "url": "/Quiz-Creator/?action=create",
+      "icons": [{ "src": "/Quiz-Creator/icons/create-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
+

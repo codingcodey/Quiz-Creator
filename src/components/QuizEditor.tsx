@@ -1,9 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import type { Quiz, Question, QuizOption } from '../types/quiz';
-import { createQuestion, createOption } from '../types/quiz';
+import type { Quiz, Question, QuizOption, QuizSettings } from '../types/quiz';
+import { createQuestion, createOption, DEFAULT_SETTINGS } from '../types/quiz';
 import { QuestionCard } from './QuestionCard';
 import { ImageUploader } from './ImageUploader';
 import { ThemeToggle } from './ThemeToggle';
+import { QuizSettingsModal } from './QuizSettingsModal';
+import { ShareModal } from './ShareModal';
 
 // Helper to check if a question is complete
 function isQuestionComplete(question: Question): boolean {
@@ -31,6 +33,8 @@ interface QuizEditorProps {
   onBack: () => void;
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
+  onEnableSharing?: () => string;
+  onDisableSharing?: () => void;
 }
 
 export function QuizEditor({
@@ -40,12 +44,19 @@ export function QuizEditor({
   onBack,
   theme,
   onToggleTheme,
+  onEnableSharing,
+  onDisableSharing,
 }: QuizEditorProps) {
   // Local draft state - changes only affect this until saved
-  const [draft, setDraft] = useState<Quiz>(() => JSON.parse(JSON.stringify(quiz)));
+  const [draft, setDraft] = useState<Quiz>(() => ({
+    ...JSON.parse(JSON.stringify(quiz)),
+    settings: quiz.settings || { ...DEFAULT_SETTINGS },
+  }));
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showShareModal, setShowShareModal] = useState(false);
   const [shakeTitle, setShakeTitle] = useState(false);
   const originalQuizRef = useRef<string>(JSON.stringify(quiz));
 
@@ -75,6 +86,11 @@ export function QuizEditor({
   // Update draft
   const updateDraft = useCallback((updates: Partial<Quiz>) => {
     setDraft(prev => ({ ...prev, ...updates }));
+  }, []);
+
+  // Update settings
+  const updateSettings = useCallback((settings: QuizSettings) => {
+    setDraft(prev => ({ ...prev, settings }));
   }, []);
 
   // Add question
@@ -198,6 +214,30 @@ export function QuizEditor({
       onBack();
     }
   }, [needsConfirmation, onBack]);
+
+  // Handle enable sharing
+  const handleEnableSharing = useCallback(() => {
+    if (onEnableSharing) {
+      const shareId = onEnableSharing();
+      setDraft(prev => ({
+        ...prev,
+        settings: { ...prev.settings, isPublic: true, shareId },
+      }));
+      return shareId;
+    }
+    return '';
+  }, [onEnableSharing]);
+
+  // Handle disable sharing
+  const handleDisableSharing = useCallback(() => {
+    if (onDisableSharing) {
+      onDisableSharing();
+      setDraft(prev => ({
+        ...prev,
+        settings: { ...prev.settings, isPublic: false, shareId: undefined },
+      }));
+    }
+  }, [onDisableSharing]);
 
   // Warn before leaving page with incomplete or unsaved quiz
   useEffect(() => {
@@ -347,6 +387,23 @@ export function QuizEditor({
         </div>
       )}
 
+      {/* Settings Modal */}
+      <QuizSettingsModal
+        settings={draft.settings || DEFAULT_SETTINGS}
+        isOpen={showSettings}
+        onClose={() => setShowSettings(false)}
+        onSave={updateSettings}
+      />
+
+      {/* Share Modal */}
+      <ShareModal
+        quiz={draft}
+        isOpen={showShareModal}
+        onClose={() => setShowShareModal(false)}
+        onEnableSharing={handleEnableSharing}
+        onDisableSharing={handleDisableSharing}
+      />
+
       {/* Header */}
       <header className="sticky top-0 z-20 bg-bg-primary/80 backdrop-blur-md border-b border-border">
         {/* Theme toggle - fixed right on desktop */}
@@ -387,13 +444,13 @@ export function QuizEditor({
           </button>
 
           <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300"
+            onClick={() => setShowSettings(true)}
+            className="flex items-center gap-2 px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
-            Export
           </button>
 
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
@@ -436,15 +493,48 @@ export function QuizEditor({
             </button>
           </div>
 
-          <button
-            onClick={handleExport}
-            className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-            Export
-          </button>
+          <div className="flex items-center gap-2">
+            {/* Settings Button */}
+            <button
+              onClick={() => setShowSettings(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300"
+              title="Quiz Settings"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              Settings
+            </button>
+
+            {/* Share Button */}
+            <button
+              onClick={() => setShowShareModal(true)}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 ${
+                draft.settings?.isPublic
+                  ? 'bg-accent/20 border border-accent/30 text-accent'
+                  : 'bg-bg-secondary border border-border text-text-primary hover:border-accent/50 hover:text-accent'
+              }`}
+              title="Share Quiz"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              {draft.settings?.isPublic ? 'Shared' : 'Share'}
+            </button>
+
+            {/* Export Button */}
+            <button
+              onClick={handleExport}
+              className="flex items-center gap-2 px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300"
+              title="Export as JSON"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              Export
+            </button>
+          </div>
         </div>
       </header>
 
@@ -457,9 +547,7 @@ export function QuizEditor({
             value={draft.title}
             onChange={(e) => updateDraft({ title: e.target.value })}
             placeholder="Quiz Title"
-            className={`w-full bg-transparent font-serif text-4xl md:text-5xl text-text-primary placeholder-text-muted focus:outline-none ${
-              isTitleEmpty ? 'border-b-2 border-warning' : ''
-            }`}
+            className="w-full bg-transparent font-serif text-4xl md:text-5xl text-text-primary placeholder-text-muted focus:outline-none"
           />
           {isTitleEmpty && (
             <p className="text-sm text-warning mt-2 flex items-center gap-1">
@@ -489,6 +577,41 @@ export function QuizEditor({
           />
         </div>
 
+        {/* Active Settings Summary */}
+        {(draft.settings?.timerEnabled || draft.settings?.shuffleQuestions || draft.settings?.shuffleOptions) && (
+          <div className="mb-6 flex flex-wrap gap-2">
+            {draft.settings?.timerEnabled && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-warning/20 text-warning rounded-full text-sm">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                Timed ({draft.settings.timePerQuestion}s/question)
+              </span>
+            )}
+            {draft.settings?.shuffleQuestions && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent/20 text-accent rounded-full text-sm">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Shuffle Questions
+              </span>
+            )}
+            {draft.settings?.shuffleOptions && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent/20 text-accent rounded-full text-sm">
+                Shuffle Options
+              </span>
+            )}
+            {draft.settings?.isPublic && (
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-success/20 text-success rounded-full text-sm">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                </svg>
+                Public
+              </span>
+            )}
+          </div>
+        )}
+
         {/* Questions */}
         <div className="space-y-6">
           <div className="flex items-center justify-between">
@@ -499,22 +622,24 @@ export function QuizEditor({
           </div>
 
           {draft.questions.length === 0 ? (
-            <div className="py-12 text-center border-2 border-dashed border-warning/50 bg-warning/5 rounded-xl">
-              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-warning/20 flex items-center justify-center">
+            <div className="py-12 text-center border-2 border-dashed border-border rounded-xl">
+              <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-bg-tertiary flex items-center justify-center">
                 <svg
-                  className="w-6 h-6 text-warning"
-                  fill="currentColor"
-                  viewBox="0 0 20 20"
+                  className="w-6 h-6 text-text-muted"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
                   <path
-                    fillRule="evenodd"
-                    d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                    clipRule="evenodd"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v16m8-8H4"
                   />
                 </svg>
               </div>
-              <p className="text-warning font-medium mb-2">No questions yet</p>
-              <p className="text-sm text-text-secondary">
+              <p className="text-text-secondary font-medium mb-2">No questions yet</p>
+              <p className="text-sm text-text-muted">
                 Add at least one question to save your quiz
               </p>
             </div>

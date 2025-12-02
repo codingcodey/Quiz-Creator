@@ -145,9 +145,7 @@ export function QuestionCard({
             onChange={(e) => onUpdate({ text: e.target.value })}
             placeholder="Enter your question..."
             rows={2}
-            className={`w-full bg-transparent text-text-primary text-lg placeholder-text-muted resize-none focus:outline-none ${
-              isQuestionEmpty ? 'border-b border-warning' : ''
-            }`}
+            className="w-full bg-transparent text-text-primary text-lg placeholder-text-muted resize-none focus:outline-none"
           />
           {isQuestionEmpty && (
             <p className="text-xs text-warning mt-1 flex items-center gap-1">
@@ -175,9 +173,7 @@ export function QuestionCard({
         <div className="space-y-3">
           <p className="text-sm text-text-muted">Answer options (click to mark correct):</p>
           
-          {question.options.map((option, optIndex) => {
-            const isOptionEmpty = !option.text.trim();
-            return (
+          {question.options.map((option, optIndex) => (
               <div key={option.id} className="flex items-center gap-3">
                 {/* Correct answer toggle */}
                 <button
@@ -202,9 +198,7 @@ export function QuestionCard({
                   value={option.text}
                   onChange={(e) => onUpdateOption(option.id, { text: e.target.value })}
                   placeholder={`Option ${optIndex + 1}`}
-                  className={`flex-1 bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 ${
-                    isOptionEmpty ? 'ring-1 ring-warning' : 'focus:ring-accent/50'
-                  }`}
+                  className="flex-1 bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent/50"
                 />
 
                 {/* Delete option */}
@@ -220,8 +214,7 @@ export function QuestionCard({
                   </button>
                 )}
               </div>
-            );
-          })}
+          ))}
 
           {hasEmptyOptions && (
             <p className="text-xs text-warning flex items-center gap-1">
@@ -259,16 +252,14 @@ export function QuestionCard({
           <p className="text-sm text-text-muted">Answer options (click to mark correct — multiple can be correct):</p>
           
           <div className="grid grid-cols-2 gap-3">
-            {question.options.map((option, optIndex) => {
-              const isOptionEmpty = !option.text.trim();
-              return (
+            {question.options.map((option, optIndex) => (
                 <div 
                   key={option.id} 
                   className={`relative bg-bg-tertiary rounded-xl p-3 border-2 transition-all ${
                     option.isCorrect 
                       ? 'border-success/50 bg-success/5' 
                       : 'border-transparent'
-                  } ${isOptionEmpty ? 'ring-1 ring-warning' : ''}`}
+                  }`}
                 >
                   {/* Correct toggle button */}
                   <button
@@ -309,8 +300,7 @@ export function QuestionCard({
                     className="w-full bg-transparent text-text-primary placeholder-text-muted focus:outline-none text-center pt-6 pb-2"
                   />
                 </div>
-              );
-            })}
+            ))}
           </div>
 
           {hasEmptyOptions && (
@@ -352,9 +342,7 @@ export function QuestionCard({
             value={question.expectedAnswer || ''}
             onChange={(e) => onUpdate({ expectedAnswer: e.target.value })}
             placeholder="Enter the correct answer..."
-            className={`w-full bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 ${
-              isExpectedAnswerEmpty ? 'ring-1 ring-warning' : 'focus:ring-accent/50'
-            }`}
+            className="w-full bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent/50"
           />
           {isExpectedAnswerEmpty ? (
             <p className="text-xs text-warning flex items-center gap-1">

@@ -8,10 +8,11 @@ interface QuizCardProps {
   onDuplicate: () => void;
   onExport: () => void;
   onPlay: () => void;
+  onToggleFavorite?: () => void;
   index: number;
 }
 
-export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay, index }: QuizCardProps) {
+export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay, onToggleFavorite, index }: QuizCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const questionCount = quiz.questions.length;
   const formattedDate = new Date(quiz.updatedAt).toLocaleDateString('en-US', {
@@ -82,13 +83,61 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
         {/* Overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-bg-secondary/80 to-transparent" />
         
-        {/* Question count badge */}
-        <div className="absolute bottom-3 left-3 flex items-center gap-1.5 px-2.5 py-1 bg-bg-primary/80 backdrop-blur-sm rounded-full text-xs text-text-secondary">
-          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
-          {questionCount} question{questionCount !== 1 ? 's' : ''}
+        {/* Bottom badges */}
+        <div className="absolute bottom-3 left-3 flex items-center gap-2">
+          {/* Question count badge */}
+          <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-primary/80 backdrop-blur-sm rounded-full text-xs text-text-secondary">
+            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            {questionCount} question{questionCount !== 1 ? 's' : ''}
+          </div>
+          
+          {/* Play count badge */}
+          {quiz.playCount && quiz.playCount > 0 && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 bg-bg-primary/80 backdrop-blur-sm rounded-full text-xs text-text-secondary">
+              <svg className="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              {quiz.playCount}
+            </div>
+          )}
+          
+          {/* Public badge */}
+          {quiz.settings?.isPublic && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-accent/20 backdrop-blur-sm rounded-full text-xs text-accent">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              Public
+            </div>
+          )}
         </div>
+        
+        {/* Favorite button - top left */}
+        {onToggleFavorite && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onToggleFavorite();
+            }}
+            className={`absolute top-3 left-3 z-10 p-2 rounded-lg transition-all duration-300 ${
+              quiz.isFavorite
+                ? 'bg-red-500/20 text-red-500'
+                : 'bg-bg-primary/80 backdrop-blur-sm text-text-muted hover:text-red-500 opacity-0 group-hover:opacity-100'
+            }`}
+            title={quiz.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <svg
+              className="w-4 h-4"
+              fill={quiz.isFavorite ? 'currentColor' : 'none'}
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+          </button>
+        )}
       </div>
 
       {/* Content */}
@@ -101,6 +150,25 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
           <p className="mt-1 text-sm text-text-secondary line-clamp-2 pr-14">
             {quiz.description}
           </p>
+        )}
+        
+        {/* Tags */}
+        {quiz.tags && quiz.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-2">
+            {quiz.tags.slice(0, 3).map((tag) => (
+              <span
+                key={tag}
+                className="px-2 py-0.5 text-xs bg-bg-tertiary text-text-muted rounded-full"
+              >
+                {tag}
+              </span>
+            ))}
+            {quiz.tags.length > 3 && (
+              <span className="px-2 py-0.5 text-xs text-text-muted">
+                +{quiz.tags.length - 3}
+              </span>
+            )}
+          </div>
         )}
         
         <p className="mt-3 text-xs text-text-muted">
