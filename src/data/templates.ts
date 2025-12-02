@@ -14,23 +14,6 @@ export interface QuizTemplate {
 
 export const QUIZ_TEMPLATES: QuizTemplate[] = [
   {
-    id: 'blank',
-    name: 'Blank Quiz',
-    description: 'Start from scratch with full customization - add timer, shuffle, hints & more',
-    icon: '📝',
-    category: 'Basic',
-    customizationHints: ['Timer', 'Shuffle', 'Hints', 'Explanations'],
-    quiz: {
-      title: 'Untitled Quiz',
-      description: '',
-      questions: [],
-      settings: { ...DEFAULT_SETTINGS },
-      tags: [],
-      isFavorite: false,
-      playCount: 0,
-    },
-  },
-  {
     id: 'shuffled',
     name: 'Shuffled Quiz',
     description: 'Questions and answers appear in random order each time',

@@ -128,7 +128,7 @@ export function AccessibilitySettings({ isOpen, onClose }: AccessibilitySettings
         <div className="mt-6 flex justify-end">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover transition-colors"
+            className="btn-shimmer px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30 active:translate-y-0 transition-all duration-300"
           >
             Done
           </button>

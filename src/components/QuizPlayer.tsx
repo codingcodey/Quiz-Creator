@@ -7,6 +7,7 @@ import { Timer, CircularTimer } from './Timer';
 interface QuizPlayerProps {
   quiz: Quiz;
   onBack: () => void;
+  onExitDemoMode?: () => void;
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
   onComplete?: (attempt: Omit<QuizAttempt, 'id' | 'completedAt'>) => void;
@@ -24,7 +25,7 @@ interface Answer {
 
 type GameState = 'intro' | 'playing' | 'feedback' | 'results';
 
-export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, previousAttempts = [] }: QuizPlayerProps) {
+export function QuizPlayer({ quiz, onBack, onExitDemoMode, theme, onToggleTheme, onComplete, previousAttempts = [] }: QuizPlayerProps) {
   const [gameState, setGameState] = useState<GameState>('intro');
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>([]);
@@ -518,7 +519,7 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, pre
             {results.questionResults.map((result, index) => (
               <div
                 key={result.question.id}
-                className={`bg-bg-secondary border-2 rounded-xl p-3 opacity-0 animate-fade-in-up hover:-translate-y-0.5 transition-transform duration-200 ${result.isCorrect ? 'border-success/30' : 'border-error/30'}`}
+                className={`bg-bg-secondary border rounded-xl p-3 opacity-0 animate-fade-in-up hover:-translate-y-0.5 transition-all duration-300 ${result.isCorrect ? 'border-success/30' : 'border-error/30'}`}
                 style={{ animationDelay: `${0.5 + index * 0.05}s` }}
               >
                 <div className="flex items-start gap-2">
@@ -542,7 +543,7 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, pre
             <button onClick={handleRestart} className="px-5 py-2.5 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 transition-all duration-300">
               Play Again
             </button>
-            <button onClick={onBack} className="btn-shimmer px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30 active:translate-y-0 transition-all duration-300">
+            <button onClick={onExitDemoMode || onBack} className="btn-shimmer px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30 active:translate-y-0 transition-all duration-300">
               Done
             </button>
           </div>
@@ -570,8 +571,8 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, pre
 
         <div className="max-w-2xl mx-auto px-4 md:px-6 py-3">
           <div className="flex items-center justify-between mb-2">
-            <button onClick={onBack} className="flex items-center gap-1.5 text-text-secondary hover:text-text-primary transition-colors text-sm">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onClick={onBack} className="flex items-center gap-1.5 text-text-secondary hover:text-text-primary transition-all duration-300 text-sm group">
+              <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
               Exit
@@ -620,8 +621,8 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, pre
       </header>
 
       <main className="flex-1 flex flex-col max-w-2xl w-full mx-auto px-6 py-6">
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-3">
+        <div className="flex-1" key={currentIndex}>
+          <div className="flex items-center gap-2 mb-3 animate-fade-in">
             <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-accent/20 text-accent font-bold text-sm">
               {currentIndex + 1}
             </span>
@@ -634,7 +635,7 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, pre
             </span>
           </div>
 
-          <h2 className="font-serif text-xl md:text-2xl text-text-primary mb-5 leading-relaxed">{currentQuestion.text}</h2>
+          <h2 className="font-serif text-xl md:text-2xl text-text-primary mb-5 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.05s' }}>{currentQuestion.text}</h2>
 
           {currentQuestion.image && (
             <div className="mb-5">
@@ -680,7 +681,8 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, pre
                     key={option.id}
                     onClick={() => handleOptionSelect(option.id)}
                     disabled={showFeedback}
-                    className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all duration-200 ${btnClass}`}
+                    className={`w-full text-left px-4 py-3 rounded-xl border transition-all duration-300 opacity-0 animate-fade-in-up ${btnClass}`}
+                    style={{ animationDelay: `${0.1 + idx * 0.05}s` }}
                   >
                     <div className="flex items-center gap-3">
                       <span className="flex-shrink-0 w-6 h-6 rounded-full bg-bg-tertiary text-text-muted text-xs flex items-center justify-center font-medium">
@@ -698,8 +700,8 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, pre
 
           {currentQuestion.type === 'multi-select' && currentQuestion.options && (
             <div className="space-y-2">
-              <p className="text-xs text-text-muted mb-2">Select all that apply</p>
-              {currentQuestion.options.map((option) => {
+              <p className="text-xs text-text-muted mb-2 animate-fade-in">Select all that apply</p>
+              {currentQuestion.options.map((option, idx) => {
                 const isSelected = currentAnswer?.selectedOptionIds?.includes(option.id);
                 const showFeedback = gameState === 'feedback';
                 const isCorrect = option.isCorrect;
@@ -716,10 +718,11 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, pre
                     key={option.id}
                     onClick={() => handleMultiOptionToggle(option.id)}
                     disabled={showFeedback}
-                    className={`w-full text-left px-4 py-3 rounded-xl border-2 transition-all duration-200 ${btnClass}`}
+                    className={`w-full text-left px-4 py-3 rounded-xl border transition-all duration-300 opacity-0 animate-fade-in-up ${btnClass}`}
+                    style={{ animationDelay: `${0.1 + idx * 0.05}s` }}
                   >
                     <div className="flex items-center gap-3">
-                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center ${isSelected ? 'bg-purple-400 border-purple-400' : 'border-current opacity-50'}`}>
+                      <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all duration-300 ${isSelected ? 'bg-purple-400 border-purple-400' : 'border-current opacity-50'}`}>
                         {isSelected && <span className="text-white text-xs">✓</span>}
                       </div>
                       <span>{option.text}</span>
@@ -733,22 +736,22 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, pre
           )}
 
           {currentQuestion.type === 'type-in' && (
-            <div>
+            <div className="opacity-0 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
               <input
                 type="text"
                 value={currentAnswer?.typedAnswer ?? ''}
                 onChange={(e) => handleTypedAnswer(e.target.value)}
                 disabled={gameState === 'feedback'}
                 placeholder="Type your answer..."
-                className={`w-full px-4 py-3 bg-bg-secondary border-2 rounded-xl text-text-primary placeholder-text-muted focus:outline-none transition-all ${
+                className={`w-full px-4 py-3 bg-bg-tertiary border border-border rounded-xl text-text-primary placeholder-text-muted focus:outline-none transition-all duration-300 ${
                   gameState === 'feedback'
                     ? currentAnswer?.isCorrect ? 'border-success bg-success/10' : 'border-error bg-error/10'
-                    : 'border-border focus:border-accent focus:ring-2 focus:ring-accent/20'
+                    : 'focus:border-accent focus:ring-2 focus:ring-accent/20'
                 }`}
                 autoFocus
               />
               {gameState === 'feedback' && !currentAnswer?.isCorrect && (
-                <p className="mt-2 text-sm text-error">
+                <p className="mt-2 text-sm text-error animate-fade-in">
                   Correct answer: <strong className="text-text-primary">{currentQuestion.expectedAnswer}</strong>
                 </p>
               )}
@@ -756,9 +759,9 @@ export function QuizPlayer({ quiz, onBack, theme, onToggleTheme, onComplete, pre
           )}
 
           {gameState === 'feedback' && (
-            <div className={`mt-4 px-4 py-3 rounded-xl text-sm ${currentAnswer?.isCorrect ? 'bg-success/20 text-success' : 'bg-error/20 text-error'}`}>
+            <div className={`mt-4 px-4 py-3 rounded-xl text-sm animate-pop-in ${currentAnswer?.isCorrect ? 'bg-success/20 text-success' : 'bg-error/20 text-error'}`}>
               {currentAnswer?.isCorrect ? (
-                <span className="font-medium">Correct! {streak > 1 && `🔥 ${streak} streak!`}</span>
+                <span className="font-medium">Correct! {streak > 1 && <span className="animate-fire inline-block">🔥 {streak} streak!</span>}</span>
               ) : (
                 <span className="font-medium">Not quite.</span>
               )}

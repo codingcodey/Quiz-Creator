@@ -44,7 +44,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 text-text-secondary hover:text-text-primary transition-colors"
+                className="px-4 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300"
               >
                 Cancel
               </button>
@@ -53,7 +53,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
                   setShowDeleteConfirm(false);
                   onDelete();
                 }}
-                className="px-4 py-2 bg-error text-white rounded-lg hover:bg-error/90 transition-colors"
+                className="px-4 py-2.5 bg-error text-white rounded-xl hover:bg-error/90 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-error/30 active:translate-y-0 transition-all duration-300"
               >
                 Delete Quiz
               </button>
@@ -63,7 +63,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
       )}
 
       <article
-        className="group relative bg-bg-secondary border border-border rounded-2xl overflow-hidden hover:border-accent/50 transition-all duration-300 hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-1 opacity-0 animate-fade-in-up"
+        className="group relative bg-bg-secondary border border-border rounded-2xl overflow-hidden hover:border-accent/50 transition-all duration-300 ease-out hover:shadow-xl hover:shadow-accent/10 hover:-translate-y-1.5 active:translate-y-0 active:shadow-lg opacity-0 animate-fade-in-up"
         style={{ animationDelay: `${0.15 + index * 0.08}s` }}
       >
       {/* Cover Image or Placeholder */}
@@ -182,10 +182,10 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
               e.stopPropagation();
               onPlay();
             }}
-            className="absolute bottom-4 right-4 z-10 w-11 h-11 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-110 hover:shadow-xl hover:shadow-accent/40 active:scale-95 transition-all duration-300 shadow-lg shadow-accent/25 group/play"
+            className="absolute bottom-4 right-4 z-10 w-11 h-11 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-105 hover:shadow-xl hover:shadow-accent/40 active:scale-95 transition-all duration-300 shadow-lg shadow-accent/25 group/play"
             title="Play quiz"
           >
-            <svg className="w-5 h-5 ml-0.5 transition-transform duration-300 group-hover/play:scale-110" fill="currentColor" viewBox="0 0 24 24">
+            <svg className="w-5 h-5 ml-0.5 transition-transform duration-300 group-hover/play:scale-105" fill="currentColor" viewBox="0 0 24 24">
               <path d="M8 5v14l11-7z" />
             </svg>
           </button>
@@ -200,7 +200,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
               e.stopPropagation();
               onDuplicate();
             }}
-            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:scale-110 active:scale-95 transition-all duration-200"
+            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:scale-105 active:scale-95 transition-all duration-300"
             title="Duplicate quiz"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,7 +213,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
               e.stopPropagation();
               onExport();
             }}
-            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:scale-110 active:scale-95 transition-all duration-200"
+            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:scale-105 active:scale-95 transition-all duration-300"
             title="Export as JSON"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -226,7 +226,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
               e.stopPropagation();
               setShowDeleteConfirm(true);
             }}
-            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-error hover:bg-error/10 hover:scale-110 active:scale-95 transition-all duration-200"
+            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-error hover:bg-error/10 hover:scale-105 active:scale-95 transition-all duration-300"
             title="Delete quiz"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

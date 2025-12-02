@@ -39,6 +39,7 @@ html {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  scroll-behavior: smooth;
 }
 
 /* Light theme overrides */
@@ -63,6 +64,18 @@ body {
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Disable text selection highlighting on UI elements */
+button, .no-select {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
 }
 
 #root {
@@ -532,8 +545,67 @@ body {
   }
 }
 
+@keyframes modal-exit {
+  from {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+}
+
 .animate-modal {
   animation: modal-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-modal-exit {
+  animation: modal-exit 0.2s ease-out forwards;
+}
+
+/* Page transition animations */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes page-enter-reverse {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes page-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-page-enter {
+  animation: page-enter 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.animate-page-enter-reverse {
+  animation: page-enter-reverse 0.4s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+.animate-page-fade {
+  animation: page-fade-in 0.3s ease-out forwards;
 }
 
 /* Progress bar fill animation */

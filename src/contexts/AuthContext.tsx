@@ -6,6 +6,7 @@ interface AuthContextType {
   user: User | null;
   loading: boolean;
   signInWithGoogle: () => Promise<void>;
+  signInAsDemo: () => void;
   signOut: () => Promise<void>;
 }
 
@@ -16,10 +17,23 @@ interface AuthProviderProps {
 }
 
 export function AuthProvider({ children }: AuthProviderProps) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(() => {
+    // Check for demo user in sessionStorage on init
+    const demoUser = sessionStorage.getItem('demo_user');
+    if (demoUser) {
+      return JSON.parse(demoUser);
+    }
+    return null;
+  });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // If we have a demo user from sessionStorage, skip auth loading
+    if (user?.id === 'demo-user-123') {
+      setLoading(false);
+      return;
+    }
+
     // Skip auth setup if Supabase isn't configured
     if (!isSupabaseConfigured) {
       setLoading(false);
@@ -39,7 +53,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [user?.id]);
 
   const signInWithGoogle = async () => {
     if (!isSupabaseConfigured) {
@@ -58,9 +72,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
+  const signInAsDemo = () => {
+    // Create a mock user for demo/development purposes
+    const demoUser = {
+      id: 'demo-user-123',
+      email: 'demo@quizcreator.app',
+      user_metadata: {
+        full_name: 'Demo User',
+        avatar_url: null,
+      },
+      app_metadata: {},
+      aud: 'authenticated',
+      created_at: new Date().toISOString(),
+    } as User;
+    sessionStorage.setItem('demo_user', JSON.stringify(demoUser));
+    setUser(demoUser);
+  };
+
   const signOut = async () => {
-    // Allow signing out in dev mode
-    if (!isSupabaseConfigured) {
+    // Allow signing out in dev/demo mode
+    if (!isSupabaseConfigured || user?.id === 'demo-user-123') {
+      sessionStorage.removeItem('demo_user');
       setUser(null);
       return;
     }
@@ -76,6 +108,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     user,
     loading,
     signInWithGoogle,
+    signInAsDemo,
     signOut,
   };
 

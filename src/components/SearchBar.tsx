@@ -91,7 +91,7 @@ export function SearchBar({
               onChange('');
               inputRef.current?.focus();
             }}
-            className="p-1 text-text-muted hover:text-text-primary hover:bg-bg-tertiary rounded-lg transition-colors"
+            className="p-2 text-text-muted hover:text-text-primary hover:bg-bg-tertiary rounded-lg hover:scale-105 active:scale-95 transition-all duration-300"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

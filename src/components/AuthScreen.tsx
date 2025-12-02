@@ -8,9 +8,10 @@ interface AuthScreenProps {
 }
 
 export function AuthScreen({ theme, onToggleTheme }: AuthScreenProps) {
-  const { signInWithGoogle } = useAuth();
+  const { signInWithGoogle, signInAsDemo } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isDev = import.meta.env.DEV;
 
   const handleGoogleSignIn = async () => {
     setIsLoading(true);
@@ -137,6 +138,16 @@ export function AuthScreen({ theme, onToggleTheme }: AuthScreenProps) {
               {isLoading ? 'Signing in...' : 'Continue with Google'}
             </span>
           </button>
+
+          {/* Demo mode button (only in development) */}
+          {isDev && (
+            <button
+              onClick={signInAsDemo}
+              className="w-full mt-4 py-3 text-text-muted hover:text-text-secondary text-sm transition-colors border border-dashed border-border/50 rounded-xl hover:border-border opacity-0 animate-fade-in stagger-5"
+            >
+              Try Demo Mode
+            </button>
+          )}
 
           {/* Tagline */}
           <p className="mt-6 text-center opacity-0 animate-fade-in stagger-5">

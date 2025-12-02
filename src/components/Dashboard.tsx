@@ -79,22 +79,22 @@ export function Dashboard({
         {/* Stats Bar - only show if there are stats */}
         {totalStats && totalStats.totalAttempts > 0 && (
           <div className="mb-8 grid grid-cols-2 sm:grid-cols-4 gap-4 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
-            <div className="bg-bg-secondary/50 border border-border rounded-xl p-4 text-center hover:border-accent/30 transition-colors">
+            <div className="bg-bg-secondary/50 border border-border rounded-xl p-4 text-center hover:border-accent/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/5 transition-all duration-300">
               <p className="text-2xl font-bold text-accent">{totalStats.totalAttempts}</p>
               <p className="text-xs text-text-muted">Total Plays</p>
             </div>
-            <div className="bg-bg-secondary/50 border border-border rounded-xl p-4 text-center hover:border-accent/30 transition-colors">
+            <div className="bg-bg-secondary/50 border border-border rounded-xl p-4 text-center hover:border-accent/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/5 transition-all duration-300">
               <p className="text-2xl font-bold text-accent">{Math.round(totalStats.averageScore)}%</p>
               <p className="text-xs text-text-muted">Avg Score</p>
             </div>
-            <div className="bg-bg-secondary/50 border border-border rounded-xl p-4 text-center hover:border-accent/30 transition-colors">
+            <div className="bg-bg-secondary/50 border border-border rounded-xl p-4 text-center hover:border-accent/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/5 transition-all duration-300">
               <p className="text-2xl font-bold text-accent flex items-center justify-center gap-1">
                 {totalStats.bestStreak}
                 <span className="text-orange-400">🔥</span>
               </p>
               <p className="text-xs text-text-muted">Best Streak</p>
             </div>
-            <div className="bg-bg-secondary/50 border border-border rounded-xl p-4 text-center hover:border-accent/30 transition-colors">
+            <div className="bg-bg-secondary/50 border border-border rounded-xl p-4 text-center hover:border-accent/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/5 transition-all duration-300">
               <p className="text-2xl font-bold text-accent">{formatTime(totalStats.totalTimeSpent)}</p>
               <p className="text-xs text-text-muted">Time Spent</p>
             </div>
@@ -118,7 +118,7 @@ export function Dashboard({
           </div>
           <button
             onClick={onCreateQuiz}
-            className="btn-shimmer inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 group"
+            className="btn-shimmer inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-300 group"
           >
             <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -163,7 +163,7 @@ export function Dashboard({
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="px-4 py-3 bg-bg-secondary border border-border rounded-xl text-sm text-text-primary focus:outline-none focus:border-accent/50 cursor-pointer hover:border-accent/30 transition-colors"
+                className="px-4 py-3 bg-bg-tertiary border border-border rounded-xl text-sm text-text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 cursor-pointer hover:border-accent/30 transition-all duration-300"
               >
                 <option value="newest">Newest</option>
                 <option value="oldest">Oldest</option>
@@ -188,7 +188,7 @@ export function Dashboard({
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
                 onClick={onCreateQuiz}
-                className="btn-shimmer inline-flex items-center gap-2 px-6 py-3 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 group"
+                className="btn-shimmer inline-flex items-center gap-2 px-6 py-3 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-300 group"
               >
                 <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -206,7 +206,7 @@ export function Dashboard({
               ].map((feature, idx) => (
                 <div
                   key={feature.title}
-                  className="p-5 bg-bg-secondary/50 border border-border rounded-xl hover:border-accent/30 transition-all duration-300 opacity-0 animate-fade-in-up"
+                  className="p-5 bg-bg-secondary/50 border border-border rounded-xl hover:border-accent/30 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/5 transition-all duration-300 opacity-0 animate-fade-in-up"
                   style={{ animationDelay: `${0.3 + idx * 0.1}s` }}
                 >
                   <span className="text-3xl mb-3 block">{feature.icon}</span>
@@ -239,7 +239,7 @@ export function Dashboard({
                   if (onSearchChange) onSearchChange('');
                   if (showFavoritesOnly && onToggleFavoritesOnly) onToggleFavoritesOnly();
                 }}
-                className="px-4 py-2 bg-bg-secondary border border-border rounded-lg text-text-secondary hover:text-text-primary hover:border-accent/50 transition-all duration-300"
+                className="px-4 py-2.5 bg-bg-secondary border border-border rounded-xl text-text-secondary hover:text-text-primary hover:border-accent/50 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 transition-all duration-300"
               >
                 Clear Filters
               </button>

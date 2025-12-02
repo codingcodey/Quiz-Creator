@@ -75,7 +75,7 @@ export function QuestionCard({
             <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2 text-text-secondary hover:text-text-primary transition-colors"
+                className="px-4 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300"
               >
                 Cancel
               </button>
@@ -84,7 +84,7 @@ export function QuestionCard({
                   setShowDeleteConfirm(false);
                   onDelete();
                 }}
-                className="px-4 py-2 bg-error text-white rounded-lg hover:bg-error/90 transition-colors"
+                className="px-4 py-2.5 bg-error text-white rounded-xl hover:bg-error/90 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-error/30 active:translate-y-0 transition-all duration-300"
               >
                 Delete
               </button>
@@ -100,12 +100,12 @@ export function QuestionCard({
         onDragLeave={onDragLeave}
         onDragEnd={onDragEnd}
         onDrop={onDrop}
-        className={`relative bg-bg-secondary border-2 rounded-2xl p-5 transition-all duration-300 cursor-grab active:cursor-grabbing ${
+        className={`relative bg-bg-secondary border rounded-2xl p-5 transition-all duration-300 cursor-grab active:cursor-grabbing ${
           isDragging 
             ? 'opacity-50 scale-[0.98] border-border' 
             : isDragOver 
-            ? 'border-accent border-dashed bg-accent/5' 
-            : 'border-border border-solid hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5'
+            ? 'border-2 border-accent border-dashed bg-accent/5' 
+            : 'border-border hover:border-accent/30 hover:shadow-lg hover:shadow-accent/5'
         }`}
       >
       {/* Header */}
@@ -198,14 +198,14 @@ export function QuestionCard({
                   value={option.text}
                   onChange={(e) => onUpdateOption(option.id, { text: e.target.value })}
                   placeholder={`Option ${optIndex + 1}`}
-                  className="flex-1 bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent/50"
+                  className="flex-1 bg-bg-tertiary border border-border px-4 py-2.5 rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-300"
                 />
 
                 {/* Delete option */}
                 {canDeleteOption && (
                   <button
                     onClick={() => onDeleteOption(option.id)}
-                    className="p-1 text-text-muted hover:text-error transition-colors"
+                    className="p-1.5 text-text-muted hover:text-error hover:bg-error/10 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300"
                     title="Remove option"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -238,7 +238,7 @@ export function QuestionCard({
           {(question.options?.length ?? 0) < 6 && (
             <button
               onClick={onAddOption}
-              className="w-full py-2 border border-dashed border-border rounded-lg text-sm text-text-muted hover:border-accent/50 hover:text-accent transition-colors"
+              className="w-full py-2.5 border border-dashed border-border rounded-xl text-sm text-text-muted hover:border-accent/50 hover:text-accent hover:bg-accent/5 transition-all duration-300"
             >
               + Add Option
             </button>
@@ -282,7 +282,7 @@ export function QuestionCard({
                   {canDeleteOption && (
                     <button
                       onClick={() => onDeleteOption(option.id)}
-                      className="absolute top-2 left-2 p-1 text-text-muted hover:text-error transition-colors rounded"
+                      className="absolute top-2 left-2 p-1.5 text-text-muted hover:text-error hover:bg-error/10 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300"
                       title="Remove option"
                     >
                       <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -325,7 +325,7 @@ export function QuestionCard({
           {(question.options?.length ?? 0) < 8 && (
             <button
               onClick={onAddOption}
-              className="w-full py-2 border border-dashed border-border rounded-lg text-sm text-text-muted hover:border-accent/50 hover:text-accent transition-colors"
+              className="w-full py-2.5 border border-dashed border-border rounded-xl text-sm text-text-muted hover:border-accent/50 hover:text-accent hover:bg-accent/5 transition-all duration-300"
             >
               + Add Option
             </button>
@@ -342,7 +342,7 @@ export function QuestionCard({
             value={question.expectedAnswer || ''}
             onChange={(e) => onUpdate({ expectedAnswer: e.target.value })}
             placeholder="Enter the correct answer..."
-            className="w-full bg-bg-tertiary px-3 py-2 rounded-lg text-text-primary placeholder-text-muted focus:outline-none focus:ring-1 focus:ring-accent/50"
+            className="w-full bg-bg-tertiary border border-border px-4 py-3 rounded-xl text-text-primary placeholder-text-muted focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-300"
           />
           {isExpectedAnswerEmpty ? (
             <p className="text-xs text-warning flex items-center gap-1">
@@ -366,9 +366,9 @@ export function QuestionCard({
           <button
             onClick={onMoveUp}
             disabled={!canMoveUp}
-            className={`p-1.5 rounded-lg transition-colors ${
+            className={`p-2 rounded-lg transition-all duration-300 ${
               canMoveUp 
-                ? 'text-text-muted hover:text-text-primary hover:bg-bg-tertiary' 
+                ? 'text-text-muted hover:text-text-primary hover:bg-bg-tertiary hover:scale-105 active:scale-95' 
                 : 'text-text-muted/30 cursor-not-allowed'
             }`}
             title="Move up (keyboard: hold question and press ↑)"
@@ -381,9 +381,9 @@ export function QuestionCard({
           <button
             onClick={onMoveDown}
             disabled={!canMoveDown}
-            className={`p-1.5 rounded-lg transition-colors ${
+            className={`p-2 rounded-lg transition-all duration-300 ${
               canMoveDown 
-                ? 'text-text-muted hover:text-text-primary hover:bg-bg-tertiary' 
+                ? 'text-text-muted hover:text-text-primary hover:bg-bg-tertiary hover:scale-105 active:scale-95' 
                 : 'text-text-muted/30 cursor-not-allowed'
             }`}
             title="Move down (keyboard: hold question and press ↓)"
@@ -398,7 +398,7 @@ export function QuestionCard({
           {/* Duplicate */}
           <button
             onClick={onDuplicate}
-            className="p-1.5 text-text-muted hover:text-accent hover:bg-accent/10 rounded-lg transition-colors"
+            className="p-2 text-text-muted hover:text-accent hover:bg-accent/10 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300"
             title="Duplicate question"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -408,7 +408,7 @@ export function QuestionCard({
           {/* Delete */}
           <button
             onClick={() => setShowDeleteConfirm(true)}
-            className="p-1.5 text-text-muted hover:text-error hover:bg-error/10 rounded-lg transition-colors"
+            className="p-2 text-text-muted hover:text-error hover:bg-error/10 rounded-lg hover:scale-105 active:scale-95 transition-all duration-300"
             title="Delete question"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

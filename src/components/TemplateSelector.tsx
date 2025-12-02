@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QUIZ_TEMPLATES, getAllCategories, type QuizTemplate } from '../data/templates';
 
 interface TemplateSelectorProps {
@@ -10,13 +10,39 @@ interface TemplateSelectorProps {
 
 export function TemplateSelector({ isOpen, onClose, onSelectTemplate, onCreateBlank }: TemplateSelectorProps) {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showCloseConfirm, setShowCloseConfirm] = useState(false);
   const categories = getAllCategories();
 
   const filteredTemplates = selectedCategory
     ? QUIZ_TEMPLATES.filter((t) => t.category === selectedCategory)
     : QUIZ_TEMPLATES;
 
+  // Disable body scroll when modal is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.classList.add('modal-open');
+    } else {
+      document.body.classList.remove('modal-open');
+    }
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
+
+  const handleClose = () => {
+    setShowCloseConfirm(true);
+  };
+
+  const confirmClose = () => {
+    setShowCloseConfirm(false);
+    onClose();
+  };
+
+  const cancelClose = () => {
+    setShowCloseConfirm(false);
+  };
 
   // Get icon for settings feature
   const getSettingIcon = (setting: string) => {
@@ -31,6 +57,39 @@ export function TemplateSelector({ isOpen, onClose, onSelectTemplate, onCreateBl
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
+      {/* Close Confirmation Modal */}
+      {showCloseConfirm && (
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-backdrop">
+          <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-modal">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
+                <svg className="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                </svg>
+              </div>
+              <h3 className="font-serif text-xl text-text-primary">Leave Template Selector?</h3>
+            </div>
+            <p className="text-text-secondary mb-6">
+              Are you sure you want to go back? You'll need to start the quiz creation process again.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={cancelClose}
+                className="px-4 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300"
+              >
+                Stay Here
+              </button>
+              <button
+                onClick={confirmClose}
+                className="px-4 py-2.5 bg-error/20 text-error border border-error/30 rounded-xl hover:bg-error/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-error/20 active:translate-y-0 transition-all duration-300"
+              >
+                Go Back
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-4xl w-full mx-4 shadow-2xl animate-modal max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -39,7 +98,7 @@ export function TemplateSelector({ isOpen, onClose, onSelectTemplate, onCreateBl
             <p className="text-text-secondary text-sm mt-1">Start with a pre-built quiz or create from scratch</p>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="p-2 text-text-muted hover:text-text-primary hover:bg-bg-tertiary rounded-lg transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -82,7 +141,7 @@ export function TemplateSelector({ isOpen, onClose, onSelectTemplate, onCreateBl
             {onCreateBlank && !selectedCategory && (
               <button
                 onClick={onCreateBlank}
-                className="group p-5 bg-accent/10 border-2 border-dashed border-accent/40 rounded-xl text-left hover:border-accent hover:bg-accent/20 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 opacity-0 animate-fade-in-up"
+                className="group p-5 bg-accent/10 border-2 border-dashed border-accent/40 rounded-xl text-left hover:border-accent hover:border-solid hover:bg-accent/20 hover:-translate-y-1.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 transition-all duration-300 ease-out opacity-0 animate-fade-in-up"
               >
                 <div className="w-12 h-12 rounded-xl bg-accent/20 flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
                   <svg className="w-6 h-6 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -102,8 +161,8 @@ export function TemplateSelector({ isOpen, onClose, onSelectTemplate, onCreateBl
               <button
                 key={template.id}
                 onClick={() => onSelectTemplate(template)}
-                className="group p-5 bg-bg-tertiary border border-border rounded-xl text-left hover:border-accent/50 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 opacity-0 animate-fade-in-up"
-                style={{ animationDelay: `${index * 0.05}s` }}
+                className="group p-5 bg-bg-tertiary border border-border rounded-xl text-left hover:border-accent/50 hover:-translate-y-1.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 transition-all duration-300 ease-out opacity-0 animate-fade-in-up"
+                style={{ animationDelay: `${0.05 + index * 0.04}s` }}
               >
                 {/* Icon */}
                 <div className="w-12 h-12 rounded-xl bg-bg-secondary flex items-center justify-center text-2xl mb-4 group-hover:scale-110 transition-transform duration-300">
@@ -184,7 +243,7 @@ export function TemplateSelector({ isOpen, onClose, onSelectTemplate, onCreateBl
             {filteredTemplates.length} templates available
           </p>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="px-4 py-2 text-text-secondary hover:text-text-primary transition-colors"
           >
             Cancel

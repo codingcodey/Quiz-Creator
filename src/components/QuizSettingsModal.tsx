@@ -86,7 +86,7 @@ export function QuizSettingsModal({ settings, isOpen, onClose, onSave }: QuizSet
                         placeholder="30"
                         min="5"
                         max="300"
-                        className="w-full px-4 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:border-accent"
+                        className="w-full px-4 py-3 bg-bg-tertiary border border-border rounded-xl text-text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-300"
                       />
                       <span className="text-text-muted text-sm">sec</span>
                     </div>
@@ -101,7 +101,7 @@ export function QuizSettingsModal({ settings, isOpen, onClose, onSave }: QuizSet
                         placeholder="10"
                         min="1"
                         max="180"
-                        className="w-full px-4 py-2 bg-bg-primary border border-border rounded-lg text-text-primary focus:outline-none focus:border-accent"
+                        className="w-full px-4 py-3 bg-bg-tertiary border border-border rounded-xl text-text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-300"
                       />
                       <span className="text-text-muted text-sm">min</span>
                     </div>
