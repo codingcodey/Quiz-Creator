@@ -66,7 +66,7 @@ export function Dashboard({
   return (
     <section
       id="dashboard"
-      className="min-h-screen py-16 px-6"
+      className="py-16 px-6"
       style={{
         background: `
           radial-gradient(ellipse 80% 50% at 20% 0%, var(--color-accent-muted) 0%, transparent 50%),
@@ -163,7 +163,7 @@ export function Dashboard({
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
-                className="px-4 py-3 bg-bg-tertiary border border-border rounded-xl text-sm text-text-primary focus:outline-none focus:border-accent focus:ring-2 focus:ring-accent/20 cursor-pointer hover:border-accent/30 transition-all duration-300"
+                className="px-4 py-2.5 bg-bg-tertiary border border-border rounded-xl text-sm text-text-primary focus:outline-none focus:border-accent focus:ring focus:ring-accent/10 cursor-pointer hover:border-accent/30 transition-all duration-300"
               >
                 <option value="newest">Newest</option>
                 <option value="oldest">Oldest</option>

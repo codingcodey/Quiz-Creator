@@ -570,6 +570,19 @@ export function QuizEditor({
               </svg>
               {showSaved ? 'Saved' : 'Save'}
             </button>
+            <button
+              onClick={handlePlay}
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg font-medium transition-all min-h-[44px] ${
+                isQuizValid
+                  ? 'bg-accent text-bg-primary hover:bg-accent-hover shadow-lg shadow-accent/25 cursor-pointer'
+                  : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              Play
+            </button>
           </div>
 
           <div className="flex items-center gap-2">

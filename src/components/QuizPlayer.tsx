@@ -421,7 +421,10 @@ export function QuizPlayer({ quiz, onBack, onExitDemoMode, theme, onToggleTheme,
           >
             {previousAttempts.length > 0 ? 'Play Again' : 'Start Quiz'}
           </button>
-          <button onClick={onExitDemoMode || onBack} className="w-full py-3.5 text-text-secondary hover:text-text-primary transition-colors opacity-0 animate-fade-in stagger-5 min-h-[44px] rounded-lg hover:bg-bg-secondary/50">
+          <button
+            onClick={onExitDemoMode || onBack}
+            className="w-full py-3.5 text-text-secondary hover:text-text-primary transition-colors opacity-0 animate-fade-in stagger-5 min-h-[44px] rounded-lg hover:bg-bg-secondary/50"
+          >
             Back to Dashboard
           </button>
           <p className="mt-4 text-xs text-text-muted opacity-0 animate-fade-in stagger-5">Press Enter or Space to start</p>
@@ -543,10 +546,16 @@ export function QuizPlayer({ quiz, onBack, onExitDemoMode, theme, onToggleTheme,
           </div>
 
           <div className="flex gap-3 justify-center opacity-0 animate-fade-in-up stagger-5">
-            <button onClick={handleRestart} className="px-5 py-2.5 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 transition-all duration-300">
+            <button
+              onClick={handleRestart}
+              className="px-5 py-2.5 bg-bg-secondary border border-border rounded-xl text-text-primary hover:border-accent/50 hover:-translate-y-0.5 hover:shadow-lg active:translate-y-0 transition-all duration-300"
+            >
               Play Again
             </button>
-            <button onClick={onExitDemoMode || onBack} className="btn-shimmer px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30 active:translate-y-0 transition-all duration-300">
+            <button
+              onClick={onExitDemoMode || onBack}
+              className="btn-shimmer px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30 active:translate-y-0 transition-all duration-300"
+            >
               Done
             </button>
           </div>

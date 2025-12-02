@@ -287,6 +287,12 @@ function App() {
   }, [isDemo, quizzes.length, saveQuiz]);
 
   const handlePlayQuiz = useCallback((quizId: string) => {
+    // In demo mode, require sign-in before playing
+    if (isDemo) {
+      setShowSignInPrompt(true);
+      return;
+    }
+
     const quiz = getQuiz(quizId);
     if (quiz && quiz.questions.length === 0) {
       setQuizToPlay(quizId);
@@ -295,7 +301,7 @@ function App() {
       setEditingQuizId(quizId);
       setView('play');
     }
-  }, [getQuiz]);
+  }, [getQuiz, isDemo]);
 
   // Show loading state
   if (loading) {
@@ -333,7 +339,8 @@ function App() {
             quiz={editingQuiz}
             onSave={handleSaveQuiz}
             onExport={exportQuizData}
-            onBack={goHome}
+            onBack={isDemo ? () => setShowSignInPrompt(true) : goHome}
+            onPlay={() => handlePlayQuiz(editingQuiz.id)}
             theme={theme}
             onToggleTheme={toggleTheme}
             onEnableSharing={() => handleEnableSharing(editingQuiz.id)}
