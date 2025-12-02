@@ -56,7 +56,7 @@ export function TemplateSelector({ isOpen, onClose, onSelectTemplate, onCreateBl
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
+    <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
       {/* Close Confirmation Modal */}
       {showCloseConfirm && (
         <div className="absolute inset-0 z-10 flex items-center justify-center bg-black/40 backdrop-blur-sm animate-backdrop">
@@ -135,7 +135,7 @@ export function TemplateSelector({ isOpen, onClose, onSelectTemplate, onCreateBl
         </div>
 
         {/* Templates Grid */}
-        <div className="flex-1 overflow-y-auto pr-2 -mr-2">
+        <div className="flex-1 overflow-y-auto pr-2 -mr-2 pt-2 pb-2">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Start from Scratch option - always first */}
             {onCreateBlank && !selectedCategory && (

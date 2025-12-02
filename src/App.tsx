@@ -387,18 +387,18 @@ function App() {
           />
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="group flex items-center gap-2 px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 transition-all duration-300 text-sm"
+            className="group flex items-center gap-2 px-3 py-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 transition-all duration-300 text-sm h-10"
           >
             <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-y-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m4-8l-4-4m0 0l-4 4m4-4v12" />
             </svg>
             Import
           </button>
-          
+
           {/* Achievements button */}
           <button
             onClick={() => setShowAchievements(true)}
-            className="group flex items-center gap-2 px-3 py-2 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 transition-all duration-300 text-sm"
+            className="group flex items-center gap-2 px-3 py-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 transition-all duration-300 text-sm h-10"
           >
             <span className="text-base">🏆</span>
             <span className="hidden sm:inline">{achievementStats.unlocked}/{achievementStats.total}</span>
@@ -406,28 +406,26 @@ function App() {
         </div>
         
         <div className="fixed top-4 right-4 z-50 flex items-center gap-3 opacity-0 animate-slide-in-right stagger-1">
-          {/* User info */}
-          <div className="flex items-center gap-3 px-3 py-2 bg-bg-secondary border border-border rounded-lg hover:border-accent/30 transition-colors duration-300">
+          {/* User info with sign out */}
+          <button
+            onClick={signOut}
+            className="group flex items-center gap-2 px-3 py-2 bg-bg-secondary border border-border rounded-lg hover:border-error/50 hover:bg-error/5 transition-all duration-300 h-10"
+            title="Sign out"
+          >
             {user.user_metadata?.avatar_url && (
               <img
                 src={user.user_metadata.avatar_url}
                 alt={user.user_metadata?.full_name || 'User'}
-                className="w-7 h-7 rounded-full border border-border transition-transform duration-300 hover:scale-110"
+                className="w-6 h-6 rounded-full border border-border"
               />
             )}
-            <span className="text-text-secondary text-sm hidden sm:block max-w-[120px] truncate">
-              {user.user_metadata?.full_name || user.email}
+            <span className="text-text-secondary text-sm max-w-[100px] truncate">
+              {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
             </span>
-            <button
-              onClick={signOut}
-              className="text-text-muted hover:text-error hover:scale-110 active:scale-95 transition-all duration-200"
-              title="Sign out"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-              </svg>
-            </button>
-          </div>
+            <svg className="w-4 h-4 text-text-muted group-hover:text-error transition-colors duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
           <ThemeToggle theme={theme} onToggle={toggleTheme} />
         </div>
         
@@ -452,7 +450,7 @@ function App() {
 
         {/* No Questions Warning Modal */}
         {showNoQuestionsWarning && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
+          <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
             <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-modal">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
@@ -495,7 +493,7 @@ function App() {
 
         {/* Sign In Prompt Modal */}
         {showSignInPrompt && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
+          <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
             <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-modal">
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">

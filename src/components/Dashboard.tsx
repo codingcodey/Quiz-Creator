@@ -45,7 +45,7 @@ export function Dashboard({
   totalStats,
 }: DashboardProps) {
   const [sortBy, setSortBy] = useState<'newest' | 'oldest' | 'title'>('newest');
-  
+
   // Sort quizzes
   const sortedQuizzes = [...quizzes].sort((a, b) => {
     if (sortBy === 'newest') return b.updatedAt - a.updatedAt;

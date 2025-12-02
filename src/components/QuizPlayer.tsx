@@ -418,7 +418,7 @@ export function QuizPlayer({ quiz, onBack, onExitDemoMode, theme, onToggleTheme,
           >
             {previousAttempts.length > 0 ? 'Play Again' : 'Start Quiz'}
           </button>
-          <button onClick={onBack} className="w-full py-3 text-text-secondary hover:text-text-primary transition-colors text-sm opacity-0 animate-fade-in stagger-5">
+          <button onClick={onExitDemoMode || onBack} className="w-full py-3.5 text-text-secondary hover:text-text-primary transition-colors opacity-0 animate-fade-in stagger-5 min-h-[44px] rounded-lg hover:bg-bg-secondary/50">
             Back to Dashboard
           </button>
           <p className="mt-4 text-xs text-text-muted opacity-0 animate-fade-in stagger-5">Press Enter or Space to start</p>
@@ -571,11 +571,11 @@ export function QuizPlayer({ quiz, onBack, onExitDemoMode, theme, onToggleTheme,
 
         <div className="max-w-2xl mx-auto px-4 md:px-6 py-3">
           <div className="flex items-center justify-between mb-2">
-            <button onClick={onBack} className="flex items-center gap-1.5 text-text-secondary hover:text-text-primary transition-all duration-300 text-sm group">
-              <svg className="w-4 h-4 transition-transform duration-300 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button onClick={onExitDemoMode || onBack} className="flex items-center gap-2 px-3 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300 group rounded-lg hover:bg-bg-secondary min-h-[44px]">
+              <svg className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
               </svg>
-              Exit
+              <span className="font-medium">Exit</span>
             </button>
 
             <div className="flex items-center gap-3">

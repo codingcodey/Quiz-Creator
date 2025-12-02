@@ -98,13 +98,6 @@ export function SearchBar({
             </svg>
           </button>
         )}
-
-        {/* Keyboard Shortcut Hint */}
-        {!isFocused && !value && (
-          <kbd className="hidden sm:inline-flex items-center px-2 py-1 text-xs text-text-muted bg-bg-tertiary rounded border border-border">
-            ⌘K
-          </kbd>
-        )}
       </div>
 
       {/* Suggestions Dropdown */}
