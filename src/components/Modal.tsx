@@ -47,21 +47,18 @@ export function Modal({ isOpen, onClose, children, maxWidth = 'md' }: ModalProps
     <div
       className="modal-backdrop fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm animate-backdrop"
       onClick={onClose}
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '1rem',
-        overflow: 'hidden',
-        margin: 0
-      }}
     >
       <div
-        className={`bg-bg-secondary border border-border rounded-2xl p-6 ${maxWidthClasses[maxWidth]} w-full shadow-2xl animate-modal overflow-y-auto`}
+        className={`bg-bg-secondary border border-border rounded-2xl p-6 ${maxWidthClasses[maxWidth]} w-full mx-4 shadow-2xl animate-modal overflow-y-auto`}
         onClick={(e) => e.stopPropagation()}
         style={{
+          position: 'fixed',
+          top: '50vh',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
           maxHeight: 'calc(100vh - 2rem)',
-          margin: 0
+          margin: 0,
+          boxSizing: 'border-box'
         }}
       >
         {children}
