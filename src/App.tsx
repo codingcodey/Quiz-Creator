@@ -184,11 +184,21 @@ function App() {
     quizId: string,
     attempt: Omit<QuizAttempt, 'id' | 'completedAt'>
   ) => {
+    const quiz = getQuiz(quizId);
+
+    // Previous attempts for this quiz (for comeback / first-try logic)
+    const previousAttempts = getAttemptsForQuiz(quizId);
+    const previousScore =
+      previousAttempts.length > 0 ? previousAttempts[previousAttempts.length - 1].percentage : undefined;
+
+    // Determine if this is the very first quiz attempt overall
+    const priorTotalAttempts = totalStats?.totalAttempts ?? 0;
+    const isFirstQuizAttempt = priorTotalAttempts === 0;
+
     // Save the attempt
     saveAttempt(attempt);
     
     // Increment play count
-    const quiz = getQuiz(quizId);
     if (quiz) {
       updateQuiz(quizId, { playCount: (quiz.playCount || 0) + 1 });
     }
@@ -202,7 +212,9 @@ function App() {
       attempt.timeSpent,
       false, // usedHints - could track this in attempt
       quiz?.settings.timerEnabled,
-      quiz?.settings.shuffleQuestions || quiz?.settings.shuffleOptions
+      quiz?.settings.shuffleQuestions || quiz?.settings.shuffleOptions,
+      previousScore,
+      isFirstQuizAttempt
     );
     
     if (newAchievements.length > 0) {
@@ -213,7 +225,7 @@ function App() {
     if (attempt.percentage >= 80) {
       setShowConfetti(true);
     }
-  }, [saveAttempt, getQuiz, updateQuiz, checkQuizCompletion]);
+  }, [saveAttempt, getQuiz, getAttemptsForQuiz, updateQuiz, checkQuizCompletion, totalStats]);
 
   // Handle enabling sharing
   const handleEnableSharing = useCallback((quizId: string) => {

@@ -183,9 +183,9 @@ export function useAchievements() {
       // Quiz count - increment total
       let result = incrementProgress('first-quiz');
       if (result) newAchievements.push(result);
-
-      // Get updated quiz count
-      const quizCount = getProgress('first-quiz').current + 1;
+      
+      // Get updated quiz count (after increment)
+      const quizCount = getProgress('first-quiz').current;
       
       // Quiz milestones
       result = updateProgress('quiz-5', quizCount);
