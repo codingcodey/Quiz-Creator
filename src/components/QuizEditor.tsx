@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import type { Quiz, Question, QuizOption, QuizSettings } from '../types/quiz';
 import { createQuestion, createOption, DEFAULT_SETTINGS } from '../types/quiz';
 import { QuestionCard } from './QuestionCard';
@@ -379,8 +380,8 @@ export function QuizEditor({
       }}
     >
       {/* Leave Confirmation Modal */}
-      {showLeaveConfirm && (
-        <div className="modal-backdrop fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm animate-backdrop">
+      {showLeaveConfirm && createPortal(
+        <div className="modal-backdrop fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm animate-backdrop" onClick={() => setShowLeaveConfirm(false)}>
           <div
             className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl animate-modal overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
@@ -405,7 +406,7 @@ export function QuizEditor({
               </h3>
             </div>
             <p className="text-text-secondary mb-6">
-              {!isQuizValid 
+              {!isQuizValid
                 ? 'Your quiz is not complete. Add at least one complete question to save it. Are you sure you want to leave?'
                 : 'You have unsaved changes that will be lost. Are you sure you want to leave?'
               }
@@ -428,7 +429,8 @@ export function QuizEditor({
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Settings Modal */}

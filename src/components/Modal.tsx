@@ -1,4 +1,5 @@
 import { useEffect, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 
 interface ModalProps {
   isOpen: boolean;
@@ -43,7 +44,7 @@ export function Modal({ isOpen, onClose, children, maxWidth = 'md' }: ModalProps
     xl: 'max-w-xl',
   };
 
-  return (
+  const modalContent = (
     <div
       className="modal-backdrop fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm animate-backdrop"
       onClick={onClose}
@@ -65,6 +66,8 @@ export function Modal({ isOpen, onClose, children, maxWidth = 'md' }: ModalProps
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
 
 interface ConfirmationModalProps {

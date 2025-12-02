@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { useAccessibility } from '../hooks/useAccessibility';
 
 interface AccessibilitySettingsProps {
@@ -37,15 +38,17 @@ export function AccessibilitySettings({ isOpen, onClose }: AccessibilitySettings
     },
   ];
 
-  return (
+  const modalContent = (
     <div
       className="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-backdrop"
       role="dialog"
       aria-modal="true"
       aria-labelledby="accessibility-title"
+      onClick={onClose}
     >
       <div
         className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md w-full mx-4 shadow-2xl animate-modal"
+        onClick={(e) => e.stopPropagation()}
         style={{
           position: 'fixed',
           top: '50%',
@@ -147,5 +150,7 @@ export function AccessibilitySettings({ isOpen, onClose }: AccessibilitySettings
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
 

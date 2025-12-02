@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import type { Achievement } from '../hooks/useAchievements';
 
 interface AchievementToastProps {
@@ -88,10 +89,11 @@ export function AchievementShowcase({ isOpen, onClose, achievements, stats }: Ac
 
   const categories = [...new Set(achievements.map((a) => a.category))];
 
-  return (
-    <div className="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-backdrop">
+  const modalContent = (
+    <div className="modal-backdrop fixed inset-0 z-50 bg-black/60 backdrop-blur-sm animate-backdrop" onClick={onClose}>
       <div
         className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-2xl w-full mx-4 shadow-2xl animate-modal overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}
         style={{
           position: 'fixed',
           top: '50%',
@@ -199,5 +201,7 @@ export function AchievementShowcase({ isOpen, onClose, achievements, stats }: Ac
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 }
 
