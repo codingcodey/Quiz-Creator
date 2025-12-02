@@ -116,7 +116,10 @@ export function QuizPlayer({ quiz, onBack, onExitDemoMode, theme, onToggleTheme,
       const selectedIds = answer?.selectedOptionIds ?? [];
       return correctIds.length === selectedIds.length && correctIds.every((id) => selectedIds.includes(id));
     } else if (question.type === 'type-in') {
-      return (question.expectedAnswer?.toLowerCase().trim() ?? '') === (answer?.typedAnswer?.toLowerCase().trim() ?? '');
+      const expectedAnswer = (question.expectedAnswer?.toLowerCase().trim() ?? '');
+      const typedAnswer = (answer?.typedAnswer?.toLowerCase().trim() ?? '');
+      // Check if the typed answer contains the expected answer (not case sensitive)
+      return typedAnswer.includes(expectedAnswer) && expectedAnswer.length > 0;
     }
     return false;
   }, []);

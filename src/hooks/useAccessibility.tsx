@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, type ReactNode } from 'react';
 import { useLocalStorage } from './useLocalStorage';
 
 interface AccessibilitySettings {
@@ -204,7 +204,7 @@ export function useFocusTrap(isActive: boolean, containerRef: React.RefObject<HT
 }
 
 // Skip link component
-export function SkipLink({ targetId, children }: { targetId: string; children: React.ReactNode }) {
+export function SkipLink({ targetId, children }: { targetId: string; children: ReactNode }) {
   return (
     <a
       href={`#${targetId}`}

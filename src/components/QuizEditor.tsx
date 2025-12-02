@@ -49,7 +49,7 @@ export function QuizEditor({
 }: QuizEditorProps) {
   // Local draft state - changes only affect this until saved
   const [draft, setDraft] = useState<Quiz>(() => ({
-    ...JSON.parse(JSON.stringify(quiz)),
+    ...structuredClone(quiz),
     settings: quiz.settings || { ...DEFAULT_SETTINGS },
   }));
   const [draggingIndex, setDraggingIndex] = useState<number | null>(null);
@@ -423,49 +423,80 @@ export function QuizEditor({
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
         </div>
         
-        {/* Mobile: 4 evenly spaced items */}
-        <div className="md:hidden px-4 py-3 flex items-center justify-between">
-          <button
-            onClick={handleBackClick}
-            className="flex items-center gap-2 px-2 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300 group rounded-lg hover:bg-bg-secondary min-h-[44px]"
-          >
-            <svg className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-            <span className="font-medium">Back</span>
-          </button>
+        {/* Mobile: Two rows for better organization */}
+        <div className="md:hidden px-4 py-3">
+          {/* First row: Back and Save */}
+          <div className="flex items-center justify-between mb-2">
+            <button
+              onClick={handleBackClick}
+              className="flex items-center gap-2 px-2 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300 group rounded-lg hover:bg-bg-secondary min-h-[44px]"
+            >
+              <svg className="w-5 h-5 transition-transform duration-300 group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span className="font-medium">Back</span>
+            </button>
 
-          <button
-            onClick={handleSave}
-            className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all min-h-[44px] ${
-              showSaved
-                ? 'bg-success text-white cursor-default'
-                : canSave
-                ? 'bg-success hover:bg-success/90 text-white shadow-lg shadow-success/25 cursor-pointer'
-                : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
-            }`}
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              {showSaved ? (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-              ) : (
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-              )}
-            </svg>
-            Save
-          </button>
+            <button
+              onClick={handleSave}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all min-h-[44px] ${
+                showSaved
+                  ? 'bg-success text-white cursor-default'
+                  : canSave
+                  ? 'bg-success hover:bg-success/90 text-white shadow-lg shadow-success/25 cursor-pointer'
+                  : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
+              }`}
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                {showSaved ? (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                ) : (
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                )}
+              </svg>
+              Save
+            </button>
+          </div>
 
-          <button
-            onClick={() => setShowSettings(true)}
-            className="flex items-center gap-2 px-3 py-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300 min-h-[44px]"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
+          {/* Second row: Settings, Share, Export, Theme */}
+          <div className="flex items-center justify-between gap-2">
+            <button
+              onClick={() => setShowSettings(true)}
+              className="flex items-center justify-center p-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300 min-h-[44px] min-w-[44px]"
+              title="Quiz Settings"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
 
-          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+            <button
+              onClick={() => setShowShareModal(true)}
+              className={`flex items-center justify-center p-2.5 rounded-lg transition-all duration-300 min-h-[44px] min-w-[44px] ${
+                draft.settings?.isPublic
+                  ? 'bg-accent/20 border border-accent/30 text-accent'
+                  : 'bg-bg-secondary border border-border text-text-primary hover:border-accent/50 hover:text-accent'
+              }`}
+              title="Share Quiz"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+            </button>
+
+            <button
+              onClick={handleExport}
+              className="flex items-center justify-center p-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent transition-all duration-300 min-h-[44px] min-w-[44px]"
+              title="Export as JSON"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </button>
+
+            <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+          </div>
         </div>
 
         {/* Desktop: Original layout */}

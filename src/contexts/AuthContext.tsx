@@ -41,13 +41,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
 
     // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase!.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase!.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -60,7 +60,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       throw new Error('Supabase is not configured. Please add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your environment.');
     }
 
-    const { error } = await supabase.auth.signInWithOAuth({
+    const { error } = await supabase!.auth.signInWithOAuth({
       provider: 'google',
       options: {
         redirectTo: window.location.origin + window.location.pathname,
@@ -97,7 +97,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return;
     }
 
-    const { error } = await supabase.auth.signOut();
+    const { error } = await supabase!.auth.signOut();
     if (error) {
       console.error('Error signing out:', error);
       throw error;

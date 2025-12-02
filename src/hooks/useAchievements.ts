@@ -28,7 +28,7 @@ export const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlockedAt'>[] = [
   { id: 'quiz-25', name: 'Quiz Master', description: 'Complete 25 quizzes', icon: '🏆', category: 'quiz', requirement: 25 },
   { id: 'quiz-50', name: 'Quiz Champion', description: 'Complete 50 quizzes', icon: '🥇', category: 'quiz', requirement: 50 },
   { id: 'quiz-100', name: 'Quiz Legend', description: 'Complete 100 quizzes', icon: '👑', category: 'quiz', requirement: 100 },
-  { id: 'quiz-250', name: 'Quiz Virtuoso', description: 'Complete 250 quizzes', icon: '🌟', category: 'quiz', requirement: 250 },
+  { id: 'quiz-250', name: 'Quiz Virtuoso', description: 'Complete 250 quizzes', icon: '⭐', category: 'quiz', requirement: 250 },
   { id: 'quiz-500', name: 'Quiz Immortal', description: 'Complete 500 quizzes', icon: '🔱', category: 'quiz', requirement: 500 },
   
   // Streak achievements
@@ -42,17 +42,17 @@ export const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlockedAt'>[] = [
   
   // Score achievements
   { id: 'perfect-score', name: 'Perfect!', description: 'Get 100% on a quiz', icon: '✨', category: 'score', requirement: 100 },
-  { id: 'perfect-5', name: 'Perfectionist', description: 'Get 5 perfect scores', icon: '🌟', category: 'score', requirement: 5 },
-  { id: 'perfect-10', name: 'Ace Student', description: 'Get 10 perfect scores', icon: '📝', category: 'score', requirement: 10 },
+  { id: 'perfect-5', name: 'Perfectionist', description: 'Get 5 perfect scores', icon: '🌠', category: 'score', requirement: 5 },
+  { id: 'perfect-10', name: 'Ace Student', description: 'Get 10 perfect scores', icon: '🎓', category: 'score', requirement: 10 },
   { id: 'perfect-25', name: 'Flawless', description: 'Get 25 perfect scores', icon: '💯', category: 'score', requirement: 25 },
   { id: 'perfect-50', name: 'Perfectionist Pro', description: 'Get 50 perfect scores', icon: '🎖️', category: 'score', requirement: 50 },
   { id: 'score-90', name: 'A+ Student', description: 'Score 90% or higher 10 times', icon: '📊', category: 'score', requirement: 10 },
   { id: 'score-80', name: 'Solid Performer', description: 'Score 80% or higher 20 times', icon: '📈', category: 'score', requirement: 20 },
-  { id: 'comeback', name: 'Comeback Kid', description: 'Score higher than your previous attempt', icon: '📈', category: 'score', requirement: 1 },
+  { id: 'comeback', name: 'Comeback Kid', description: 'Score higher than your previous attempt', icon: '↗️', category: 'score', requirement: 1 },
   
   // Creator achievements
   { id: 'creator-1', name: 'Quiz Creator', description: 'Create your first quiz', icon: '✏️', category: 'milestone', requirement: 1 },
-  { id: 'creator-5', name: 'Prolific Creator', description: 'Create 5 quizzes', icon: '📝', category: 'milestone', requirement: 5 },
+  { id: 'creator-5', name: 'Prolific Creator', description: 'Create 5 quizzes', icon: '🖊️', category: 'milestone', requirement: 5 },
   { id: 'creator-10', name: 'Quiz Factory', description: 'Create 10 quizzes', icon: '🏭', category: 'milestone', requirement: 10 },
   { id: 'creator-25', name: 'Content Machine', description: 'Create 25 quizzes', icon: '🎨', category: 'milestone', requirement: 25 },
   { id: 'creator-50', name: 'Quiz Architect', description: 'Create 50 quizzes', icon: '🏗️', category: 'milestone', requirement: 50 },
@@ -62,7 +62,7 @@ export const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlockedAt'>[] = [
   // Explorer achievements - trying different things
   { id: 'explorer-template', name: 'Template Explorer', description: 'Use 5 different templates', icon: '🗺️', category: 'explorer', requirement: 5 },
   { id: 'explorer-all-types', name: 'Question Master', description: 'Answer all question types (MC, multi-select, type-in)', icon: '🎲', category: 'explorer', requirement: 3 },
-  { id: 'timed-quiz', name: 'Time Warrior', description: 'Complete 5 timed quizzes', icon: '⏱️', category: 'explorer', requirement: 5 },
+  { id: 'timed-quiz', name: 'Time Warrior', description: 'Complete 5 timed quizzes', icon: '⏰', category: 'explorer', requirement: 5 },
   { id: 'shuffled-quiz', name: 'Chaos Champion', description: 'Complete 5 shuffled quizzes', icon: '🔀', category: 'explorer', requirement: 5 },
   { id: 'hint-user', name: 'Hint Hunter', description: 'Use hints in 10 quizzes', icon: '💡', category: 'explorer', requirement: 10 },
   { id: 'no-hints', name: 'No Help Needed', description: 'Complete 10 quizzes without using hints', icon: '🦸', category: 'explorer', requirement: 10 },
@@ -72,7 +72,7 @@ export const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlockedAt'>[] = [
   { id: 'lightning-fast', name: 'Lightning Fast', description: 'Answer a question in under 3 seconds', icon: '⚡', category: 'speed', requirement: 1 },
   { id: 'quick-thinker', name: 'Quick Thinker', description: 'Complete a 10+ question quiz in under 2 minutes', icon: '🚀', category: 'speed', requirement: 1 },
   { id: 'speed-streak', name: 'Speed Streak', description: 'Answer 5 questions correctly under 5 seconds each', icon: '💨', category: 'speed', requirement: 5 },
-  { id: 'time-master', name: 'Time Master', description: 'Complete 10 timed quizzes with time remaining', icon: '⌛', category: 'speed', requirement: 10 },
+  { id: 'time-master', name: 'Time Master', description: 'Complete 10 timed quizzes with time remaining', icon: '⏳', category: 'speed', requirement: 10 },
   
   // Special time-based achievements
   { id: 'night-owl', name: 'Night Owl', description: 'Complete a quiz after midnight', icon: '🦉', category: 'special', requirement: 1 },
@@ -87,7 +87,7 @@ export const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlockedAt'>[] = [
   { id: 'questions-100', name: 'Century Club', description: 'Answer 100 questions total', icon: '💯', category: 'dedication', requirement: 100 },
   { id: 'questions-500', name: 'Question Crusher', description: 'Answer 500 questions total', icon: '🔨', category: 'dedication', requirement: 500 },
   { id: 'questions-1000', name: 'Thousand Questions', description: 'Answer 1000 questions total', icon: '🏔️', category: 'dedication', requirement: 1000 },
-  { id: 'hours-played-1', name: 'First Hour', description: 'Spend 1 hour playing quizzes', icon: '⏳', category: 'dedication', requirement: 1 },
+  { id: 'hours-played-1', name: 'First Hour', description: 'Spend 1 hour playing quizzes', icon: '⌚', category: 'dedication', requirement: 1 },
   { id: 'hours-played-10', name: 'Dedicated Learner', description: 'Spend 10 hours playing quizzes', icon: '📖', category: 'dedication', requirement: 10 },
   
   // Sharing achievements
@@ -96,7 +96,7 @@ export const ACHIEVEMENT_DEFINITIONS: Omit<Achievement, 'unlockedAt'>[] = [
   
   // Fun & special achievements
   { id: 'first-try-perfect', name: 'Beginner\'s Luck', description: 'Get 100% on your first ever quiz', icon: '🍀', category: 'special', requirement: 1 },
-  { id: 'favorites', name: 'Collector', description: 'Mark 5 quizzes as favorites', icon: '⭐', category: 'special', requirement: 5 },
+  { id: 'favorites', name: 'Collector', description: 'Mark 5 quizzes as favorites', icon: '🌟', category: 'special', requirement: 5 },
   { id: 'organized', name: 'Organization Pro', description: 'Create 3 folders to organize quizzes', icon: '📁', category: 'special', requirement: 3 },
   { id: 'variety-king', name: 'Variety King', description: 'Complete quizzes in 5 different categories', icon: '🎭', category: 'special', requirement: 5 },
   { id: 'persistence', name: 'Never Give Up', description: 'Retry a quiz 5 times', icon: '💪', category: 'special', requirement: 5 },

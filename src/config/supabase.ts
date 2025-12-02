@@ -17,7 +17,7 @@ if (!isSupabaseConfigured) {
   );
 }
 
-// Create the Supabase client (will throw errors if used without proper configuration)
+// Create the Supabase client only if properly configured
 export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl!, supabaseAnonKey!)
-  : null!;
+  : null;

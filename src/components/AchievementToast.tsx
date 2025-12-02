@@ -12,11 +12,18 @@ export function AchievementToast({ achievement, onClose }: AchievementToastProps
   useEffect(() => {
     if (achievement) {
       setIsVisible(true);
-      const timer = setTimeout(() => {
+      const hideTimer = setTimeout(() => {
         setIsVisible(false);
-        setTimeout(onClose, 300);
       }, 4000);
-      return () => clearTimeout(timer);
+
+      const closeTimer = setTimeout(() => {
+        onClose();
+      }, 4300);
+
+      return () => {
+        clearTimeout(hideTimer);
+        clearTimeout(closeTimer);
+      };
     }
   }, [achievement, onClose]);
 
@@ -47,7 +54,7 @@ export function AchievementToast({ achievement, onClose }: AchievementToastProps
         <button
           onClick={() => {
             setIsVisible(false);
-            setTimeout(onClose, 300);
+            setTimeout(() => onClose(), 300);
           }}
           className="p-2 text-text-muted hover:text-text-primary transition-colors"
         >

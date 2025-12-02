@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ConfirmationModal } from './Modal';
 import type { Question, QuizOption } from '../types/quiz';
 import { ImageUploader } from './ImageUploader';
 
@@ -58,40 +59,20 @@ export function QuestionCard({
   return (
     <>
       {/* Delete Confirmation Modal */}
-      {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
-          <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-modal">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-full bg-error/20 flex items-center justify-center">
-                <svg className="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </div>
-              <h3 className="font-serif text-xl text-text-primary">Delete Question</h3>
-            </div>
-            <p className="text-text-secondary mb-6">
-              Are you sure you want to delete this question? This action cannot be undone.
-            </p>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => setShowDeleteConfirm(false)}
-                className="px-4 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  setShowDeleteConfirm(false);
-                  onDelete();
-                }}
-                className="px-4 py-2.5 bg-error text-white rounded-xl hover:bg-error/90 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-error/30 active:translate-y-0 transition-all duration-300"
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationModal
+        isOpen={showDeleteConfirm}
+        onClose={() => setShowDeleteConfirm(false)}
+        onConfirm={onDelete}
+        title="Delete Question"
+        message="Are you sure you want to delete this question? This action cannot be undone."
+        confirmText="Delete"
+        variant="danger"
+        icon={
+          <svg className="w-5 h-5 text-error" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        }
+      />
       
       <div
         draggable

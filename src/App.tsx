@@ -4,6 +4,7 @@ import { useTheme } from './hooks/useTheme';
 import { useAuth } from './contexts/AuthContext';
 import { useQuizAttempts } from './hooks/useQuizAttempts';
 import { useAchievements, type Achievement } from './hooks/useAchievements';
+import { useDebounce } from './hooks/useDebounce';
 import { Hero } from './components/Hero';
 import { Dashboard } from './components/Dashboard';
 import { QuizEditor } from './components/QuizEditor';
@@ -14,6 +15,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { TemplateSelector } from './components/TemplateSelector';
 import { AchievementToast, AchievementShowcase } from './components/AchievementToast';
 import { Confetti } from './components/Confetti';
+import { Modal } from './components/Modal';
 import { createQuiz, generateShareId, type Quiz, type QuizAttempt } from './types/quiz';
 import { createQuizFromTemplate } from './data/templates';
 import type { QuizTemplate } from './data/templates';
@@ -29,7 +31,7 @@ function App() {
   const [newAchievement, setNewAchievement] = useState<Achievement | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFolder, setSelectedFolder] = useState<string | null>(null);
+  const [selectedFolder] = useState<string | null>(null);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [showNoQuestionsWarning, setShowNoQuestionsWarning] = useState(false);
   const [quizToPlay, setQuizToPlay] = useState<string | null>(null);
@@ -52,12 +54,15 @@ function App() {
 
   const isDemo = user?.id === 'demo-user-123';
 
+  // Debounce search query for better performance
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
+
   // Filter quizzes based on search, folder, and favorites
   const filteredQuizzes = useMemo(() => {
     let result = quizzes;
-    
-    if (searchQuery.trim()) {
-      const query = searchQuery.toLowerCase();
+
+    if (debouncedSearchQuery.trim()) {
+      const query = debouncedSearchQuery.toLowerCase();
       result = result.filter(
         (q) =>
           q.title.toLowerCase().includes(query) ||
@@ -65,17 +70,17 @@ function App() {
           q.tags?.some((t) => t.toLowerCase().includes(query))
       );
     }
-    
+
     if (selectedFolder) {
       result = result.filter((q) => q.folderId === selectedFolder);
     }
-    
+
     if (showFavoritesOnly) {
       result = result.filter((q) => q.isFavorite);
     }
-    
+
     return result;
-  }, [quizzes, searchQuery, selectedFolder, showFavoritesOnly]);
+  }, [quizzes, debouncedSearchQuery, selectedFolder, showFavoritesOnly]);
 
   // Get unique tags for search suggestions
   const allTags = useMemo(() => {
@@ -212,21 +217,22 @@ function App() {
 
   // Handle enabling sharing
   const handleEnableSharing = useCallback((quizId: string) => {
+    const quiz = getQuiz(quizId);
     const shareId = generateShareId();
     updateQuiz(quizId, {
       settings: {
-        ...getQuiz(quizId)?.settings,
+        ...(quiz?.settings || {}),
         isPublic: true,
         shareId,
-      },
+      } as any,
     });
-    
+
     // Check for sharing achievement
     const newAchievements = checkQuizShared();
     if (newAchievements.length > 0) {
       setNewAchievement(newAchievements[0]);
     }
-    
+
     return shareId;
   }, [updateQuiz, getQuiz, checkQuizShared]);
 
@@ -252,17 +258,7 @@ function App() {
     }
   }, [updateQuiz, getQuiz]);
 
-  // Disable body scroll when modals are open
-  useEffect(() => {
-    if (showTemplateSelector || showAchievements || showNoQuestionsWarning || showSignInPrompt) {
-      document.body.classList.add('modal-open');
-    } else {
-      document.body.classList.remove('modal-open');
-    }
-    return () => {
-      document.body.classList.remove('modal-open');
-    };
-  }, [showTemplateSelector, showAchievements, showNoQuestionsWarning, showSignInPrompt]);
+  // Note: Modal scroll management is now handled by the Modal component
 
   // Auto-create a basic quiz for demo mode
   useEffect(() => {
@@ -449,105 +445,97 @@ function App() {
         />
 
         {/* No Questions Warning Modal */}
-        {showNoQuestionsWarning && (
-          <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
-            <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-modal">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
-                  <svg className="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                  </svg>
-                </div>
-                <h3 className="font-serif text-xl text-text-primary">No Questions</h3>
-              </div>
-              <p className="text-text-secondary mb-6">
-                This quiz doesn't have any questions yet. Please add at least one question before playing.
-              </p>
-              <div className="flex gap-3 justify-end">
-                <button
-                  onClick={() => {
-                    setShowNoQuestionsWarning(false);
-                    setQuizToPlay(null);
-                  }}
-                  className="px-4 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    setShowNoQuestionsWarning(false);
-                    if (quizToPlay) {
-                      setEditingQuizId(quizToPlay);
-                      setView('editor');
-                      setQuizToPlay(null);
-                    }
-                  }}
-                  className="px-4 py-2.5 bg-accent/20 text-accent border border-accent/30 rounded-xl hover:bg-accent/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/20 active:translate-y-0 transition-all duration-300"
-                >
-                  Edit Quiz
-                </button>
-              </div>
+        <Modal isOpen={showNoQuestionsWarning} onClose={() => { setShowNoQuestionsWarning(false); setQuizToPlay(null); }}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-warning/20 flex items-center justify-center">
+              <svg className="w-5 h-5 text-warning" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+              </svg>
             </div>
+            <h3 className="font-serif text-xl text-text-primary">No Questions</h3>
           </div>
-        )}
+          <p className="text-text-secondary mb-6">
+            This quiz doesn't have any questions yet. Please add at least one question before playing.
+          </p>
+          <div className="flex gap-3 justify-end">
+            <button
+              onClick={() => {
+                setShowNoQuestionsWarning(false);
+                setQuizToPlay(null);
+              }}
+              className="px-4 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => {
+                setShowNoQuestionsWarning(false);
+                if (quizToPlay) {
+                  setEditingQuizId(quizToPlay);
+                  setView('editor');
+                  setQuizToPlay(null);
+                }
+              }}
+              className="px-4 py-2.5 bg-accent/20 text-accent border border-accent/30 rounded-xl hover:bg-accent/30 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/20 active:translate-y-0 transition-all duration-300"
+            >
+              Edit Quiz
+            </button>
+          </div>
+        </Modal>
 
         {/* Sign In Prompt Modal */}
-        {showSignInPrompt && (
-          <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
-            <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-md mx-4 shadow-2xl animate-modal">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-                  <span className="text-2xl">🎉</span>
-                </div>
-                <h3 className="font-serif text-xl text-text-primary">Enjoying Quiz Creator?</h3>
-              </div>
-              <p className="text-text-secondary mb-6">
-                Sign in with Google to unlock unlimited quizzes, save your progress, and access all features!
-              </p>
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={async () => {
-                    try {
-                      await signInWithGoogle();
-                      setShowSignInPrompt(false);
-                    } catch (error) {
-                      console.error('Failed to sign in:', error);
-                    }
-                  }}
-                  className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-accent text-bg-primary rounded-xl hover:bg-accent-hover hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30 active:translate-y-0 transition-all duration-300"
-                >
-                  <svg className="w-5 h-5" viewBox="0 0 24 24">
-                    <path
-                      fill="currentColor"
-                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                    />
-                    <path
-                      fill="currentColor"
-                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                    />
-                  </svg>
-                  Sign in with Google
-                </button>
-                <button
-                  onClick={() => {
-                    setShowSignInPrompt(false);
-                  }}
-                  className="w-full px-4 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300"
-                >
-                  Continue with Demo
-                </button>
-              </div>
+        <Modal isOpen={showSignInPrompt} onClose={() => setShowSignInPrompt(false)}>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+              <span className="text-2xl">🎉</span>
             </div>
+            <h3 className="font-serif text-xl text-text-primary">Enjoying Quiz Creator?</h3>
           </div>
-        )}
+          <p className="text-text-secondary mb-6">
+            Sign in with Google to unlock unlimited quizzes, save your progress, and access all features!
+          </p>
+          <div className="flex flex-col gap-3">
+            <button
+              onClick={async () => {
+                try {
+                  await signInWithGoogle();
+                  setShowSignInPrompt(false);
+                } catch (error) {
+                  console.error('Failed to sign in:', error);
+                }
+              }}
+              className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-accent text-bg-primary rounded-xl hover:bg-accent-hover hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30 active:translate-y-0 transition-all duration-300"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 24 24">
+                <path
+                  fill="currentColor"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                />
+                <path
+                  fill="currentColor"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
+              Sign in with Google
+            </button>
+            <button
+              onClick={() => {
+                setShowSignInPrompt(false);
+              }}
+              className="w-full px-4 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300"
+            >
+              Continue with Demo
+            </button>
+          </div>
+        </Modal>
         
         {/* Template Selector Modal */}
         <TemplateSelector
