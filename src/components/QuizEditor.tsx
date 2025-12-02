@@ -31,6 +31,7 @@ interface QuizEditorProps {
   onSave: (quiz: Quiz) => void;
   onExport: (quiz: Quiz) => void;
   onBack: () => void;
+  onPlay?: () => void;
   theme: 'dark' | 'light';
   onToggleTheme: () => void;
   onEnableSharing?: () => string;
@@ -42,6 +43,7 @@ export function QuizEditor({
   onSave,
   onExport,
   onBack,
+  onPlay,
   theme,
   onToggleTheme,
   onEnableSharing,
@@ -172,39 +174,55 @@ export function QuizEditor({
     }));
   }, []);
 
+  // Scroll to error area helper
+  const scrollToError = useCallback(() => {
+    if (isTitleEmpty) {
+      const titleInput = document.querySelector('[data-quiz-title]');
+      titleInput?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      (titleInput as HTMLInputElement)?.focus();
+      setShakeTitle(true);
+      setTimeout(() => setShakeTitle(false), 500);
+    } else if (draft.questions.length === 0) {
+      const addButtonSection = document.querySelector('[data-add-question]');
+      addButtonSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    } else {
+      const firstIncomplete = findFirstIncompleteQuestion();
+      if (firstIncomplete >= 0) {
+        const questionCard = document.querySelector(`[data-question-index="${firstIncomplete}"]`);
+        questionCard?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+  }, [isTitleEmpty, draft.questions.length, findFirstIncompleteQuestion]);
+
   // Handle save
   const handleSave = useCallback(() => {
     if (!isQuizValid) {
-      // Scroll to the first problem area
-      if (isTitleEmpty) {
-        const titleInput = document.querySelector('[data-quiz-title]');
-        titleInput?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        (titleInput as HTMLInputElement)?.focus();
-        setShakeTitle(true);
-        setTimeout(() => setShakeTitle(false), 500);
-      } else if (draft.questions.length === 0) {
-        const addButtonSection = document.querySelector('[data-add-question]');
-        addButtonSection?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
-        const firstIncomplete = findFirstIncompleteQuestion();
-        if (firstIncomplete >= 0) {
-          const questionCard = document.querySelector(`[data-question-index="${firstIncomplete}"]`);
-          questionCard?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }
-      }
+      scrollToError();
       return;
     }
-    
+
     if (!hasUnsavedChanges) return; // Already saved, nothing to do
-    
+
     // Save the draft to the store
     const savedQuiz = { ...draft, updatedAt: Date.now() };
     onSave(savedQuiz);
-    
+
     // Update our reference to match what we saved
     originalQuizRef.current = JSON.stringify(savedQuiz);
     setDraft(savedQuiz);
-  }, [isQuizValid, hasUnsavedChanges, isTitleEmpty, draft, onSave, findFirstIncompleteQuestion]);
+  }, [isQuizValid, hasUnsavedChanges, scrollToError, draft, onSave]);
+
+  // Handle play
+  const handlePlay = useCallback(() => {
+    if (!isQuizValid) {
+      scrollToError();
+      return;
+    }
+
+    if (onPlay) {
+      onPlay();
+    }
+  }, [isQuizValid, scrollToError, onPlay]);
 
   // Handle back with confirmation
   const handleBackClick = useCallback(() => {
@@ -427,8 +445,8 @@ export function QuizEditor({
         
         {/* Mobile: Two rows for better organization */}
         <div className="md:hidden px-4 py-3">
-          {/* First row: Back and Save */}
-          <div className="flex items-center justify-between mb-2">
+          {/* First row: Back, Save, and Play */}
+          <div className="flex items-center justify-between mb-2 gap-2">
             <button
               onClick={handleBackClick}
               className="flex items-center gap-2 px-2 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300 group rounded-lg hover:bg-bg-secondary min-h-[44px]"
@@ -439,25 +457,41 @@ export function QuizEditor({
               <span className="font-medium">Back</span>
             </button>
 
-            <button
-              onClick={handleSave}
-              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium transition-all min-h-[44px] ${
-                showSaved
-                  ? 'bg-success text-white cursor-default'
-                  : canSave
-                  ? 'bg-success hover:bg-success/90 text-white shadow-lg shadow-success/25 cursor-pointer'
-                  : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
-              }`}
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {showSaved ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
-                )}
-              </svg>
-              Save
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleSave}
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg font-medium transition-all min-h-[44px] ${
+                  showSaved
+                    ? 'bg-success text-white cursor-default'
+                    : canSave
+                    ? 'bg-success hover:bg-success/90 text-white shadow-lg shadow-success/25 cursor-pointer'
+                    : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  {showSaved ? (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  ) : (
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+                  )}
+                </svg>
+                <span className="hidden xs:inline">Save</span>
+              </button>
+
+              <button
+                onClick={handlePlay}
+                className={`flex items-center gap-2 px-3 py-2.5 rounded-lg font-medium transition-all min-h-[44px] ${
+                  isQuizValid
+                    ? 'bg-accent text-bg-primary hover:bg-accent-hover shadow-lg shadow-accent/25 cursor-pointer'
+                    : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z" />
+                </svg>
+                <span className="hidden xs:inline">Play</span>
+              </button>
+            </div>
           </div>
 
           {/* Second row: Settings, Share, Export, Theme */}
@@ -681,7 +715,7 @@ export function QuizEditor({
                   />
                 </svg>
               </div>
-              <p className="text-warning font-semibold mb-2 bg-warning/20 inline-block px-3 py-1 rounded-lg">No questions yet</p>
+              <p className="text-warning font-semibold mb-2">No questions yet</p>
               <p className="text-sm text-text-secondary mt-2">
                 Add at least one question to save your quiz
               </p>
