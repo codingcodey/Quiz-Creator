@@ -89,7 +89,7 @@ export function AchievementShowcase({ isOpen, onClose, achievements, stats }: Ac
   const categories = [...new Set(achievements.map((a) => a.category))];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
+    <div className="modal-backdrop fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
       <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-2xl w-full mx-4 shadow-2xl animate-modal max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">

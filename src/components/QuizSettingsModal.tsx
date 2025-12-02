@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import type { QuizSettings } from '../types/quiz';
+import { Modal } from './Modal';
 
 interface QuizSettingsModalProps {
   settings: QuizSettings;
@@ -15,8 +16,6 @@ export function QuizSettingsModal({ settings, isOpen, onClose, onSave }: QuizSet
     setLocalSettings(settings);
   }, [settings]);
 
-  if (!isOpen) return null;
-
   const handleSave = () => {
     onSave(localSettings);
     onClose();
@@ -27,10 +26,10 @@ export function QuizSettingsModal({ settings, isOpen, onClose, onSave }: QuizSet
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-backdrop">
-      <div className="bg-bg-secondary border border-border rounded-2xl p-6 max-w-lg w-full mx-4 shadow-2xl animate-modal max-h-[90vh] overflow-y-auto">
+    <Modal isOpen={isOpen} onClose={onClose} maxWidth="lg">
+      <div className="flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-6 flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
               <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -50,7 +49,7 @@ export function QuizSettingsModal({ settings, isOpen, onClose, onSave }: QuizSet
           </button>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 flex-1 overflow-y-auto min-h-0">
           {/* Timer Section */}
           <section>
             <h4 className="text-sm font-medium text-text-primary mb-4 flex items-center gap-2">
@@ -189,7 +188,7 @@ export function QuizSettingsModal({ settings, isOpen, onClose, onSave }: QuizSet
         </div>
 
         {/* Footer */}
-        <div className="flex gap-3 justify-end mt-8 pt-6 border-t border-border">
+        <div className="flex gap-3 justify-end mt-8 pt-6 border-t border-border flex-shrink-0">
           <button
             onClick={onClose}
             className="px-5 py-2.5 text-text-secondary hover:text-text-primary transition-colors"
@@ -204,7 +203,7 @@ export function QuizSettingsModal({ settings, isOpen, onClose, onSave }: QuizSet
           </button>
         </div>
       </div>
-    </div>
+    </Modal>
   );
 }
 
