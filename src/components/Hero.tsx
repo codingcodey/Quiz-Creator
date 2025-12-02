@@ -5,10 +5,15 @@ interface HeroProps {
 
 export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
   const handleScrollDown = () => {
-    window.scrollTo({
-      top: window.innerHeight,
-      behavior: 'smooth',
-    });
+    const dashboard = document.getElementById('dashboard');
+    if (dashboard) {
+      dashboard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({
+        top: window.innerHeight,
+        behavior: 'smooth',
+      });
+    }
   };
 
   return (
@@ -56,7 +61,7 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
         {/* Subheading */}
         <p className="mt-6 text-lg md:text-xl text-text-secondary max-w-2xl mx-auto opacity-0 animate-fade-in-up stagger-3">
           Create engaging multiple-choice and fill-in-the-blank quizzes in minutes.
-          No account needed. Your data stays on your device.
+          Your data stays secure and synced across devices.
         </p>
 
         {/* CTA Button */}
@@ -80,6 +85,19 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
             </svg>
             {quizCount === 0 ? 'Create Your First Quiz' : 'Create New Quiz'}
           </button>
+          
+          {/* View Quizzes Button - only show if there are quizzes */}
+          {quizCount > 0 && (
+            <button
+              onClick={handleScrollDown}
+              className="inline-flex items-center gap-2 px-6 py-4 bg-bg-secondary/80 border border-border text-text-primary font-medium rounded-xl hover:border-accent/50 hover:text-accent transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+              </svg>
+              View My Quizzes
+            </button>
+          )}
         </div>
 
         {/* Stats */}
@@ -90,15 +108,18 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
         )}
       </div>
 
-      {/* Scroll down indicator */}
-      {quizCount > 0 && (
-        <button
-          onClick={handleScrollDown}
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-muted hover:text-accent transition-colors opacity-0 animate-fade-in-up stagger-6 animate-bounce-slow"
-          aria-label="Scroll down to view quizzes"
-        >
+      {/* Scroll down indicator - always show */}
+      <button
+        onClick={handleScrollDown}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-muted hover:text-accent transition-all duration-300 opacity-0 animate-fade-in-up stagger-6 group"
+        aria-label="Scroll down"
+      >
+        <div className="flex flex-col items-center gap-2">
+          <span className="text-xs uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
+            {quizCount > 0 ? 'View Quizzes' : 'Get Started'}
+          </span>
           <svg
-            className="w-8 h-8"
+            className="w-6 h-6 animate-bounce"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -110,8 +131,8 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
               d="M19 9l-7 7-7-7"
             />
           </svg>
-        </button>
-      )}
+        </div>
+      </button>
 
       {/* Decorative bottom line */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent opacity-0 animate-fade-in stagger-5" />

@@ -178,11 +178,16 @@ function App() {
       updateQuiz(quizId, { playCount: (quiz.playCount || 0) + 1 });
     }
     
-    // Check for achievements
+    // Check for achievements with enhanced tracking
     const newAchievements = checkQuizCompletion(
       attempt.percentage,
       attempt.maxStreak,
-      attempt.timeRemaining
+      attempt.timeRemaining,
+      attempt.totalQuestions,
+      attempt.timeSpent,
+      false, // usedHints - could track this in attempt
+      quiz?.settings.timerEnabled,
+      quiz?.settings.shuffleQuestions || quiz?.settings.shuffleOptions
     );
     
     if (newAchievements.length > 0) {
@@ -383,6 +388,7 @@ function App() {
           isOpen={showTemplateSelector}
           onClose={() => setShowTemplateSelector(false)}
           onSelectTemplate={handleSelectTemplate}
+          onCreateBlank={handleCreateBlankQuiz}
         />
         
         {/* Achievement Showcase Modal */}
