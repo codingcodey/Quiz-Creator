@@ -169,7 +169,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
       </div>
 
         {/* Actions */}
-        <div className="absolute top-3 right-3 z-10 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+        <div className="absolute top-3 right-3 z-20 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
           {/* Duplicate button */}
           <button
             onClick={(e) => {
@@ -214,7 +214,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
         {/* Click overlay to edit */}
         <button
           onClick={onEdit}
-          className="absolute inset-0 w-full h-full cursor-pointer z-10"
+          className="absolute inset-0 w-full h-full cursor-pointer z-5"
           aria-label={`Edit ${quiz.title}`}
         />
       </article>
