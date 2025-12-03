@@ -1,9 +1,10 @@
 interface HeroProps {
   onCreateQuiz: () => void;
+  onExplore: () => void;
   quizCount: number;
 }
 
-export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
+export function Hero({ onCreateQuiz, onExplore, quizCount }: HeroProps) {
   const handleScrollDown = () => {
     const dashboard = document.getElementById('dashboard');
     if (dashboard) {
@@ -85,7 +86,7 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
             </svg>
             {quizCount === 0 ? 'Create Your First Quiz' : 'Create New Quiz'}
           </button>
-          
+
           {/* View Quizzes Button - only show if there are quizzes */}
           {quizCount > 0 && (
             <button
@@ -100,9 +101,22 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
           )}
         </div>
 
+        {/* Explore Button - below main CTA */}
+        <div className="mt-6 opacity-0 animate-fade-in-up stagger-6">
+          <button
+            onClick={onExplore}
+            className="inline-flex items-center gap-2 px-6 py-4 bg-bg-secondary border border-border text-text-primary font-medium rounded-xl hover:border-accent/50 hover:text-accent hover:bg-bg-secondary/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            Explore Quizzes
+          </button>
+        </div>
+
         {/* Stats */}
         {quizCount > 0 && (
-          <p className="mt-8 text-text-muted text-sm opacity-0 animate-fade-in-up stagger-5">
+          <p className="mt-8 text-text-muted text-sm opacity-0 animate-fade-in-up stagger-7">
             You have <span className="text-accent font-medium">{quizCount}</span> quiz{quizCount !== 1 ? 'zes' : ''} saved locally
           </p>
         )}
@@ -111,7 +125,7 @@ export function Hero({ onCreateQuiz, quizCount }: HeroProps) {
       {/* Scroll down indicator - always show */}
       <button
         onClick={handleScrollDown}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-muted hover:text-accent transition-all duration-300 opacity-0 animate-fade-in-up stagger-6 group"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-muted hover:text-accent transition-all duration-300 opacity-0 animate-fade-in-up stagger-7 group"
         aria-label="Scroll down"
       >
         <div className="flex flex-col items-center gap-2">

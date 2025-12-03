@@ -11,9 +11,10 @@ interface QuizCardProps {
   onPlay: () => void;
   onToggleFavorite?: () => void;
   index: number;
+  isPublicView?: boolean;
 }
 
-export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay, onToggleFavorite, index }: QuizCardProps) {
+export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay, onToggleFavorite, index, isPublicView }: QuizCardProps) {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const questionCount = quiz.questions.length;
   const formattedDate = new Date(quiz.updatedAt).toLocaleDateString('en-US', {
@@ -79,13 +80,20 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
             {quiz.playCount ?? 0}
           </div>
           
-          {/* Public badge */}
-          {quiz.settings?.isPublic && (
+          {/* Public/Private badge */}
+          {quiz.settings?.isPublic ? (
             <div className="flex items-center gap-1 px-2 py-1 bg-accent/20 backdrop-blur-sm rounded-full text-xs text-accent">
               <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
               Public
+            </div>
+          ) : (
+            <div className="flex items-center gap-1 px-2 py-1 bg-text-muted/20 backdrop-blur-sm rounded-full text-xs text-text-muted">
+              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+              </svg>
+              Private
             </div>
           )}
         </div>
@@ -168,55 +176,59 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
         )}
       </div>
 
-        {/* Actions */}
-        <div className="absolute top-3 right-3 z-20 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-          {/* Duplicate button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onDuplicate();
-            }}
-            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:scale-105 active:scale-95 transition-all duration-300"
-            title="Duplicate quiz"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-          </button>
-          {/* Export button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onExport();
-            }}
-            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:scale-105 active:scale-95 transition-all duration-300"
-            title="Export as JSON"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-            </svg>
-          </button>
-          {/* Delete button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowDeleteConfirm(true);
-            }}
-            className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-error hover:bg-error/10 hover:scale-105 active:scale-95 transition-all duration-300"
-            title="Delete quiz"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-          </button>
-        </div>
+        {/* Actions - hide in public view */}
+        {!isPublicView && (
+          <div className="absolute top-3 right-3 z-20 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+            {/* Duplicate button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDuplicate();
+              }}
+              className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:scale-105 active:scale-95 transition-all duration-300"
+              title="Duplicate quiz"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+            </button>
+            {/* Export button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onExport();
+              }}
+              className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:scale-105 active:scale-95 transition-all duration-300"
+              title="Export as JSON"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+            </button>
+            {/* Delete button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setShowDeleteConfirm(true);
+              }}
+              className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-error hover:bg-error/10 hover:scale-105 active:scale-95 transition-all duration-300"
+              title="Delete quiz"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        )}
 
-        {/* Click overlay to edit */}
-        <button
-          onClick={onEdit}
-          className="absolute inset-0 w-full h-full cursor-pointer z-5"
-          aria-label={`Edit ${quiz.title}`}
-        />
+        {/* Click overlay to edit - hide in public view */}
+        {!isPublicView && (
+          <button
+            onClick={onEdit}
+            className="absolute inset-0 w-full h-full cursor-pointer z-5"
+            aria-label={`Edit ${quiz.title}`}
+          />
+        )}
       </article>
     </>
   );

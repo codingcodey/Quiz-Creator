@@ -7,6 +7,7 @@ import { ImageUploader } from './ImageUploader';
 import { ThemeToggle } from './ThemeToggle';
 import { QuizSettingsModal } from './QuizSettingsModal';
 import { ShareModal } from './ShareModal';
+import { ShareNotification } from './ShareNotification';
 
 // Helper to check if a question is complete
 function isQuestionComplete(question: Question): boolean {
@@ -62,6 +63,7 @@ export function QuizEditor({
   const [showLeaveConfirm, setShowLeaveConfirm] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [showShareModal, setShowShareModal] = useState(false);
+  const [showShareNotification, setShowShareNotification] = useState(false);
   const [shakeTitle, setShakeTitle] = useState(false);
   const originalQuizRef = useRef<string>(JSON.stringify(quiz));
 
@@ -222,10 +224,16 @@ export function QuizEditor({
       return;
     }
 
+    // If there are unsaved changes, save first before playing
+    if (hasUnsavedChanges) {
+      const savedQuiz = { ...draft, updatedAt: Date.now() };
+      onSave(savedQuiz);
+    }
+
     if (onPlay) {
       onPlay();
     }
-  }, [isQuizValid, scrollToError, onPlay]);
+  }, [isQuizValid, hasUnsavedChanges, scrollToError, draft, onPlay, onSave]);
 
   // Handle back with confirmation
   const handleBackClick = useCallback(() => {
@@ -448,6 +456,13 @@ export function QuizEditor({
         onClose={() => setShowShareModal(false)}
         onEnableSharing={handleEnableSharing}
         onDisableSharing={handleDisableSharing}
+        onSharingEnabled={() => setShowShareNotification(true)}
+      />
+
+      {/* Share Notification */}
+      <ShareNotification
+        isOpen={showShareNotification}
+        onClose={() => setShowShareNotification(false)}
       />
 
       {/* Header */}

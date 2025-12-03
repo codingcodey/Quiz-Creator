@@ -6,6 +6,7 @@ import { SearchBar } from './SearchBar';
 interface DashboardProps {
   quizzes: Quiz[];
   onCreateQuiz: () => void;
+  onExplore: () => void;
   onEditQuiz: (id: string) => void;
   onDeleteQuiz: (id: string) => void;
   onDuplicateQuiz: (id: string) => void;
@@ -31,6 +32,7 @@ interface DashboardProps {
 export function Dashboard({
   quizzes,
   onCreateQuiz,
+  onExplore,
   onEditQuiz,
   onDeleteQuiz,
   onDuplicateQuiz,
@@ -117,15 +119,26 @@ export function Dashboard({
               )}
             </p>
           </div>
-          <button
-            onClick={onCreateQuiz}
-            className="btn-shimmer inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-300 group"
-          >
-            <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            New Quiz
-          </button>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={onCreateQuiz}
+              className="btn-shimmer inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-medium hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-300 group"
+            >
+              <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+              </svg>
+              New Quiz
+            </button>
+            <button
+              onClick={onExplore}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-bg-secondary border border-border text-text-primary rounded-xl font-medium hover:border-accent/50 hover:text-accent hover:shadow-lg hover:shadow-accent/10 hover:-translate-y-0.5 active:translate-y-0 active:scale-[0.98] transition-all duration-300 group"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+              <span className="hidden sm:inline">Explore</span>
+            </button>
+          </div>
         </div>
 
         {/* Search & Filters - show if there are quizzes or active filters */}

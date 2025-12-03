@@ -7,6 +7,7 @@ import { useAchievements, type Achievement } from './hooks/useAchievements';
 import { useDebounce } from './hooks/useDebounce';
 import { Hero } from './components/Hero';
 import { Dashboard } from './components/Dashboard';
+import { Explore } from './components/Explore';
 import { QuizEditor } from './components/QuizEditor';
 import { QuizPlayer } from './components/QuizPlayer';
 import { ThemeToggle } from './components/ThemeToggle';
@@ -21,7 +22,7 @@ import { createQuiz, generateShareId, type Quiz, type QuizAttempt } from './type
 import { createQuizFromTemplate } from './data/templates';
 import type { QuizTemplate } from './data/templates';
 
-type View = 'home' | 'editor' | 'play';
+type View = 'home' | 'editor' | 'play' | 'explore';
 
 function App() {
   const [view, setView] = useState<View>('home');
@@ -90,6 +91,11 @@ function App() {
     return Array.from(tags);
   }, [quizzes]);
 
+  // Get public quizzes from all users
+  const publicQuizzes = useMemo(() => {
+    return quizzes.filter((q) => q.settings?.isPublic);
+  }, [quizzes]);
+
   const goHome = () => {
     if (isDemo) {
       // In demo mode, always return to the demo quiz editor instead of the home dashboard
@@ -103,6 +109,10 @@ function App() {
     setEditingQuizId(null);
     setNewQuizDraft(null);
     setView('home');
+  };
+
+  const handleExplore = () => {
+    setView('explore');
   };
 
   // Create new quiz - show template selector
@@ -400,6 +410,23 @@ function App() {
     );
   }
 
+  if (view === 'explore') {
+    return (
+      <ErrorBoundary>
+        <div className="animate-page-enter">
+          <Explore
+            publicQuizzes={publicQuizzes}
+            onPlayQuiz={handlePlayQuiz}
+            onBack={goHome}
+          />
+        </div>
+        <AchievementToast achievement={newAchievement} onClose={() => setNewAchievement(null)} />
+        {/* Sign In Prompt Modal (also available while exploring) */}
+        <SignInPromptModal isOpen={showSignInPrompt} onClose={() => setShowSignInPrompt(false)} onSignIn={handleDemoGoogleSignIn} />
+      </ErrorBoundary>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-bg-primary">
@@ -432,7 +459,7 @@ function App() {
             className="group flex items-center gap-2 px-3 py-2.5 bg-bg-secondary border border-border rounded-lg text-text-primary hover:border-accent/50 hover:text-accent hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/10 active:translate-y-0 transition-all duration-300 text-sm h-10"
           >
             <span className="text-base">🏆</span>
-            <span className="hidden sm:inline">{achievementStats.unlocked}/{achievementStats.total}</span>
+            <span>{achievementStats.unlocked}/{achievementStats.total}</span>
           </button>
         </div>
         
@@ -461,11 +488,12 @@ function App() {
           <ThemeToggle theme={theme} onToggle={toggleTheme} />
         </div>
         
-        <Hero onCreateQuiz={handleCreateQuiz} quizCount={quizzes.length} />
-        
+        <Hero onCreateQuiz={handleCreateQuiz} onExplore={handleExplore} quizCount={quizzes.length} />
+
         <Dashboard
           quizzes={filteredQuizzes}
           onCreateQuiz={handleCreateQuiz}
+          onExplore={handleExplore}
           onEditQuiz={(id) => { setEditingQuizId(id); setView('editor'); }}
           onDeleteQuiz={deleteQuiz}
           onDuplicateQuiz={handleDuplicateQuiz}

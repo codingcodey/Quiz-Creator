@@ -8,9 +8,10 @@ interface ShareModalProps {
   onClose: () => void;
   onEnableSharing: () => string;
   onDisableSharing: () => void;
+  onSharingEnabled?: () => void;
 }
 
-export function ShareModal({ quiz, isOpen, onClose, onEnableSharing, onDisableSharing }: ShareModalProps) {
+export function ShareModal({ quiz, isOpen, onClose, onEnableSharing, onDisableSharing, onSharingEnabled }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
   const [shareId, setShareId] = useState(quiz.settings?.shareId || '');
   
@@ -24,6 +25,10 @@ export function ShareModal({ quiz, isOpen, onClose, onEnableSharing, onDisableSh
   const handleEnableSharing = () => {
     const newShareId = onEnableSharing();
     setShareId(newShareId);
+    // Notify parent that sharing has been enabled
+    if (onSharingEnabled) {
+      onSharingEnabled();
+    }
   };
 
   const handleCopyLink = async () => {
