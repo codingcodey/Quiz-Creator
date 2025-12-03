@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import type { Quiz } from '../types/quiz';
 import { Modal } from './Modal';
+import Confetti from 'react-confetti';
 
 interface ShareModalProps {
   quiz: Quiz;
@@ -14,6 +16,8 @@ interface ShareModalProps {
 export function ShareModal({ quiz, isOpen, onClose, onEnableSharing, onDisableSharing, onSharingEnabled }: ShareModalProps) {
   const [copied, setCopied] = useState(false);
   const [shareId, setShareId] = useState(quiz.settings?.shareId || '');
+  const [showConfetti, setShowConfetti] = useState(false);
+  const confettiRef = useRef<HTMLDivElement>(null);
   
   const isSharing = quiz.settings?.isPublic && shareId;
   const shareUrl = shareId ? `${window.location.origin}${window.location.pathname}?play=${shareId}` : '';
@@ -25,6 +29,9 @@ export function ShareModal({ quiz, isOpen, onClose, onEnableSharing, onDisableSh
   const handleEnableSharing = () => {
     const newShareId = onEnableSharing();
     setShareId(newShareId);
+    setShowConfetti(true);
+    // Stop confetti after 5 seconds
+    setTimeout(() => setShowConfetti(false), 5000);
     // Notify parent that sharing has been enabled
     if (onSharingEnabled) {
       onSharingEnabled();
@@ -52,16 +59,37 @@ export function ShareModal({ quiz, isOpen, onClose, onEnableSharing, onDisableSh
     : '';
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} maxWidth="md">
+    <>
+      {/* Full-screen Confetti Effect */}
+      {showConfetti && createPortal(
+        <div className="fixed inset-0 pointer-events-none">
+          <Confetti
+            width={window.innerWidth}
+            height={window.innerHeight}
+            recycle={false}
+            numberOfPieces={200}
+          />
+        </div>,
+        document.body
+      )}
+
+      <Modal isOpen={isOpen} onClose={onClose} maxWidth="md">
+      <div ref={confettiRef} className="relative">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
-              <svg className="w-5 h-5 text-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+              isSharing ? 'bg-success/20' : 'bg-accent/20'
+            }`}>
+              <svg className={`w-5 h-5 transition-colors ${
+                isSharing ? 'text-success' : 'text-accent'
+              }`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
               </svg>
             </div>
-            <h3 className="font-serif text-xl text-text-primary">Share Quiz</h3>
+            <h3 className="font-serif text-xl text-text-primary">
+              {isSharing ? "You've Shared Your Quiz!" : "Share Quiz"}
+            </h3>
           </div>
           <button
             onClick={onClose}
@@ -137,6 +165,16 @@ export function ShareModal({ quiz, isOpen, onClose, onEnableSharing, onDisableSh
               </div>
             </div>
 
+            {/* Find your quiz in Explore */}
+            <div className="flex items-center gap-3 p-4 bg-bg-tertiary rounded-xl border border-success/20">
+              <svg className="w-5 h-5 text-success flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+              <p className="text-text-secondary text-sm">
+                Find your quiz in <span className="text-success font-medium">Explore</span>!
+              </p>
+            </div>
+
             {/* Share Stats */}
             {quiz.playCount !== undefined && quiz.playCount > 0 && (
               <div className="flex items-center justify-center gap-2 py-3 px-4 bg-bg-tertiary rounded-xl">
@@ -150,16 +188,26 @@ export function ShareModal({ quiz, isOpen, onClose, onEnableSharing, onDisableSh
               </div>
             )}
 
-            {/* Disable Sharing */}
-            <button
-              onClick={handleDisableSharing}
-              className="w-full py-3 text-error hover:bg-error/10 rounded-xl transition-colors text-sm"
-            >
-              Disable Sharing
-            </button>
+            {/* Buttons: Disable Sharing and OK */}
+            <div className="flex gap-3">
+              <button
+                onClick={handleDisableSharing}
+                className="flex-1 py-3 text-error hover:bg-error/10 rounded-xl transition-colors text-sm font-medium"
+              >
+                Disable Sharing
+              </button>
+              <button
+                onClick={onClose}
+                className="flex-1 py-3 bg-success text-white rounded-xl hover:bg-success/90 transition-colors text-sm font-medium"
+              >
+                OK
+              </button>
+            </div>
           </div>
         )}
-    </Modal>
+      </div>
+      </Modal>
+    </>
   );
 }
 

@@ -14,6 +14,7 @@ import { ThemeToggle } from './components/ThemeToggle';
 import { AuthScreen } from './components/AuthScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TemplateSelector } from './components/TemplateSelector';
+import { Avatar } from './components/Avatar';
 import { AchievementToast, AchievementShowcase } from './components/AchievementToast';
 import { Confetti } from './components/Confetti';
 import { Modal } from './components/Modal';
@@ -471,13 +472,12 @@ function App() {
             className="group flex items-center gap-2 px-3 py-2 bg-bg-secondary text-text-secondary border border-border rounded-lg appearance-none transition-all duration-300 h-10 hover:bg-bg-tertiary hover:border-border hover:text-error/70 focus:outline-none focus-visible:ring-2 focus-visible:ring-error/20"
             title="Sign out"
           >
-            {user.user_metadata?.avatar_url && (
-              <img
-                src={user.user_metadata.avatar_url}
-                alt={user.user_metadata?.full_name || 'User'}
-                className="w-6 h-6 rounded-full border border-border"
-              />
-            )}
+            <Avatar
+              avatarUrl={user.user_metadata?.avatar_url}
+              fullName={user.user_metadata?.full_name}
+              email={user.email}
+              className="w-6 h-6"
+            />
             <span className="text-text-secondary text-sm max-w-[100px] truncate">
               {user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'}
             </span>
