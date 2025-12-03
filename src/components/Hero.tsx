@@ -18,7 +18,7 @@ export function Hero({ onCreateQuiz, onExplore, quizCount }: HeroProps) {
   };
 
   return (
-    <section className="relative overflow-hidden min-h-[200vh] flex flex-col items-center justify-center px-6 py-40">
+    <section className="relative overflow-hidden min-h-screen flex flex-col items-center justify-center px-6 py-20">
       {/* Animated background orbs */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent/10 rounded-full blur-3xl animate-glow-pulse" />

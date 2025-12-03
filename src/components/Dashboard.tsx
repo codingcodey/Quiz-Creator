@@ -69,7 +69,7 @@ export function Dashboard({
   return (
     <section
       id="dashboard"
-      className="py-16 px-6"
+      className="py-32 px-6 min-h-screen"
       style={{
         background: `
           radial-gradient(ellipse 80% 50% at 20% 0%, var(--color-accent-muted) 0%, transparent 50%),
