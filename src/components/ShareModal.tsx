@@ -62,12 +62,13 @@ export function ShareModal({ quiz, isOpen, onClose, onEnableSharing, onDisableSh
     <>
       {/* Full-screen Confetti Effect */}
       {showConfetti && createPortal(
-        <div className="fixed inset-0 pointer-events-none">
+        <div className="fixed inset-0 pointer-events-none z-[9999]">
           <Confetti
             width={window.innerWidth}
-            height={window.innerHeight}
+            height={window.innerHeight * 2}
             recycle={false}
             numberOfPieces={200}
+            gravity={0.5}
           />
         </div>,
         document.body
@@ -166,14 +167,25 @@ export function ShareModal({ quiz, isOpen, onClose, onEnableSharing, onDisableSh
             </div>
 
             {/* Find your quiz in Explore */}
-            <div className="flex items-center gap-3 p-4 bg-bg-tertiary rounded-xl border border-success/20">
+            <button
+              onClick={() => window.location.href = `${window.location.origin}${window.location.pathname}?view=explore`}
+              className="w-full flex items-center gap-3 p-4 bg-bg-tertiary rounded-xl border border-success/20 hover:bg-bg-tertiary/80 transition-colors text-left"
+            >
               <svg className="w-5 h-5 text-success flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
               </svg>
               <p className="text-text-secondary text-sm">
-                Find your quiz in <span className="text-success font-medium">Explore</span>!
+                Find your quiz in <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    window.location.href = `${window.location.origin}${window.location.pathname}?view=explore`;
+                  }}
+                  className="text-blue-500 font-medium underline hover:text-blue-600 transition-colors"
+                >
+                  Explore
+                </button>!
               </p>
-            </div>
+            </button>
 
             {/* Share Stats */}
             {quiz.playCount !== undefined && quiz.playCount > 0 && (
