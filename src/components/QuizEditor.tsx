@@ -507,8 +507,9 @@ export function QuizEditor({
 
               <button
                 onClick={handlePlay}
+                disabled={!isQuizValid || hasUnsavedChanges}
                 className={`flex items-center gap-2 px-3 py-2.5 rounded-lg font-medium transition-all min-h-[44px] whitespace-nowrap ${
-                  isQuizValid
+                  isQuizValid && !hasUnsavedChanges
                     ? 'bg-accent text-bg-primary hover:bg-accent-hover shadow-lg shadow-accent/25 cursor-pointer'
                     : 'bg-text-muted/30 text-text-muted cursor-not-allowed'
                 }`}

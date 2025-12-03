@@ -347,7 +347,7 @@ export function QuizPlayer({ quiz, onBack, onExitDemoMode, theme, onToggleTheme,
   if (gameState === 'intro') {
     return (
       <div
-        className="min-h-screen flex items-center justify-center py-12 px-6 relative overflow-hidden"
+        className="min-h-screen flex items-start justify-center pt-32 px-6 relative overflow-hidden"
         style={{
           background: `
             radial-gradient(ellipse 100% 70% at 50% 0%, var(--color-accent-muted) 0%, transparent 60%),
