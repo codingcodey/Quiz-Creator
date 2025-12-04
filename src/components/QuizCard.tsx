@@ -125,17 +125,17 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
       </div>
 
       {/* Content */}
-      <div className="p-4 relative">
+      <div className="p-4">
         <h3 className="font-serif text-xl text-text-primary line-clamp-1 group-hover:text-accent transition-colors pr-16">
           {quiz.title}
         </h3>
-        
+
         {quiz.description && (
           <p className="mt-1 text-sm text-text-secondary line-clamp-2 pr-16">
             {quiz.description}
           </p>
         )}
-        
+
         {/* Tags */}
         {quiz.tags && quiz.tags.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
@@ -154,7 +154,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
             )}
           </div>
         )}
-        
+
         <p className="mt-3 text-xs text-text-muted">
           Updated {formattedDate}
         </p>
@@ -168,7 +168,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
             e.preventDefault();
             onPlay();
           }}
-          className="absolute bottom-6 right-6 z-[60] w-14 h-14 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-110 hover:shadow-xl hover:shadow-accent/40 active:scale-95 transition-all duration-300 shadow-lg shadow-accent/25 group/play"
+          className="absolute bottom-4 right-4 z-[60] w-14 h-14 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-110 hover:shadow-xl hover:shadow-accent/40 active:scale-95 transition-all duration-300 shadow-lg shadow-accent/25 group/play"
           title="Play quiz"
           style={{ pointerEvents: 'auto' }}
         >
