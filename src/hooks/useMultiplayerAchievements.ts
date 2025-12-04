@@ -269,6 +269,36 @@ export function useMultiplayerAchievements() {
             condition: () => streak >= 15,
           },
         ],
+        'speed_accuracy': [
+          {
+            id: 'speed_accuracy_champion',
+            condition: () => rank === 1 && (score / (totalQuestions * 100)) >= 0.95,
+          },
+        ],
+        'unlimited_questions': [
+          {
+            id: 'unlimited_marathon',
+            condition: () => totalQuestions >= 100,
+          },
+        ],
+        'calibrated_challenge': [
+          {
+            id: 'calibrated_perfectionist',
+            condition: () => score === totalQuestions * 100,
+          },
+        ],
+        'multiplier_madness': [
+          {
+            id: 'multiplier_x10',
+            condition: () => (coinsEarned || 0) >= 10,
+          },
+        ],
+        'penalized_mode': [
+          {
+            id: 'risk_taker',
+            condition: () => rank === 1 && score >= 2000,
+          },
+        ],
       };
 
       const achievements = modeAchievements[gameMode] || [];

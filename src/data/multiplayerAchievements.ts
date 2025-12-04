@@ -398,6 +398,62 @@ export const MULTIPLAYER_ACHIEVEMENTS: MultiplayerAchievement[] = [
     category: 'dedication',
     condition: 'Complete 100+ questions total',
   },
+
+  // New Mode Achievements
+  {
+    id: 'speed_accuracy_champion',
+    name: 'Precision Sprinter',
+    description: 'Win a Speed Accuracy game with 95%+ accuracy',
+    icon: '⚡🎯',
+    points: 55,
+    category: 'mode',
+    condition: 'Win Speed Accuracy with high accuracy',
+  },
+  {
+    id: 'unlimited_marathon',
+    name: 'Question Warrior',
+    description: 'Answer 100+ questions in a single Unlimited Questions game',
+    icon: '♾️',
+    points: 70,
+    category: 'mode',
+    condition: 'Answer 100+ questions in unlimited mode',
+  },
+  {
+    id: 'calibrated_perfectionist',
+    name: 'Calibrated Master',
+    description: 'Complete Calibrated Challenge without a single wrong answer',
+    icon: '🎲',
+    points: 80,
+    category: 'mode',
+    condition: 'Perfect score in Calibrated Challenge',
+  },
+  {
+    id: 'multiplier_x10',
+    name: 'Multiplier God',
+    description: 'Reach 10x multiplier in Multiplier Madness',
+    icon: '🔢',
+    points: 65,
+    category: 'mode',
+    condition: 'Reach maximum multiplier in Multiplier Madness',
+  },
+  {
+    id: 'risk_taker',
+    name: 'Risk Master',
+    description: 'Win Penalized Mode with a score above 2000',
+    icon: '📉',
+    points: 60,
+    category: 'mode',
+    condition: 'Win Penalized Mode with high score',
+  },
+  {
+    id: 'new_mode_explorer',
+    name: 'New Mode Explorer',
+    description: 'Play in all 5 new game modes',
+    icon: '🆕',
+    points: 50,
+    category: 'special',
+    condition: 'Play all new modes',
+  },
 ];
 
 export function getMultiplayerAchievementById(id: string): MultiplayerAchievement | undefined {

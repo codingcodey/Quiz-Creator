@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import type { MultiplayerSession, SessionParticipant, GameMode } from '../../types/multiplayer';
 import { getGameMode } from '../../types/gameModes';
-import { GameModeSelector } from './GameModeSelector';
 import { ConnectionStatus } from './ConnectionStatus';
 
 interface MultiplayerLobbyProps {
@@ -10,7 +9,6 @@ interface MultiplayerLobbyProps {
   userId: string;
   isHost: boolean;
   onStart?: () => void;
-  onSelectMode?: (modeId: string) => void;
   onKickPlayer?: (participantId: string) => void;
   onLeave?: () => void;
   connectionStatus?: {
@@ -26,13 +24,11 @@ export function MultiplayerLobby({
   userId,
   isHost,
   onStart,
-  onSelectMode,
   onKickPlayer,
   onLeave,
   connectionStatus,
   isLoading = false,
 }: MultiplayerLobbyProps) {
-  const [showModeSelector, setShowModeSelector] = useState(false);
   const [selectedMode, setSelectedMode] = useState<GameMode | null>(null);
 
   // Update selected mode when session mode changes
@@ -47,14 +43,6 @@ export function MultiplayerLobby({
   const quizCoverImage = session.quiz_snapshot?.coverImage;
   const totalQuestions = session.quiz_snapshot?.questions?.length || 0;
 
-  const handleSelectMode = useCallback(
-    (modeId: string) => {
-      setSelectedMode(getGameMode(modeId) || null);
-      onSelectMode?.(modeId);
-      setShowModeSelector(false);
-    },
-    [onSelectMode]
-  );
 
   const handleStart = useCallback(() => {
     if (canStart) {
@@ -248,14 +236,8 @@ export function MultiplayerLobby({
                 <p className="text-sm text-text-muted mb-4">No mode selected</p>
               )}
 
-              {isHost && (
-                <button
-                  onClick={() => setShowModeSelector(true)}
-                  disabled={isLoading}
-                  className="w-full py-2 px-4 bg-bg-tertiary text-text-primary hover:border-accent/50 hover:bg-bg-primary rounded-lg transition-colors disabled:opacity-50"
-                >
-                  {selectedMode ? 'Change Mode' : 'Select Mode'}
-                </button>
+              {isHost && !selectedMode && (
+                <p className="text-xs text-text-muted text-center">Mode selected during game creation</p>
               )}
             </div>
 
@@ -289,15 +271,6 @@ export function MultiplayerLobby({
           </div>
         </div>
       </main>
-
-      {/* Game Mode Selector Modal */}
-      <GameModeSelector
-        isOpen={showModeSelector}
-        onClose={() => setShowModeSelector(false)}
-        onSelectMode={handleSelectMode}
-        playerCount={participants.length}
-        isLoading={isLoading}
-      />
     </div>
   );
 }

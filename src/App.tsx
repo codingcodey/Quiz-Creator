@@ -21,6 +21,7 @@ import { Confetti } from './components/Confetti';
 import { Modal } from './components/Modal';
 import { SignInPromptModal } from './components/SignInPromptModal';
 import { ModeSelector } from './components/multiplayer/ModeSelector';
+import { GameModeSelector } from './components/multiplayer/GameModeSelector';
 import { JoinRoomModal } from './components/multiplayer/JoinRoomModal';
 import { MultiplayerLobby } from './components/multiplayer/MultiplayerLobby';
 import { MultiplayerHost } from './components/multiplayer/MultiplayerHost';
@@ -50,6 +51,7 @@ function App() {
 
   // Multiplayer state
   const [showModeSelector, setShowModeSelector] = useState(false);
+  const [showGameModeSelector, setShowGameModeSelector] = useState(false);
   const [showJoinRoomModal, setShowJoinRoomModal] = useState(false);
   const [multiplayerQuizToPlay, setMultiplayerQuizToPlay] = useState<string | null>(null);
   const [currentSession, setCurrentSession] = useState<MultiplayerSession | null>(null);
@@ -637,20 +639,13 @@ const handleSelectPlayMode = useCallback(
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {/* Host Game */}
               <button
-                onClick={async () => {
-                  if (multiplayerQuizToPlay) {
-                    const quiz = getQuiz(multiplayerQuizToPlay);
-                    if (quiz) {
-                      await handleCreateMultiplayerGame('classic_race', {});
-                    }
-                  }
-                }}
+                onClick={() => setShowGameModeSelector(true)}
                 disabled={multiplayerLoading}
                 className="group p-8 bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent rounded-2xl hover:border-accent hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-left"
               >
                 <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🎮</div>
                 <h3 className="font-serif text-xl text-accent mb-2">Host Game</h3>
-                <p className="text-sm text-text-secondary">Create a new room and wait for friends to join</p>
+                <p className="text-sm text-text-secondary">Choose a game mode and create a room</p>
               </button>
 
               {/* Join Game */}
@@ -684,6 +679,18 @@ const handleSelectPlayMode = useCallback(
           onSelectMode={handleSelectPlayMode}
           isLoading={false}
         />
+
+        <GameModeSelector
+          isOpen={showGameModeSelector}
+          onClose={() => setShowGameModeSelector(false)}
+          onSelectMode={async (mode) => {
+            if (!multiplayerQuizToPlay || !user) return;
+            const quiz = getQuiz(multiplayerQuizToPlay);
+            if (quiz) {
+              await handleCreateMultiplayerGame(mode.id, mode.config?.[0]?.default || {});
+            }
+          }}
+        />
       </ErrorBoundary>
     );
   }
@@ -700,10 +707,6 @@ const handleSelectPlayMode = useCallback(
             userId={user?.id || ''}
             isHost={isHost}
             onStart={handleStartGame}
-            onSelectMode={(_modeId) => {
-              // Mode selection handled by game mode selector
-              // This callback can be used for future mode-specific logic
-            }}
             onKickPlayer={async (participantId) => {
               await multiplayerSession.kickParticipant(participantId);
               const updated = await multiplayerSession.getParticipants(currentSession.id);

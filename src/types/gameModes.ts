@@ -2,6 +2,9 @@
 
 import type { GameMode, ScoringRules } from './multiplayer';
 
+// Re-export GameMode for convenience
+export type { GameMode } from './multiplayer';
+
 // Helper to create a game mode definition
 export function createGameMode(
   id: string,
@@ -856,6 +859,228 @@ export const STREAK_MASTER: GameMode = createGameMode(
 );
 
 // ============================================================================
+// SPEED ACCURACY ⚡🎯
+// ============================================================================
+
+export const SPEED_ACCURACY_SCORING: ScoringRules = {
+  basePoints: 100,
+  speedBonus: 75,
+  custom: {
+    accuracyWeighting: true,
+    accuracyMultiplier: 2.0, // Final score = base * speed_multiplier * accuracy_multiplier
+  },
+};
+
+export const SPEED_ACCURACY: GameMode = createGameMode(
+  'speed_accuracy',
+  'Speed Accuracy',
+  'Fastest AND most accurate wins! Balance speed with precision.',
+  '⚡🎯',
+  {
+    minPlayers: 2,
+    revealPattern: 'host_controlled',
+    scoring: SPEED_ACCURACY_SCORING,
+    mechanics: ['speed', 'accuracy', 'combined'],
+    config: [
+      {
+        id: 'base_points',
+        label: 'Base Points Per Question',
+        type: 'number',
+        default: 100,
+        min: 50,
+        max: 300,
+        description: 'Points for each correct answer',
+      },
+      {
+        id: 'accuracy_weight',
+        label: 'Accuracy Multiplier',
+        type: 'number',
+        default: 2,
+        min: 1,
+        max: 5,
+        description: 'How much accuracy affects final score',
+      },
+    ],
+  }
+);
+
+// ============================================================================
+// UNLIMITED QUESTIONS ♾️
+// ============================================================================
+
+export const UNLIMITED_QUESTIONS_SCORING: ScoringRules = {
+  basePoints: 50,
+  speedBonus: 25,
+  custom: {
+    repeatableQuestions: true,
+    timerBased: true,
+    countMultiplier: 1.1, // Score multiplier increases with each question answered
+  },
+};
+
+export const UNLIMITED_QUESTIONS: GameMode = createGameMode(
+  'unlimited_questions',
+  'Unlimited Questions',
+  'As many questions as possible in the time limit. Questions repeat!',
+  '♾️',
+  {
+    minPlayers: 1,
+    revealPattern: 'auto_advance',
+    scoring: UNLIMITED_QUESTIONS_SCORING,
+    mechanics: ['time_limited', 'no_penalty', 'quantity', 'repeating'],
+    config: [
+      {
+        id: 'time_limit',
+        label: 'Time Limit',
+        type: 'number',
+        default: 300,
+        min: 60,
+        max: 600,
+        description: 'Seconds to answer as many questions as possible',
+      },
+      {
+        id: 'points_per_question',
+        label: 'Points Per Correct Answer',
+        type: 'number',
+        default: 50,
+        min: 10,
+        max: 200,
+      },
+    ],
+  }
+);
+
+// ============================================================================
+// CALIBRATED CHALLENGE 🎲
+// ============================================================================
+
+export const CALIBRATED_CHALLENGE_SCORING: ScoringRules = {
+  basePoints: 100,
+  custom: {
+    difficultyScaling: true,
+    easyPoints: 50,
+    mediumPoints: 100,
+    hardPoints: 200,
+  },
+};
+
+export const CALIBRATED_CHALLENGE: GameMode = createGameMode(
+  'calibrated_challenge',
+  'Calibrated Challenge',
+  'Questions scale in difficulty based on your answers. Miss = easier questions!',
+  '🎲',
+  {
+    minPlayers: 1,
+    revealPattern: 'host_controlled',
+    scoring: CALIBRATED_CHALLENGE_SCORING,
+    mechanics: ['adaptive', 'difficulty_scaling'],
+    config: [
+      {
+        id: 'difficulty_increase',
+        label: 'Difficulty Increase on Correct',
+        type: 'select',
+        default: 'medium',
+        options: [
+          { label: 'Slow', value: 'slow' },
+          { label: 'Medium', value: 'medium' },
+          { label: 'Fast', value: 'fast' },
+        ],
+      },
+    ],
+  }
+);
+
+// ============================================================================
+// MULTIPLIER MADNESS 🔢
+// ============================================================================
+
+export const MULTIPLIER_MADNESS_SCORING: ScoringRules = {
+  basePoints: 100,
+  custom: {
+    multiplierStart: 1,
+    multiplierIncrease: 0.5, // Increases by 0.5x per consecutive correct
+    multiplierCap: 5, // Max 5x multiplier
+  },
+};
+
+export const MULTIPLIER_MADNESS: GameMode = createGameMode(
+  'multiplier_madness',
+  'Multiplier Madness',
+  'Points multiply with each consecutive correct answer! Up to 5x!',
+  '🔢',
+  {
+    minPlayers: 2,
+    revealPattern: 'host_controlled',
+    scoring: MULTIPLIER_MADNESS_SCORING,
+    mechanics: ['exponential', 'streaks', 'high_risk'],
+    config: [
+      {
+        id: 'max_multiplier',
+        label: 'Maximum Multiplier',
+        type: 'number',
+        default: 5,
+        min: 2,
+        max: 10,
+      },
+      {
+        id: 'multiplier_increase',
+        label: 'Multiplier Increase Per Correct',
+        type: 'number',
+        default: 0.5,
+        min: 0.1,
+        max: 1,
+      },
+    ],
+  }
+);
+
+// ============================================================================
+// PENALIZED MODE 📉
+// ============================================================================
+
+export const PENALIZED_MODE_SCORING: ScoringRules = {
+  basePoints: 150,
+  custom: {
+    wrongAnswerPenalty: -75,
+    penaltyMultiplier: true, // Penalty increases with consecutive wrongs
+  },
+};
+
+export const PENALIZED_MODE: GameMode = createGameMode(
+  'penalized_mode',
+  'Penalized Mode',
+  'High points, but wrong answers cost you! Risk management essential.',
+  '📉',
+  {
+    minPlayers: 2,
+    revealPattern: 'host_controlled',
+    scoring: PENALIZED_MODE_SCORING,
+    mechanics: ['penalty', 'risk', 'strategy'],
+    config: [
+      {
+        id: 'wrong_penalty',
+        label: 'Points Lost Per Wrong Answer',
+        type: 'number',
+        default: 75,
+        min: 25,
+        max: 300,
+      },
+      {
+        id: 'penalty_scaling',
+        label: 'Penalty Increases Each Wrong',
+        type: 'select',
+        default: 'linear',
+        options: [
+          { label: 'No Scaling', value: 'none' },
+          { label: 'Linear', value: 'linear' },
+          { label: 'Exponential', value: 'exponential' },
+        ],
+      },
+    ],
+  }
+);
+
+// ============================================================================
 // REGISTRY - All modes
 // ============================================================================
 
@@ -881,6 +1106,11 @@ export const ALL_GAME_MODES: Record<string, GameMode> = {
   double_points: DOUBLE_POINTS,
   time_pressure: TIME_PRESSURE,
   streak_master: STREAK_MASTER,
+  speed_accuracy: SPEED_ACCURACY,
+  unlimited_questions: UNLIMITED_QUESTIONS,
+  calibrated_challenge: CALIBRATED_CHALLENGE,
+  multiplier_madness: MULTIPLIER_MADNESS,
+  penalized_mode: PENALIZED_MODE,
 };
 
 export function getGameMode(id: string): GameMode | undefined {
