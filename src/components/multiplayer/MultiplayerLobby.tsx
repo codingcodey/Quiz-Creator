@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import type { MultiplayerSession, SessionParticipant, GameMode } from '../../types/multiplayer';
 import { getGameMode } from '../../types/gameModes';
 import { ConnectionStatus } from './ConnectionStatus';
+import { LobbyChat, type ChatMessage } from './LobbyChat';
 
 interface MultiplayerLobbyProps {
   session: MultiplayerSession;
@@ -30,6 +31,7 @@ export function MultiplayerLobby({
   isLoading = false,
 }: MultiplayerLobbyProps) {
   const [selectedMode, setSelectedMode] = useState<GameMode | null>(null);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
 
   // Update selected mode when session mode changes
   useEffect(() => {
@@ -62,6 +64,22 @@ export function MultiplayerLobby({
       onLeave?.();
     }
   }, [onLeave]);
+
+  const handleSendMessage = useCallback((message: string) => {
+    // Get the current user's name from participants
+    const currentUser = participants.find(p => p.user_id === userId);
+    const userName = currentUser?.display_name || 'Anonymous';
+
+    const newMessage: ChatMessage = {
+      id: `msg_${Date.now()}_${Math.random()}`,
+      userId,
+      displayName: userName,
+      message,
+      timestamp: Date.now(),
+    };
+
+    setChatMessages(prev => [...prev, newMessage]);
+  }, [userId, participants]);
 
   return (
     <div className="min-h-screen bg-bg-primary flex flex-col relative overflow-hidden">
@@ -269,6 +287,15 @@ export function MultiplayerLobby({
               </div>
             )}
           </div>
+        </div>
+
+        {/* Chat */}
+        <div className="max-w-6xl mx-auto mt-8">
+          <LobbyChat
+            messages={chatMessages}
+            userId={userId}
+            onSendMessage={handleSendMessage}
+          />
         </div>
       </main>
     </div>
