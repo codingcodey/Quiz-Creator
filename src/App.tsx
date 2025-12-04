@@ -27,6 +27,7 @@ import { MultiplayerLobby } from './components/multiplayer/MultiplayerLobby';
 import { MultiplayerHost } from './components/multiplayer/MultiplayerHost';
 import { MultiplayerGame } from './components/multiplayer/MultiplayerGame';
 import { Podium } from './components/multiplayer/Podium';
+import { PersonalResults } from './components/multiplayer/PersonalResults';
 import { createQuiz, generateShareId, type Quiz, type QuizAttempt } from './types/quiz';
 import { createQuizFromTemplate } from './data/templates';
 import type { QuizTemplate } from './data/templates';
@@ -770,22 +771,43 @@ const handleSelectPlayMode = useCallback(
   // Multiplayer Results
   if (view === 'multiplayer_results' && currentSession && gameFinished) {
     const quiz = getQuiz(multiplayerQuizToPlay || '');
+    const isHost = currentSession.host_user_id === user?.id;
+    const currentParticipant = sessionParticipants.find(p => p.user_id === user?.id);
+
     return (
       <ErrorBoundary>
         <div className="animate-page-enter">
-          <Podium
-            participants={sessionParticipants}
-            totalQuestions={quiz?.questions.length || 0}
-            currentUserId={user?.id}
-            gameMode={currentSession?.game_mode}
-            onPlayAgain={async () => {
-              // Reset game state and return to lobby
-              setGameStarted(false);
-              setGameFinished(false);
-              setView('multiplayer_lobby');
-            }}
-            onExit={handleExitGame}
-          />
+          {isHost ? (
+            // Host sees the podium with all players
+            <Podium
+              participants={sessionParticipants}
+              totalQuestions={quiz?.questions.length || 0}
+              currentUserId={user?.id}
+              gameMode={currentSession?.game_mode}
+              onPlayAgain={async () => {
+                // Reset game state and return to lobby
+                setGameStarted(false);
+                setGameFinished(false);
+                setView('multiplayer_lobby');
+              }}
+              onExit={handleExitGame}
+            />
+          ) : currentParticipant ? (
+            // Players see their personal results
+            <PersonalResults
+              participant={currentParticipant}
+              participants={sessionParticipants}
+              totalQuestions={quiz?.questions.length || 0}
+              gameMode={currentSession?.game_mode}
+              onPlayAgain={async () => {
+                // Reset game state and return to lobby
+                setGameStarted(false);
+                setGameFinished(false);
+                setView('multiplayer_lobby');
+              }}
+              onExit={handleExitGame}
+            />
+          ) : null}
         </div>
       </ErrorBoundary>
     );
