@@ -126,12 +126,12 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
 
       {/* Content */}
       <div className="p-4 relative">
-        <h3 className="font-serif text-xl text-text-primary line-clamp-1 group-hover:text-accent transition-colors pr-14">
+        <h3 className="font-serif text-xl text-text-primary line-clamp-1 group-hover:text-accent transition-colors pr-16">
           {quiz.title}
         </h3>
         
         {quiz.description && (
-          <p className="mt-1 text-sm text-text-secondary line-clamp-2 pr-14">
+          <p className="mt-1 text-sm text-text-secondary line-clamp-2 pr-16">
             {quiz.description}
           </p>
         )}
@@ -159,7 +159,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
           Updated {formattedDate}
         </p>
 
-        {/* Play button - bottom right */}
+        {/* Play button - bottom right of content area */}
         {quiz.questions.length > 0 && (
           <button
             onClick={(e) => {

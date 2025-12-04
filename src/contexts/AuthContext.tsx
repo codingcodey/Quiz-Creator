@@ -40,16 +40,63 @@ export function AuthProvider({ children }: AuthProviderProps) {
       return;
     }
 
-    // Get initial session
-    supabase!.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
+    // Handle OAuth callback and clean up URL parameters
+    const handleAuthCallback = async () => {
+      // Check if we're returning from OAuth
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const queryParams = new URLSearchParams(window.location.search);
+      
+      const hasAuthParams = hashParams.has('access_token') || queryParams.has('access_token');
+      
+      if (hasAuthParams) {
+        // Clean up URL immediately to prevent stale URL warnings
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+        
+        // Get session - Supabase will handle the OAuth callback internally
+        try {
+          const { data: { session }, error } = await supabase!.auth.getSession();
+          
+          if (session && !error) {
+            setUser(session.user);
+            setLoading(false);
+          } else {
+            // If no session, try to get a fresh one
+            const { data: { session: freshSession } } = await supabase!.auth.getSession();
+            setUser(freshSession?.user ?? null);
+            setLoading(false);
+          }
+        } catch (err) {
+          // If there's an error (e.g., stale token), just get current session
+          console.warn('OAuth callback handling:', err);
+          const { data: { session } } = await supabase!.auth.getSession();
+          setUser(session?.user ?? null);
+          setLoading(false);
+        }
+      } else {
+        // Normal session check
+        const { data: { session } } = await supabase!.auth.getSession();
+        setUser(session?.user ?? null);
+        setLoading(false);
+      }
+    };
+
+    handleAuthCallback();
 
     // Listen for auth changes
     const { data: { subscription } } = supabase!.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      // Clean up URL on auth state change if we have hash/query params
+      const hasAuthParams = window.location.hash.includes('access_token') || 
+                           window.location.search.includes('access_token') ||
+                           window.location.hash.includes('error');
+      
+      if (hasAuthParams) {
+        const cleanUrl = window.location.origin + window.location.pathname;
+        window.history.replaceState({}, document.title, cleanUrl);
+      }
     });
 
     return () => subscription.unsubscribe();

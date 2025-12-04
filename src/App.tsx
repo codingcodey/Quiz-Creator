@@ -263,6 +263,28 @@ function App() {
     }
   }, [currentSession, user, sessionParticipants, multiplayerSession]);
 
+  const handleStartGame = useCallback(async () => {
+    if (!currentSession) return;
+    setGameStarted(true);
+    const isHost = currentSession.host_user_id === user?.id;
+    setView(isHost ? 'multiplayer_host' : 'multiplayer_game');
+
+    // Update session status to in_progress
+    await multiplayerSession.updateSessionStatus(currentSession.id, 'in_progress');
+  }, [currentSession, user, multiplayerSession]);
+
+  const handleFinishGame = useCallback(() => {
+    setGameStarted(false);
+    setGameFinished(true);
+    setView('multiplayer_results');
+  }, []);
+
+  const handleExitGame = useCallback(async () => {
+    await handleLeaveMultiplayerGame();
+    setGameStarted(false);
+    setGameFinished(false);
+  }, [handleLeaveMultiplayerGame]);
+
   const goHome = () => {
     if (isDemo) {
       // In demo mode, always return to the demo quiz editor instead of the home dashboard
@@ -694,10 +716,7 @@ function App() {
             participants={sessionParticipants}
             userId={user?.id || ''}
             isHost={isHost}
-            onStart={() => {
-              // Placeholder for game start
-              console.log('Starting game:', currentSession.game_mode);
-            }}
+            onStart={handleStartGame}
             onSelectMode={(modeId) => {
               // Placeholder for mode selection
               console.log('Selected mode:', modeId);
@@ -709,6 +728,77 @@ function App() {
             }}
             onLeave={handleLeaveMultiplayerGame}
             isLoading={multiplayerLoading}
+          />
+        </div>
+      </ErrorBoundary>
+    );
+  }
+
+  // Multiplayer Host Game
+  if (view === 'multiplayer_host' && currentSession && gameStarted) {
+    const quiz = getQuiz(multiplayerQuizToPlay || '');
+    return (
+      <ErrorBoundary>
+        <div className="animate-page-enter">
+          <MultiplayerHost
+            session={currentSession}
+            participants={sessionParticipants}
+            questions={quiz?.questions || []}
+            connectionStatus={{
+              state: 'connected',
+              errorMessage: undefined,
+            }}
+            onEndGame={handleFinishGame}
+            onUpdateSession={() => {}}
+            onUpdateParticipantScore={() => {}}
+            onBroadcastEvent={() => {}}
+          />
+        </div>
+      </ErrorBoundary>
+    );
+  }
+
+  // Multiplayer Game (Player View)
+  if (view === 'multiplayer_game' && currentSession && gameStarted) {
+    const quiz = getQuiz(multiplayerQuizToPlay || '');
+    return (
+      <ErrorBoundary>
+        <div className="animate-page-enter">
+          <MultiplayerGame
+            participants={sessionParticipants}
+            questions={quiz?.questions || []}
+            userId={user?.id || ''}
+            connectionStatus={{
+              state: 'connected',
+              errorMessage: undefined,
+            }}
+            onAnswerQuestion={() => {}}
+            onLeaveGame={handleExitGame}
+            onReceiveEvent={() => {}}
+          />
+        </div>
+      </ErrorBoundary>
+    );
+  }
+
+  // Multiplayer Results
+  if (view === 'multiplayer_results' && currentSession && gameFinished) {
+    const quiz = getQuiz(multiplayerQuizToPlay || '');
+    return (
+      <ErrorBoundary>
+        <div className="animate-page-enter">
+          <Podium
+            participants={sessionParticipants}
+            totalQuestions={quiz?.questions.length || 0}
+            currentUserId={user?.id}
+            gameMode={currentSession?.game_mode}
+            onPlayAgain={async () => {
+              // Reset game state and return to lobby
+              setGameStarted(false);
+              setGameFinished(false);
+              setView('multiplayer_lobby');
+            }}
+            onExit={handleExitGame}
           />
         </div>
       </ErrorBoundary>

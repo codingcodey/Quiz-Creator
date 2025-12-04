@@ -1,10 +1,15 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import type { SessionParticipant } from '../../types/multiplayer';
-import { getMedalForRank, determineAwards } from '../../utils/scoring';
+import { getMedalForRank } from '../../utils/scoring';
+import { AchievementUnlockList } from './AchievementUnlock';
+import { useMultiplayerAchievements } from '../../hooks/useMultiplayerAchievements';
+import type { Achievement } from '../../hooks/useAchievements';
 
 interface PodiumProps {
   participants: SessionParticipant[];
   totalQuestions: number;
+  currentUserId?: string;
+  gameMode?: string;
   onPlayAgain?: () => void;
   onExit?: () => void;
 }
@@ -12,9 +17,14 @@ interface PodiumProps {
 export function Podium({
   participants,
   totalQuestions,
+  currentUserId,
+  gameMode = 'classic',
   onPlayAgain,
   onExit,
 }: PodiumProps) {
+  const [unlockedAchievements, setUnlockedAchievements] = useState<Achievement[]>([]);
+  const { checkAllAchievements } = useMultiplayerAchievements();
+
   const rankedParticipants = useMemo(() => {
     return [...participants]
       .sort((a, b) => {
@@ -29,6 +39,50 @@ export function Podium({
         rank: idx + 1,
       }));
   }, [participants]);
+
+  // Calculate achievements for current user
+  useMemo(() => {
+    if (!currentUserId) return;
+
+    const currentUserRank =
+      [...participants]
+        .sort((a, b) => {
+          if (b.current_score !== a.current_score) {
+            return b.current_score - a.current_score;
+          }
+          return a.total_time_spent - b.total_time_spent;
+        })
+        .findIndex((p) => p.user_id === currentUserId) + 1;
+
+    const currentUser = participants.find((p) => p.user_id === currentUserId);
+    if (!currentUser) return;
+
+    // Calculate total time
+    const totalTime = currentUser.total_time_spent;
+
+    // Mock user stats - in real implementation, fetch from database
+    const userStats = {
+      gamesPlayedCount: 1, // This would come from user profile
+      winsCount: currentUserRank === 1 ? 1 : 0,
+      hostedGamesCount: 0,
+      playersHosted: participants.length,
+      uniquePlayersCount: participants.length,
+      winStreak: currentUserRank === 1 ? 1 : 0,
+      comebackWins: 0,
+      trailedByPoints: 0,
+    };
+
+    const unlocked = checkAllAchievements(
+      currentUser,
+      currentUserRank,
+      gameMode,
+      totalQuestions,
+      totalTime,
+      userStats
+    );
+
+    setUnlockedAchievements(unlocked.map((u) => u.achievement));
+  }, [currentUserId, participants, gameMode, totalQuestions, checkAllAchievements]);
 
   const topThree = useMemo(() => {
     const sorted = [...rankedParticipants];
@@ -66,6 +120,9 @@ export function Podium({
         <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] bg-accent/15 rounded-full blur-2xl animate-orb-2" />
       </div>
 
+      {/* Achievement notifications */}
+      <AchievementUnlockList achievements={unlockedAchievements} />
+
       {/* Header */}
       <header className="relative z-10 text-center pt-8 pb-4">
         <h1 className="font-serif text-5xl font-bold text-accent mb-2">🏆 Results</h1>
@@ -78,7 +135,7 @@ export function Podium({
           {/* Podium */}
           <div className="mb-12">
             <div className="flex items-flex-end justify-center gap-4 h-96">
-              {topThree.map((participant, idx) => {
+              {topThree.map((participant) => {
                 const actualRank = participant.rank;
                 const medal = getMedalForRank(actualRank);
                 const podiumHeight = getPodiumHeight(actualRank);
