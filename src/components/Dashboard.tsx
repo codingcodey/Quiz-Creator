@@ -82,22 +82,22 @@ export function Dashboard({
         {/* Stats Bar - only show if there are stats */}
         {totalStats && totalStats.totalAttempts > 0 && (
           <div className="mb-8 grid grid-cols-2 sm:grid-cols-4 gap-4 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.05s' }}>
-            <div className="bg-bg-secondary/60 border border-border-subtle rounded-xl p-4 text-center hover:border-accent/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 card-elevated">
+            <div className="bg-bg-secondary/60 border border-border-subtle rounded-xl p-4 text-center hover:border-accent/40 hover:bg-bg-secondary transition-colors duration-300 card-elevated">
               <p className="text-2xl font-bold text-accent">{totalStats.totalAttempts}</p>
               <p className="text-xs text-text-muted">Total Plays</p>
             </div>
-            <div className="bg-bg-secondary/60 border border-border-subtle rounded-xl p-4 text-center hover:border-accent/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 card-elevated">
+            <div className="bg-bg-secondary/60 border border-border-subtle rounded-xl p-4 text-center hover:border-accent/40 hover:bg-bg-secondary transition-colors duration-300 card-elevated">
               <p className="text-2xl font-bold text-accent">{Math.round(totalStats.averageScore)}%</p>
               <p className="text-xs text-text-muted">Avg Score</p>
             </div>
-            <div className="bg-bg-secondary/60 border border-border-subtle rounded-xl p-4 text-center hover:border-accent/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 card-elevated">
+            <div className="bg-bg-secondary/60 border border-border-subtle rounded-xl p-4 text-center hover:border-accent/40 hover:bg-bg-secondary transition-colors duration-300 card-elevated">
               <p className="text-2xl font-bold text-accent flex items-center justify-center gap-1">
                 {totalStats.bestStreak}
                 <span className="text-orange-400">🔥</span>
               </p>
               <p className="text-xs text-text-muted">Best Streak</p>
             </div>
-            <div className="bg-bg-secondary/60 border border-border-subtle rounded-xl p-4 text-center hover:border-accent/40 hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 card-elevated">
+            <div className="bg-bg-secondary/60 border border-border-subtle rounded-xl p-4 text-center hover:border-accent/40 hover:bg-bg-secondary transition-colors duration-300 card-elevated">
               <p className="text-2xl font-bold text-accent">{formatTime(totalStats.totalTimeSpent)}</p>
               <p className="text-xs text-text-muted">Time Spent</p>
             </div>
@@ -122,7 +122,7 @@ export function Dashboard({
           <div className="flex items-center gap-3">
             <button
               onClick={onCreateQuiz}
-              className="btn-shimmer inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-semibold hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/40 hover:-translate-y-1 active:translate-y-0 active:scale-[0.98] transition-all duration-300 group"
+              className="btn-shimmer inline-flex items-center gap-2 px-5 py-2.5 bg-accent text-bg-primary rounded-xl font-semibold hover:bg-accent-hover transition-colors duration-300 group"
             >
               <svg className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -131,7 +131,7 @@ export function Dashboard({
             </button>
             <button
               onClick={onExplore}
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-bg-secondary border border-border-subtle text-text-primary rounded-xl font-medium hover:border-accent/60 hover:text-accent hover:bg-bg-tertiary hover:shadow-lg hover:shadow-accent/15 hover:-translate-y-1 active:translate-y-0 active:scale-[0.98] transition-all duration-300 group"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-bg-secondary border border-border-subtle text-text-primary rounded-xl font-medium hover:border-accent/60 hover:text-accent hover:bg-bg-tertiary transition-colors duration-300 group"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -160,9 +160,9 @@ export function Dashboard({
               {onToggleFavoritesOnly && (
                 <button
                   onClick={onToggleFavoritesOnly}
-                  className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-300 ${
+                  className={`flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium transition-colors duration-300 ${
                     showFavoritesOnly
-                      ? 'bg-accent text-bg-primary shadow-lg shadow-accent/20'
+                      ? 'bg-accent text-bg-primary'
                       : 'bg-bg-secondary border border-border text-text-secondary hover:text-text-primary hover:border-accent/50'
                   }`}
                 >
@@ -190,7 +190,7 @@ export function Dashboard({
                   </svg>
                 </button>
                 {isSortOpen && (
-                  <div className="absolute right-0 mt-2 w-40 rounded-xl bg-bg-secondary border border-border shadow-xl z-30 py-1">
+                  <div className="absolute right-0 mt-2 w-40 rounded-xl bg-bg-secondary border border-border z-30 py-1">
                     {[
                       { value: 'newest' as const, label: 'Newest' },
                       { value: 'oldest' as const, label: 'Oldest' },

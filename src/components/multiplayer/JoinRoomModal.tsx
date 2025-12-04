@@ -45,6 +45,10 @@ export function JoinRoomModal({ isOpen, onClose, onJoin, isLoading = false, erro
     onClose();
   };
 
+  const handleClearError = () => {
+    setLocalError(null);
+  };
+
   const displayError = error || localError;
 
   return (
@@ -62,18 +66,22 @@ export function JoinRoomModal({ isOpen, onClose, onJoin, isLoading = false, erro
               value={roomCode}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
+              onClick={handleClearError}
               placeholder="0000"
               maxLength={4}
               disabled={isLoading}
               autoFocus
-              className={`w-full px-6 py-4 text-center text-3xl font-bold tracking-widest bg-bg-secondary border-2 rounded-xl focus:outline-none transition-all duration-300 disabled:opacity-50 ${
+              inputMode="numeric"
+              className={`w-full px-6 py-4 text-center text-4xl font-bold tracking-widest bg-bg-secondary border-2 rounded-xl focus:outline-none transition-all duration-300 disabled:opacity-50 ${
                 displayError
-                  ? 'border-error bg-error/5 focus:ring-0'
-                  : 'border-border focus:border-accent focus:ring-2 focus:ring-accent/20'
+                  ? 'border-error bg-error/5 focus:border-error focus:ring-2 focus:ring-error/20'
+                  : 'border-border-subtle focus:border-accent focus:ring-2 focus:ring-accent/20'
               }`}
             />
             {displayError && (
-              <p className="mt-2 text-sm text-error animate-fade-in">{displayError}</p>
+              <div className="mt-3 p-3 bg-error/10 border border-error/30 rounded-lg animate-fade-in">
+                <p className="text-sm text-error font-medium">{displayError}</p>
+              </div>
             )}
           </div>
 
@@ -81,7 +89,7 @@ export function JoinRoomModal({ isOpen, onClose, onJoin, isLoading = false, erro
           <button
             onClick={handleJoin}
             disabled={!isValidRoomCode(roomCode) || isLoading}
-            className="w-full py-4 bg-accent text-bg-primary font-semibold rounded-xl hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/30 active:scale-[0.98] transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-accent disabled:hover:shadow-none"
+            className="w-full py-4 bg-accent text-bg-primary font-semibold rounded-xl hover:bg-accent-hover hover:shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <span className="flex items-center justify-center gap-2">
@@ -104,12 +112,25 @@ export function JoinRoomModal({ isOpen, onClose, onJoin, isLoading = false, erro
         </div>
 
         {/* Tips */}
-        <div className="mt-6 pt-6 border-t border-border text-left">
-          <p className="text-xs text-text-muted mb-3 font-medium">Tips:</p>
-          <ul className="text-xs text-text-muted space-y-1">
-            <li>• The host will provide the room code</li>
-            <li>• Room codes expire after the game ends</li>
-            <li>• You can join up to the moment the game starts</li>
+        <div className="mt-8 pt-6 border-t border-border-subtle text-left">
+          <p className="text-xs text-text-muted mb-3 font-semibold uppercase tracking-wider">How It Works</p>
+          <ul className="text-xs text-text-muted space-y-2">
+            <li className="flex gap-2">
+              <span className="text-accent font-semibold">1.</span>
+              <span>Get the 4-digit code from the host</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-accent font-semibold">2.</span>
+              <span>Enter it above and press Join</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-accent font-semibold">3.</span>
+              <span>You'll see the lobby with other players</span>
+            </li>
+            <li className="flex gap-2">
+              <span className="text-accent font-semibold">4.</span>
+              <span>Wait for the host to start the game</span>
+            </li>
           </ul>
         </div>
       </div>

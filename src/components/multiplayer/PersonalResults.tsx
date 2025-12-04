@@ -60,7 +60,7 @@ export function PersonalResults({
   }, [participant, rank, gameMode, totalQuestions, participants.length, checkAllAchievements]);
 
   const accuracy = totalQuestions > 0
-    ? Math.round((participant.current_score / (totalQuestions * 100)) * 100)
+    ? Math.min(100, Math.round((participant.current_score / (totalQuestions * 100)) * 100))
     : 0;
 
   const getRankDisplay = () => {

@@ -41,10 +41,11 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
         }
       />
 
-      <article
-        className="group relative bg-bg-secondary border border-border-subtle rounded-2xl hover:border-accent/60 transition-all duration-300 ease-out hover:shadow-xl hover:shadow-accent/20 hover:-translate-y-2 active:translate-y-0 active:shadow-lg opacity-0 animate-fade-in-up card-elevated"
-        style={{ animationDelay: `${0.15 + index * 0.08}s` }}
-      >
+      <div className="relative">
+        <article
+          className="group relative bg-bg-secondary border border-border-subtle rounded-2xl hover:border-accent/60 transition-colors duration-300 ease-out opacity-0 animate-fade-in-up card-elevated"
+          style={{ animationDelay: `${0.15 + index * 0.08}s` }}
+        >
       {/* Cover Image or Placeholder */}
       <div className="relative h-40 bg-bg-tertiary overflow-hidden">
         {quiz.coverImage ? (
@@ -160,23 +161,6 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
         </p>
       </div>
 
-      {/* Play button - bottom right of card */}
-      {quiz.questions.length > 0 && (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            onPlay();
-          }}
-          className="absolute bottom-4 right-4 z-[60] w-14 h-14 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-110 hover:shadow-xl hover:shadow-accent/40 active:scale-95 transition-all duration-300 shadow-lg shadow-accent/25 group/play"
-          title="Play quiz"
-          style={{ pointerEvents: 'auto' }}
-        >
-          <svg className="w-7 h-7 ml-0.5 transition-transform duration-300 group-hover/play:scale-110" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M8 5v14l11-7z" />
-          </svg>
-        </button>
-      )}
 
         {/* Actions - hide in public view */}
         {!isPublicView && (
@@ -187,7 +171,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
                 e.stopPropagation();
                 onDuplicate();
               }}
-              className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:scale-105 active:scale-95 transition-all duration-300"
+              className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:shadow-md transition-all duration-300"
               title="Duplicate quiz"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -200,7 +184,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
                 e.stopPropagation();
                 onExport();
               }}
-              className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:scale-105 active:scale-95 transition-all duration-300"
+              className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-accent hover:bg-bg-primary hover:shadow-md transition-all duration-300"
               title="Export as JSON"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -213,7 +197,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
                 e.stopPropagation();
                 setShowDeleteConfirm(true);
               }}
-              className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-error hover:bg-error/10 hover:scale-105 active:scale-95 transition-all duration-300"
+              className="p-2 bg-bg-primary/80 backdrop-blur-sm rounded-lg text-text-secondary hover:text-error hover:bg-error/10 hover:shadow-md transition-all duration-300"
               title="Delete quiz"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -243,6 +227,23 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
           />
         )}
       </article>
+
+        {/* Play button - positioned at bottom right corner */}
+        {quiz.questions.length > 0 && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onPlay();
+            }}
+            className="absolute -bottom-7 -right-7 w-16 h-16 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/40 transition-all duration-300"
+            title="Play quiz"
+          >
+            <svg className="w-8 h-8 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M8 5v14l11-7z" />
+            </svg>
+          </button>
+        )}
+      </div>
     </>
   );
 }

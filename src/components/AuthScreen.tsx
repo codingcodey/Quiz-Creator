@@ -65,7 +65,7 @@ export function AuthScreen({ theme, onToggleTheme }: AuthScreenProps) {
         {/* Logo/Icon */}
         <div className="flex justify-center mb-8 opacity-0 animate-fade-in-scale stagger-1">
           <div className="relative animate-float">
-            <div className="w-20 h-20 bg-accent/20 rounded-2xl flex items-center justify-center border border-accent/30 backdrop-blur-sm shadow-lg shadow-accent/20">
+            <div className="w-20 h-20 bg-accent/20 rounded-2xl flex items-center justify-center border border-accent/30 backdrop-blur-sm">
               <svg
                 className="w-10 h-10 text-accent drop-shadow-[0_0_8px_var(--color-accent)]"
                 fill="none"
@@ -98,7 +98,7 @@ export function AuthScreen({ theme, onToggleTheme }: AuthScreenProps) {
         </div>
 
         {/* Sign in card */}
-        <div className="bg-bg-secondary/90 backdrop-blur-md border border-border-subtle rounded-3xl p-8 shadow-2xl shadow-accent/10 opacity-0 animate-card-entrance stagger-4 card-elevated">
+        <div className="bg-bg-secondary/90 backdrop-blur-md border border-border-subtle rounded-3xl p-8 opacity-0 animate-card-entrance stagger-4 card-elevated">
           {/* Error message */}
           {error && (
             <div className="mb-6 p-4 bg-error/10 border border-error/20 rounded-xl text-error text-sm text-center animate-shake">
@@ -110,7 +110,7 @@ export function AuthScreen({ theme, onToggleTheme }: AuthScreenProps) {
           <button
             onClick={handleGoogleSignIn}
             disabled={isLoading}
-            className="btn-shimmer w-full flex items-center justify-center gap-3 px-6 py-4 bg-bg-primary border-2 border-border-subtle rounded-xl hover:border-accent/70 hover:bg-bg-tertiary hover:shadow-xl hover:shadow-accent/30 hover:-translate-y-1.5 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 group font-semibold"
+            className="btn-shimmer w-full flex items-center justify-center gap-3 px-6 py-4 bg-bg-primary border-2 border-border-subtle rounded-xl hover:border-accent/70 hover:bg-bg-tertiary transition-colors duration-300 disabled:opacity-50 disabled:cursor-not-allowed group font-semibold"
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-text-muted border-t-accent rounded-full animate-spin" />
@@ -166,7 +166,7 @@ export function AuthScreen({ theme, onToggleTheme }: AuthScreenProps) {
           ].map((item) => (
             <div
               key={item.label}
-              className={`opacity-0 animate-feature-pop ${item.delay} flex flex-col items-center gap-1 sm:gap-2 p-3 sm:p-4 bg-bg-secondary/60 border border-border-subtle rounded-xl hover:border-accent/40 hover:bg-bg-secondary/80 hover:-translate-y-2 hover:shadow-lg hover:shadow-accent/10 transition-all duration-300 cursor-default`}
+              className={`opacity-0 animate-feature-pop ${item.delay} flex flex-col items-center gap-1 sm:gap-2 p-3 sm:p-4 bg-bg-secondary/60 border border-border-subtle rounded-xl hover:border-accent/40 hover:bg-bg-secondary/80 transition-colors duration-300 cursor-default`}
             >
               <span className="text-xl sm:text-2xl">{item.icon}</span>
               <span className="text-text-secondary text-xs sm:text-sm">{item.label}</span>

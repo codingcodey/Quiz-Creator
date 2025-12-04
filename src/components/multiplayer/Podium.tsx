@@ -94,9 +94,13 @@ export function Podium({
   }, [rankedParticipants]);
 
   const getAccuracy = (participant: SessionParticipant): number => {
-    // This would need to come from actual answers data
-    // For now, we'll estimate based on available data
-    return Math.round((participant.current_score / (totalQuestions * 100)) * 100) || 0;
+    // Calculate accuracy based on score
+    // Assumes perfect score = totalQuestions * 100 points
+    // This should ideally come from actual correct answers count
+    if (totalQuestions === 0) return 0;
+    const maxPossibleScore = totalQuestions * 100;
+    const accuracy = Math.min(100, Math.round((participant.current_score / maxPossibleScore) * 100)) || 0;
+    return accuracy;
   };
 
   const getPodiumHeight = (rank: number): string => {
@@ -157,7 +161,7 @@ export function Podium({
 
                     {/* Podium */}
                     <div
-                      className={`${podiumHeight} w-36 bg-gradient-to-b from-accent/20 to-accent/5 border-3 border-accent/60 rounded-t-3xl flex flex-col items-center justify-end pb-5 transition-all duration-500 hover:border-accent hover:shadow-lg hover:shadow-accent/20`}
+                      className={`${podiumHeight} w-36 bg-gradient-to-b from-accent/20 to-accent/5 border-3 border-accent/60 rounded-t-3xl flex flex-col items-center justify-end pb-5 transition-colors duration-500 hover:border-accent`}
                     >
                       {/* Avatar */}
                       <div className="mb-4">
@@ -165,10 +169,10 @@ export function Podium({
                           <img
                             src={participant.avatar_url}
                             alt={participant.display_name}
-                            className="w-20 h-20 rounded-full border-3 border-accent object-cover shadow-lg shadow-accent/30"
+                            className="w-20 h-20 rounded-full border-3 border-accent object-cover"
                           />
                         ) : (
-                          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent/30 to-accent/10 flex items-center justify-center text-2xl font-bold text-accent border-3 border-accent shadow-lg shadow-accent/30">
+                          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent/30 to-accent/10 flex items-center justify-center text-2xl font-bold text-accent border-3 border-accent">
                             {participant.display_name.charAt(0).toUpperCase()}
                           </div>
                         )}
@@ -194,7 +198,7 @@ export function Podium({
             {rankedParticipants.slice(0, 3).map((participant, idx) => (
               <div
                 key={participant.id}
-                className="bg-gradient-to-br from-bg-secondary/80 to-bg-tertiary border border-border rounded-2xl p-6 hover:border-accent/60 hover:shadow-lg hover:shadow-accent/10 transition-all opacity-0 animate-fade-in-up"
+                className="bg-gradient-to-br from-bg-secondary/80 to-bg-tertiary border border-border rounded-2xl p-6 hover:border-accent/60 transition-colors opacity-0 animate-fade-in-up"
                 style={{ animationDelay: `${0.2 + idx * 0.1}s` }}
               >
                 <div className="flex items-center gap-3 mb-5">
@@ -298,14 +302,14 @@ export function Podium({
           <div className="flex flex-col sm:flex-row gap-4 justify-center pb-8 opacity-0 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
             <button
               onClick={onPlayAgain}
-              className="btn-shimmer px-8 sm:px-12 py-4 bg-accent text-bg-primary font-bold rounded-xl hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/30 active:scale-[0.98] transition-all duration-300 text-base sm:text-lg min-h-[48px]"
+              className="btn-shimmer px-8 sm:px-12 py-4 bg-accent text-bg-primary font-bold rounded-xl hover:bg-accent-hover transition-colors duration-300 text-base sm:text-lg min-h-[48px]"
             >
               Play Again
             </button>
 
             <button
               onClick={onExit}
-              className="px-8 sm:px-12 py-4 bg-bg-secondary text-text-primary border border-border font-bold rounded-xl hover:border-accent/50 hover:bg-bg-tertiary hover:shadow-lg hover:shadow-accent/5 active:scale-[0.98] transition-all duration-300 text-base sm:text-lg min-h-[48px]"
+              className="px-8 sm:px-12 py-4 bg-bg-secondary text-text-primary border border-border font-bold rounded-xl hover:border-accent/50 hover:bg-bg-tertiary transition-colors duration-300 text-base sm:text-lg min-h-[48px]"
             >
               Exit to Dashboard
             </button>
