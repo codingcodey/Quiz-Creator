@@ -1,5 +1,3 @@
-import React from 'react';
-
 interface ConnectionStatusProps {
   status?: {
     state: 'connected' | 'connecting' | 'disconnected' | 'error';

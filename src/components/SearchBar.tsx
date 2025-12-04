@@ -47,7 +47,9 @@ export function SearchBar({
     <div ref={containerRef} className="relative">
       <div
         className={`flex items-center gap-3 px-4 py-3 bg-bg-secondary border rounded-xl transition-all duration-300 ${
-          isFocused ? 'border-accent shadow-lg shadow-accent/10' : 'border-border'
+          isFocused 
+            ? 'border-accent shadow-lg shadow-accent/20 bg-bg-tertiary' 
+            : 'border-border hover:border-border-subtle'
         }`}
       >
         {/* Search Icon */}
@@ -102,7 +104,7 @@ export function SearchBar({
 
       {/* Suggestions Dropdown */}
       {showSuggestions && filteredSuggestions.length > 0 && (
-        <div className="absolute top-full left-0 right-0 mt-2 py-2 bg-bg-secondary border border-border rounded-xl shadow-xl z-20 animate-fade-in">
+        <div className="absolute top-full left-0 right-0 mt-2 py-2 bg-bg-secondary border border-border-subtle rounded-xl shadow-xl z-20 animate-fade-in card-elevated backdrop-blur-enhanced">
           {filteredSuggestions.slice(0, 5).map((suggestion) => (
             <button
               key={suggestion}
@@ -114,7 +116,7 @@ export function SearchBar({
                 }
                 setShowSuggestions(false);
               }}
-              className="w-full px-4 py-2 text-left text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-colors"
+              className="w-full px-4 py-2.5 text-left text-text-secondary hover:text-text-primary hover:bg-bg-tertiary transition-all duration-200 rounded-lg mx-1"
             >
               <span className="flex items-center gap-2">
                 <svg className="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">

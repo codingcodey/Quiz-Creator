@@ -1,4 +1,4 @@
-import { ScoringRules } from '../types/multiplayer';
+import type { ScoringRules } from '../types/multiplayer';
 import { ALL_GAME_MODES } from '../types/gameModes';
 
 // Calculate points for an answer
@@ -58,12 +58,13 @@ export function calculatePoints(
   if (gameMode === 'fishing_frenzy' && rules.custom?.fishRarity) {
     // Determine rarity based on time
     const rarity = rules.custom.fishRarity;
-    for (const [name, range] of Object.entries(rarity)) {
-      if (timeTakenMs >= range.min && timeTakenMs < range.max) {
-        return range.points;
+    for (const [_name, range] of Object.entries(rarity)) {
+      const r = range as any;
+      if (timeTakenMs >= r.min && timeTakenMs < r.max) {
+        return r.points;
       }
     }
-    return rarity.boot?.points || 0;
+    return (rarity as any).boot?.points || 0;
   }
 
   if (gameMode === 'jeopardy_mode' && modeData?.difficulty) {

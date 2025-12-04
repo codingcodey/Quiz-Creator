@@ -1,6 +1,6 @@
 // Game mode specific types and interfaces
 
-import { GameMode, ScoringRules, GameModeConfig, RevealPattern } from './multiplayer';
+import type { GameMode, ScoringRules } from './multiplayer';
 
 // Helper to create a game mode definition
 export function createGameMode(

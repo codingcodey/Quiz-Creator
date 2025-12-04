@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react';
-import { PresenceData } from '../types/multiplayer';
+import type { PresenceData } from '../types/multiplayer';
 import { useRealtimeChannel } from './useRealtimeChannel';
 
 interface UsePresenceOptions {

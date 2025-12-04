@@ -9,19 +9,19 @@ interface SignInPromptModalProps {
 export function SignInPromptModal({ isOpen, onClose, onSignIn }: SignInPromptModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose}>
-      <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center">
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-12 h-12 rounded-full bg-accent/20 flex items-center justify-center border border-accent/30">
           <span className="text-2xl">🎉</span>
         </div>
-        <h3 className="font-serif text-xl text-text-primary">Enjoying Quiz Creator?</h3>
+        <h3 className="font-serif text-2xl text-text-primary">Enjoying Quiz Creator?</h3>
       </div>
-      <p className="text-text-secondary mb-6">
+      <p className="text-text-secondary mb-8 text-base leading-relaxed">
         Sign in with Google to unlock unlimited quizzes, save your progress, and access all features!
       </p>
       <div className="flex flex-col gap-3">
         <button
           onClick={onSignIn}
-          className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-accent text-bg-primary rounded-xl hover:bg-accent-hover hover:-translate-y-0.5 hover:shadow-lg hover:shadow-accent/30 active:translate-y-0 transition-all duration-300"
+          className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-accent text-bg-primary rounded-xl hover:bg-accent-hover hover:-translate-y-1 hover:shadow-lg hover:shadow-accent/40 active:translate-y-0 transition-all duration-300 font-semibold"
         >
           <svg className="w-5 h-5" viewBox="0 0 24 24">
             <path
@@ -45,7 +45,7 @@ export function SignInPromptModal({ isOpen, onClose, onSignIn }: SignInPromptMod
         </button>
         <button
           onClick={onClose}
-          className="w-full px-4 py-2.5 text-text-secondary hover:text-text-primary transition-all duration-300"
+          className="w-full px-4 py-2.5 text-text-secondary hover:text-text-primary hover:bg-bg-tertiary rounded-lg transition-all duration-300"
         >
           Continue with Demo
         </button>

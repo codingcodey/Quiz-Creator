@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { Modal } from '../Modal';
 import { getAllGameModes } from '../../types/gameModes';
 

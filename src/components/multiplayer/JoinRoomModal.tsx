@@ -1,13 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import { useState, useCallback } from 'react';
 import { Modal } from '../Modal';
-import { formatRoomCode, isValidRoomCode } from '../../utils/roomCode';
+import { isValidRoomCode } from '../../utils/roomCode';
 
 interface JoinRoomModalProps {
   isOpen: boolean;
   onClose: () => void;
   onJoin: (roomCode: string) => void;
   isLoading?: boolean;
-  error?: string;
+  error?: string | null;
 }
 
 export function JoinRoomModal({ isOpen, onClose, onJoin, isLoading = false, error }: JoinRoomModalProps) {

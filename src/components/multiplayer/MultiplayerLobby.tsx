@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { MultiplayerSession, SessionParticipant, GameMode } from '../../types/multiplayer';
+import { useState, useEffect, useCallback } from 'react';
+import type { MultiplayerSession, SessionParticipant, GameMode } from '../../types/multiplayer';
 import { getGameMode } from '../../types/gameModes';
 import { GameModeSelector } from './GameModeSelector';
 import { ConnectionStatus } from './ConnectionStatus';

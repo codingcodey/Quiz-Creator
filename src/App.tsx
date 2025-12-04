@@ -5,6 +5,7 @@ import { useAuth } from './contexts/AuthContext';
 import { useQuizAttempts } from './hooks/useQuizAttempts';
 import { useAchievements, type Achievement } from './hooks/useAchievements';
 import { useDebounce } from './hooks/useDebounce';
+import { useMultiplayerSession } from './hooks/useMultiplayerSession';
 import { Hero } from './components/Hero';
 import { Dashboard } from './components/Dashboard';
 import { Explore } from './components/Explore';
@@ -19,11 +20,18 @@ import { AchievementToast, AchievementShowcase } from './components/AchievementT
 import { Confetti } from './components/Confetti';
 import { Modal } from './components/Modal';
 import { SignInPromptModal } from './components/SignInPromptModal';
+import { ModeSelector } from './components/multiplayer/ModeSelector';
+import { JoinRoomModal } from './components/multiplayer/JoinRoomModal';
+import { MultiplayerLobby } from './components/multiplayer/MultiplayerLobby';
+import { MultiplayerHost } from './components/multiplayer/MultiplayerHost';
+import { MultiplayerGame } from './components/multiplayer/MultiplayerGame';
+import { Podium } from './components/multiplayer/Podium';
 import { createQuiz, generateShareId, type Quiz, type QuizAttempt } from './types/quiz';
 import { createQuizFromTemplate } from './data/templates';
 import type { QuizTemplate } from './data/templates';
+import type { MultiplayerSession, SessionParticipant } from './types/multiplayer';
 
-type View = 'home' | 'editor' | 'play' | 'explore';
+type View = 'home' | 'editor' | 'play' | 'explore' | 'multiplayer_mode_select' | 'multiplayer_join' | 'multiplayer_lobby' | 'multiplayer_host' | 'multiplayer_game' | 'multiplayer_results';
 
 function App() {
   const [view, setView] = useState<View>('home');
@@ -39,6 +47,18 @@ function App() {
   const [showNoQuestionsWarning, setShowNoQuestionsWarning] = useState(false);
   const [quizToPlay, setQuizToPlay] = useState<string | null>(null);
   const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+
+  // Multiplayer state
+  const [showModeSelector, setShowModeSelector] = useState(false);
+  const [showJoinRoomModal, setShowJoinRoomModal] = useState(false);
+  const [multiplayerQuizToPlay, setMultiplayerQuizToPlay] = useState<string | null>(null);
+  const [currentSession, setCurrentSession] = useState<MultiplayerSession | null>(null);
+  const [sessionParticipants, setSessionParticipants] = useState<SessionParticipant[]>([]);
+  const [multiplayerLoading, setMultiplayerLoading] = useState(false);
+  const [multiplayerError, setMultiplayerError] = useState<string | null>(null);
+  const [gameStarted, setGameStarted] = useState(false);
+  const [gameFinished, setGameFinished] = useState(false);
+  const multiplayerSession = useMultiplayerSession();
 
   const { theme, toggleTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -96,6 +116,152 @@ function App() {
   const publicQuizzes = useMemo(() => {
     return quizzes.filter((q) => q.settings?.isPublic);
   }, [quizzes]);
+
+  // Multiplayer handlers
+  const handlePlayQuizMultiplayer = useCallback(
+    (quizId: string) => {
+      const quiz = getQuiz(quizId);
+      if (!quiz) return;
+
+      if (quiz.questions.length === 0) {
+        setShowNoQuestionsWarning(true);
+        setQuizToPlay(quizId);
+        return;
+      }
+
+      setMultiplayerQuizToPlay(quizId);
+      setShowModeSelector(true);
+    },
+    [getQuiz]
+  );
+
+  const handleSelectPlayMode = useCallback(
+    (mode: 'solo' | 'multiplayer') => {
+      if (mode === 'solo') {
+        if (multiplayerQuizToPlay) {
+          setEditingQuizId(multiplayerQuizToPlay);
+          setView('play');
+          setMultiplayerQuizToPlay(null);
+        }
+      } else {
+        // Multiplayer
+        setView('multiplayer_mode_select');
+      }
+      setShowModeSelector(false);
+    },
+    [multiplayerQuizToPlay]
+  );
+
+  const handleCreateMultiplayerGame = useCallback(
+    async (gameMode: string, modeConfig: Record<string, any>) => {
+      if (!multiplayerQuizToPlay || !user) return;
+
+      const quiz = getQuiz(multiplayerQuizToPlay);
+      if (!quiz) return;
+
+      setMultiplayerLoading(true);
+      setMultiplayerError(null);
+
+      try {
+        const session = await multiplayerSession.createSession(
+          multiplayerQuizToPlay,
+          quiz,
+          gameMode,
+          modeConfig,
+          user.id
+        );
+
+        if (!session) {
+          throw new Error('Failed to create session');
+        }
+
+        // Join as host
+        const participant = await multiplayerSession.joinSession(
+          session.id,
+          user.id,
+          user.user_metadata?.full_name || user.email?.split('@')[0] || 'Player',
+          user.user_metadata?.avatar_url
+        );
+
+        if (!participant) {
+          throw new Error('Failed to join session');
+        }
+
+        setCurrentSession(session);
+        setSessionParticipants([participant]);
+        setView('multiplayer_lobby');
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to create game';
+        setMultiplayerError(errorMessage);
+        console.error('Error creating multiplayer game:', error);
+      } finally {
+        setMultiplayerLoading(false);
+      }
+    },
+    [multiplayerQuizToPlay, user, getQuiz, multiplayerSession]
+  );
+
+  const handleJoinMultiplayerGame = useCallback(
+    async (roomCode: string) => {
+      if (!user) return;
+
+      setMultiplayerLoading(true);
+      setMultiplayerError(null);
+
+      try {
+        const session = await multiplayerSession.getSessionByRoomCode(roomCode);
+
+        if (!session) {
+          throw new Error('Room not found');
+        }
+
+        // Join as player
+        const participant = await multiplayerSession.joinSession(
+          session.id,
+          user.id,
+          user.user_metadata?.full_name || user.email?.split('@')[0] || 'Player',
+          user.user_metadata?.avatar_url
+        );
+
+        if (!participant) {
+          throw new Error('Failed to join session');
+        }
+
+        // Get all participants
+        const participants = await multiplayerSession.getParticipants(session.id);
+
+        setCurrentSession(session);
+        setSessionParticipants(participants);
+        setView('multiplayer_lobby');
+        setShowJoinRoomModal(false);
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to join game';
+        setMultiplayerError(errorMessage);
+        console.error('Error joining multiplayer game:', error);
+      } finally {
+        setMultiplayerLoading(false);
+      }
+    },
+    [user, multiplayerSession]
+  );
+
+  const handleLeaveMultiplayerGame = useCallback(async () => {
+    if (!currentSession || !user) return;
+
+    try {
+      const participant = sessionParticipants.find((p) => p.user_id === user.id);
+      if (participant) {
+        await multiplayerSession.leaveSession(currentSession.id, participant.id);
+      }
+
+      setCurrentSession(null);
+      setSessionParticipants([]);
+      setView('home');
+      setMultiplayerQuizToPlay(null);
+    } catch (error) {
+      console.error('Error leaving multiplayer game:', error);
+    }
+  }, [currentSession, user, sessionParticipants, multiplayerSession]);
 
   const goHome = () => {
     if (isDemo) {
@@ -297,14 +463,20 @@ function App() {
   const handleDemoGoogleSignIn = useCallback(async () => {
     try {
       if (isDemo) {
+        setShowSignInPrompt(false);
+        // Reset view state to ensure we don't show home
+        setView('home');
+        setEditingQuizId(null);
+        setNewQuizDraft(null);
+        // Sign out to show AuthScreen - don't trigger OAuth immediately
+        // The AuthScreen will have its own "Sign in with Google" button
         await signOut();
       }
-      await signInWithGoogle();
-      setShowSignInPrompt(false);
     } catch (error) {
-      console.error('Failed to sign in:', error);
+      console.error('Failed to sign out:', error);
     }
-  }, [isDemo, signOut, signInWithGoogle]);
+  }, [isDemo, signOut]);
+
 
   // Demo mode: always work in a blank, unsaved quiz and never show the home page
   useEffect(() => {
@@ -320,22 +492,26 @@ function App() {
     }
   }, [isDemo, view, newQuizDraft, editingQuiz]);
 
-  const handlePlayQuiz = useCallback((quizId: string) => {
-    // In demo mode, require sign-in before playing
-    if (isDemo) {
-      setShowSignInPrompt(true);
-      return;
-    }
+  const handlePlayQuiz = useCallback(
+    (quizId: string) => {
+      // In demo mode, require sign-in before playing
+      if (isDemo) {
+        setShowSignInPrompt(true);
+        return;
+      }
 
-    const quiz = getQuiz(quizId);
-    if (quiz && quiz.questions.length === 0) {
-      setQuizToPlay(quizId);
-      setShowNoQuestionsWarning(true);
-    } else {
-      setEditingQuizId(quizId);
-      setView('play');
-    }
-  }, [getQuiz, isDemo]);
+      const quiz = getQuiz(quizId);
+      if (quiz && quiz.questions.length === 0) {
+        setQuizToPlay(quizId);
+        setShowNoQuestionsWarning(true);
+      } else {
+        // Show mode selector (solo or multiplayer)
+        setMultiplayerQuizToPlay(quizId);
+        setShowModeSelector(true);
+      }
+    },
+    [getQuiz, isDemo]
+  );
 
   // Show loading state
   if (loading) {
@@ -424,6 +600,117 @@ function App() {
         <AchievementToast achievement={newAchievement} onClose={() => setNewAchievement(null)} />
         {/* Sign In Prompt Modal (also available while exploring) */}
         <SignInPromptModal isOpen={showSignInPrompt} onClose={() => setShowSignInPrompt(false)} onSignIn={handleDemoGoogleSignIn} />
+      </ErrorBoundary>
+    );
+  }
+
+  // Multiplayer Mode Selection
+  if (view === 'multiplayer_mode_select') {
+    return (
+      <ErrorBoundary>
+        <div className="min-h-screen bg-bg-primary flex flex-col items-center justify-center px-6 relative overflow-hidden">
+          {/* Background glow */}
+          <div className="absolute inset-0 pointer-events-none overflow-hidden">
+            <div className="absolute top-1/3 left-1/4 w-[300px] h-[300px] bg-accent/10 rounded-full blur-3xl animate-orb-1" />
+            <div className="absolute bottom-1/4 right-1/4 w-[250px] h-[250px] bg-accent/15 rounded-full blur-2xl animate-orb-2" />
+          </div>
+
+          <div className="relative z-10 max-w-2xl w-full">
+            <button
+              onClick={() => setView('home')}
+              className="mb-6 flex items-center gap-2 px-3 py-2.5 text-text-secondary hover:text-text-primary transition-colors rounded-lg hover:bg-bg-secondary"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+              <span>Back</span>
+            </button>
+
+            <h2 className="font-serif text-3xl text-text-primary mb-2">Play Multiplayer</h2>
+            <p className="text-text-secondary mb-8">Would you like to host a game or join an existing one?</p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {/* Host Game */}
+              <button
+                onClick={async () => {
+                  if (multiplayerQuizToPlay) {
+                    const quiz = getQuiz(multiplayerQuizToPlay);
+                    if (quiz) {
+                      await handleCreateMultiplayerGame('classic_race', {});
+                    }
+                  }
+                }}
+                disabled={multiplayerLoading}
+                className="group p-8 bg-gradient-to-br from-accent/20 to-accent/10 border-2 border-accent rounded-2xl hover:border-accent hover:shadow-lg hover:shadow-accent/30 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-left"
+              >
+                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🎮</div>
+                <h3 className="font-serif text-xl text-accent mb-2">Host Game</h3>
+                <p className="text-sm text-text-secondary">Create a new room and wait for friends to join</p>
+              </button>
+
+              {/* Join Game */}
+              <button
+                onClick={() => setShowJoinRoomModal(true)}
+                disabled={multiplayerLoading}
+                className="group p-8 bg-gradient-to-br from-bg-secondary to-bg-tertiary border border-border rounded-2xl hover:border-accent/50 hover:shadow-lg hover:shadow-accent/20 hover:-translate-y-1 active:translate-y-0 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-left"
+              >
+                <div className="text-5xl mb-4 group-hover:scale-110 transition-transform duration-300">🔗</div>
+                <h3 className="font-serif text-xl text-text-primary mb-2">Join Game</h3>
+                <p className="text-sm text-text-secondary">Enter a room code to join a friend&apos;s game</p>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <JoinRoomModal
+          isOpen={showJoinRoomModal}
+          onClose={() => setShowJoinRoomModal(false)}
+          onJoin={handleJoinMultiplayerGame}
+          isLoading={multiplayerLoading}
+          error={multiplayerError}
+        />
+
+        <ModeSelector
+          isOpen={showModeSelector}
+          onClose={() => {
+            setShowModeSelector(false);
+            setMultiplayerQuizToPlay(null);
+          }}
+          onSelectMode={handleSelectPlayMode}
+          isLoading={false}
+        />
+      </ErrorBoundary>
+    );
+  }
+
+  // Multiplayer Lobby
+  if (view === 'multiplayer_lobby' && currentSession) {
+    const isHost = currentSession.host_user_id === user?.id;
+    return (
+      <ErrorBoundary>
+        <div className="animate-page-enter">
+          <MultiplayerLobby
+            session={currentSession}
+            participants={sessionParticipants}
+            userId={user?.id || ''}
+            isHost={isHost}
+            onStart={() => {
+              // Placeholder for game start
+              console.log('Starting game:', currentSession.game_mode);
+            }}
+            onSelectMode={(modeId) => {
+              // Placeholder for mode selection
+              console.log('Selected mode:', modeId);
+            }}
+            onKickPlayer={async (participantId) => {
+              await multiplayerSession.kickParticipant(participantId);
+              const updated = await multiplayerSession.getParticipants(currentSession.id);
+              setSessionParticipants(updated);
+            }}
+            onLeave={handleLeaveMultiplayerGame}
+            isLoading={multiplayerLoading}
+          />
+        </div>
       </ErrorBoundary>
     );
   }

@@ -46,11 +46,11 @@ export function Modal({ isOpen, onClose, children, maxWidth = 'md' }: ModalProps
 
   const modalContent = (
     <div
-      className="modal-backdrop fixed inset-0 z-[200] bg-black/60 backdrop-blur-sm animate-backdrop"
+      className="modal-backdrop fixed inset-0 z-[200] bg-black/70 backdrop-blur-md animate-backdrop"
       onClick={onClose}
     >
       <div
-        className={`bg-bg-secondary border border-border rounded-2xl p-6 ${maxWidthClasses[maxWidth]} w-full mx-4 shadow-2xl animate-modal overflow-y-auto`}
+        className={`bg-bg-secondary border border-border-subtle rounded-3xl p-6 sm:p-8 ${maxWidthClasses[maxWidth]} w-full mx-4 shadow-2xl animate-modal overflow-y-auto card-elevated`}
         onClick={(e) => e.stopPropagation()}
         style={{
           position: 'fixed',

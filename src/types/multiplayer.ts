@@ -72,7 +72,9 @@ export interface RealtimeEvent {
   type: 'host:kick_player' | 'host:game_starting' | 'host:game_started' |
         'host:question_revealed' | 'host:question_locked' | 'host:show_results' |
         'host:next_question' | 'host:game_ended' | 'player:answer_submitted' |
-        'mode:tower_damage' | 'mode:fish_caught' | 'mode:powerup_used';
+        'mode:tower_damage' | 'mode:fish_caught' | 'mode:powerup_used' |
+        'question_revealed' | 'round_started' | 'results_shown' | 'participant_answered' |
+        'game_finished' | 'game_ended_early';
   data: any;
   timestamp?: number;
 }

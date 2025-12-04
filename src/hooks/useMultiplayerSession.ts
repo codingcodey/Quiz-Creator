@@ -1,6 +1,6 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { supabase } from '../config/supabase';
-import { MultiplayerSession, SessionParticipant, SessionStatus } from '../types/multiplayer';
+import type { MultiplayerSession, SessionParticipant, SessionStatus } from '../types/multiplayer';
 import type { Quiz } from '../types/quiz';
 
 export function useMultiplayerSession() {

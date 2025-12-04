@@ -69,7 +69,7 @@ export function Hero({ onCreateQuiz, onExplore, quizCount }: HeroProps) {
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 opacity-0 animate-fade-in-up stagger-4">
           <button
             onClick={onCreateQuiz}
-            className="btn-shimmer group relative inline-flex items-center gap-2 px-8 py-4 bg-accent text-bg-primary font-semibold rounded-xl hover:bg-accent-hover transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-accent/30 active:scale-[0.98]"
+            className="btn-shimmer group relative inline-flex items-center gap-2 px-8 py-4 bg-accent text-bg-primary font-semibold rounded-xl hover:bg-accent-hover transition-all duration-300 hover:scale-[1.03] hover:shadow-xl hover:shadow-accent/40 active:scale-[0.98] glow-accent"
           >
             <svg
               className="w-5 h-5 transition-transform duration-300 group-hover:rotate-90"
@@ -91,7 +91,7 @@ export function Hero({ onCreateQuiz, onExplore, quizCount }: HeroProps) {
           {quizCount > 0 && (
             <button
               onClick={handleScrollDown}
-              className="inline-flex items-center gap-2 px-6 py-4 bg-bg-secondary/80 border border-border text-text-primary font-medium rounded-xl hover:border-accent/50 hover:text-accent transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
+              className="inline-flex items-center gap-2 px-6 py-4 bg-bg-secondary/80 border border-border-subtle text-text-primary font-medium rounded-xl hover:border-accent/60 hover:text-accent hover:bg-bg-tertiary transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 active:scale-[0.98] active:translate-y-0"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -105,7 +105,7 @@ export function Hero({ onCreateQuiz, onExplore, quizCount }: HeroProps) {
         <div className="mt-6 opacity-0 animate-fade-in-up stagger-6">
           <button
             onClick={onExplore}
-            className="inline-flex items-center gap-2 px-6 py-4 bg-bg-secondary border border-border text-text-primary font-medium rounded-xl hover:border-accent/50 hover:text-accent hover:bg-bg-secondary/50 transition-all duration-300 hover:scale-[1.02] hover:-translate-y-0.5 active:scale-[0.98] active:translate-y-0"
+            className="inline-flex items-center gap-2 px-6 py-4 bg-bg-secondary border border-border-subtle text-text-primary font-medium rounded-xl hover:border-accent/60 hover:text-accent hover:bg-bg-tertiary transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 active:scale-[0.98] active:translate-y-0"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

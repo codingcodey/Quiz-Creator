@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { RealtimeChannel } from '@supabase/supabase-js';
 import { supabase } from '../config/supabase';
-import { RealtimeEvent, ConnectionStatus, ConnectionState } from '../types/multiplayer';
+import type { RealtimeEvent, ConnectionStatus } from '../types/multiplayer';
 
 interface UseRealtimeChannelOptions {
   roomCode: string;
@@ -38,14 +38,14 @@ export function useRealtimeChannel(options: UseRealtimeChannelOptions) {
     const channel = channelRef.current;
 
     // Subscribe to broadcasts (game events)
-    channel.on('broadcast', { event: '*' }, (message) => {
+    channel.on('broadcast', { event: '*' }, (message: any) => {
       if (onEvent) {
         onEvent(message.payload as RealtimeEvent);
       }
     });
 
     // Subscribe to presence changes
-    channel.on('presence', { event: '*' }, (message) => {
+    channel.on('presence' as any, { event: '*' }, (message: any) => {
       if (onPresenceChange) {
         onPresenceChange(message);
       }
@@ -109,7 +109,7 @@ export function useRealtimeChannel(options: UseRealtimeChannelOptions) {
     });
 
     return () => {
-      if (channelRef.current) {
+      if (channelRef.current && supabase) {
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
       }
@@ -188,7 +188,7 @@ export function useRealtimeChannel(options: UseRealtimeChannelOptions) {
 
   // Disconnect
   const disconnect = useCallback(async () => {
-    if (!channelRef.current) return;
+    if (!channelRef.current || !supabase) return;
 
     try {
       await channelRef.current.untrack();
