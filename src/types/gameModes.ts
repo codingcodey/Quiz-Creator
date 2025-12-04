@@ -136,7 +136,7 @@ export const SURVIVAL_MODE_SCORING: ScoringRules = {
 
 export const SURVIVAL_MODE: GameMode = createGameMode(
   'survival_mode',
-  'Survival Mode',
+  'Elimination Challenge',
   'Wrong answer = eliminated. Last player standing wins!',
   '💀',
   {
@@ -345,8 +345,8 @@ export const TOWER_DEFENSE_SCORING: ScoringRules = {
 
 export const TOWER_DEFENSE: GameMode = createGameMode(
   'tower_defense',
-  'Tower Defense',
-  'Protect your tower. Attack opponents\' towers!',
+  'Fortress Duel',
+  'Protect your fortress. Attack opponents\' fortresses!',
   '🏰',
   {
     minPlayers: 3,
@@ -392,8 +392,8 @@ export const FISHING_FRENZY_SCORING: ScoringRules = {
 
 export const FISHING_FRENZY: GameMode = createGameMode(
   'fishing_frenzy',
-  'Fishing Frenzy',
-  'Answer fast to catch better fish. Legendary = 500pts!',
+  'Rapid Catch',
+  'Answer fast to catch better treasures. Epic = 500pts!',
   '🎣',
   {
     minPlayers: 2,
@@ -504,8 +504,8 @@ export const JEOPARDY_MODE_SCORING: ScoringRules = {
 
 export const JEOPARDY_MODE: GameMode = createGameMode(
   'jeopardy_mode',
-  'Jeopardy Mode',
-  'Choose question difficulty. Wrong answer = pass to next correct.',
+  'Difficulty Picker',
+  'Choose question difficulty. Wrong answer = skip to next.',
   '💡',
   {
     minPlayers: 2,
@@ -539,7 +539,7 @@ export const BATTLE_ROYALE_SCORING: ScoringRules = {
 
 export const BATTLE_ROYALE: GameMode = createGameMode(
   'battle_royale',
-  'Battle Royale',
+  'Royal Rumble',
   'Bottom scorer eliminated every 3 questions. Last one standing wins!',
   '👑',
   {

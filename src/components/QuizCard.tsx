@@ -168,11 +168,11 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
             e.preventDefault();
             onPlay();
           }}
-          className="absolute bottom-4 right-4 z-[60] w-12 h-12 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-110 hover:shadow-xl hover:shadow-accent/40 active:scale-95 transition-all duration-300 shadow-lg shadow-accent/25 group/play"
+          className="absolute bottom-6 right-6 z-[60] w-14 h-14 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-110 hover:shadow-xl hover:shadow-accent/40 active:scale-95 transition-all duration-300 shadow-lg shadow-accent/25 group/play"
           title="Play quiz"
           style={{ pointerEvents: 'auto' }}
         >
-          <svg className="w-6 h-6 ml-0.5 transition-transform duration-300 group-hover/play:scale-110" fill="currentColor" viewBox="0 0 24 24">
+          <svg className="w-7 h-7 ml-0.5 transition-transform duration-300 group-hover/play:scale-110" fill="currentColor" viewBox="0 0 24 24">
             <path d="M8 5v14l11-7z" />
           </svg>
         </button>
