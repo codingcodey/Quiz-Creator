@@ -34,7 +34,6 @@ export function MultiplayerLobby({
 }: MultiplayerLobbyProps) {
   const [showModeSelector, setShowModeSelector] = useState(false);
   const [selectedMode, setSelectedMode] = useState<GameMode | null>(null);
-  const [startCountdown, setStartCountdown] = useState<number | null>(null);
 
   // Update selected mode when session mode changes
   useEffect(() => {
@@ -59,7 +58,6 @@ export function MultiplayerLobby({
 
   const handleStart = useCallback(() => {
     if (canStart) {
-      setStartCountdown(3);
       onStart?.();
     }
   }, [canStart, onStart]);

@@ -4,7 +4,7 @@ export interface MultiplayerAchievement {
   description: string;
   icon: string;
   points: number;
-  category: 'social' | 'competitive' | 'mode';
+  category: 'social' | 'competitive' | 'mode' | 'special' | 'dedication';
   condition: string;
 }
 
@@ -314,6 +314,89 @@ export const MULTIPLAYER_ACHIEVEMENTS: MultiplayerAchievement[] = [
     points: 100,
     category: 'social',
     condition: 'Play with 25 different players',
+  },
+
+  // New Mode-Specific Achievements
+  {
+    id: 'elimination_survivor',
+    name: 'Last One Standing',
+    description: 'Win in Elimination Round mode',
+    icon: '💥',
+    points: 35,
+    category: 'mode',
+    condition: 'Win Elimination Round game',
+  },
+  {
+    id: 'rapid_fire_master',
+    name: 'Gunslinger',
+    description: 'Get 10+ consecutive correct answers in Rapid Fire',
+    icon: '🔫',
+    points: 40,
+    category: 'mode',
+    condition: 'Achieve 10 streak in Rapid Fire',
+  },
+  {
+    id: 'double_points_winner',
+    name: 'Double Winner',
+    description: 'Win a game of Double Points',
+    icon: '💰',
+    points: 30,
+    category: 'mode',
+    condition: 'Win Double Points game',
+  },
+  {
+    id: 'time_pressure_champion',
+    name: 'Time Master',
+    description: 'Win Time Pressure by managing time strategically',
+    icon: '⏰',
+    points: 45,
+    category: 'mode',
+    condition: 'Win Time Pressure game',
+  },
+  {
+    id: 'streak_legend',
+    name: 'Streak Legend',
+    description: 'Build a 15+ streak in Streak Master mode',
+    icon: '🔥',
+    points: 50,
+    category: 'mode',
+    condition: 'Achieve 15+ streak in Streak Master',
+  },
+  {
+    id: 'mode_explorer',
+    name: 'Mode Explorer',
+    description: 'Play in 10 different game modes',
+    icon: '🎮',
+    points: 75,
+    category: 'special',
+    condition: 'Play 10 different modes',
+  },
+  {
+    id: 'mode_master',
+    name: 'Mode Master',
+    description: 'Win in 5 different game modes',
+    icon: '🏆',
+    points: 100,
+    category: 'special',
+    condition: 'Win in 5 different modes',
+  },
+  {
+    id: 'variety_champion',
+    name: 'Variety Champion',
+    description: 'Get top 3 in 20 multiplayer games',
+    icon: '🎯',
+    points: 85,
+    category: 'competitive',
+    condition: 'Top 3 finish in 20 games',
+  },
+  {
+    id: 'marathon_legend',
+    name: 'Endurance Legend',
+    description: 'Complete 100+ total questions in multiplayer',
+    icon: '🏃',
+    points: 90,
+    category: 'dedication',
+    condition: 'Complete 100+ questions total',
   },
 ];
 

@@ -89,10 +89,10 @@ export function useMultiplayerSession() {
         if (fetchError) {
           if (fetchError.code === 'PGRST116') {
             setError('Room not found');
+            return null;
           } else {
             throw fetchError;
           }
-          return null;
         }
 
         return data as MultiplayerSession;
@@ -147,10 +147,10 @@ export function useMultiplayerSession() {
           if (joinError.code === '23505') {
             // Unique constraint violation - already joined
             setError('You are already in this room');
+            return null;
           } else {
             throw joinError;
           }
-          return null;
         }
 
         return data as SessionParticipant;
@@ -168,7 +168,7 @@ export function useMultiplayerSession() {
 
   // Leave session
   const leaveSession = useCallback(
-    async (sessionId: string, participantId: string): Promise<boolean> => {
+    async (_sessionId: string, participantId: string): Promise<boolean> => {
       setLoading(true);
       setError(null);
 

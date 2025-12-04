@@ -11,7 +11,7 @@ interface AchievementUnlock {
 export function useMultiplayerAchievements() {
   // Check if player earned "Welcome to Multiplayer" achievement
   const checkFirstMultiplayerGame = useCallback(
-    (gamesPlayedCount: number): Achievement | null => {
+    (gamesPlayedCount: number): MultiplayerAchievement | null => {
       if (gamesPlayedCount === 1) {
         return (
           MULTIPLAYER_ACHIEVEMENTS.find((a) => a.id === 'first_multiplayer_game') || null
@@ -24,8 +24,8 @@ export function useMultiplayerAchievements() {
 
   // Check games played milestones
   const checkMultiplayerGamesMilestones = useCallback(
-    (gamesPlayedCount: number): Achievement[] => {
-      const unlocked: Achievement[] = [];
+    (gamesPlayedCount: number): MultiplayerAchievement[] => {
+      const unlocked: MultiplayerAchievement[] = [];
       const milestones = [
         { games: 5, id: 'five_multiplayer_games' },
         { games: 10, id: 'ten_multiplayer_games' },
@@ -52,8 +52,8 @@ export function useMultiplayerAchievements() {
       totalQuestions: number,
       timeTaken: number,
       trailedByPoints: number
-    ): Achievement[] => {
-      const unlocked: Achievement[] = [];
+    ): MultiplayerAchievement[] => {
+      const unlocked: MultiplayerAchievement[] = [];
 
       // Winner achievement
       if (rank === 1 && winsCount === 1) {
@@ -105,10 +105,12 @@ export function useMultiplayerAchievements() {
       }
 
       // Speedrunner (< 2 minutes average per question)
-      const avgTimePerQuestion = timeTaken / totalQuestions;
-      if (avgTimePerQuestion < 120000) { // 2 minutes in ms
-        const achievement = MULTIPLAYER_ACHIEVEMENTS.find((a) => a.id === 'speedrun_specialist');
-        if (achievement) unlocked.push(achievement);
+      if (totalQuestions > 0) {
+        const avgTimePerQuestion = timeTaken / totalQuestions;
+        if (avgTimePerQuestion < 120000) { // 2 minutes in ms
+          const achievement = MULTIPLAYER_ACHIEVEMENTS.find((a) => a.id === 'speedrun_specialist');
+          if (achievement) unlocked.push(achievement);
+        }
       }
 
       return unlocked;
@@ -123,8 +125,8 @@ export function useMultiplayerAchievements() {
       playersHosted: number,
       uniquePlayersCount: number,
       timePlayed: { hour: number }
-    ): Achievement[] => {
-      const unlocked: Achievement[] = [];
+    ): MultiplayerAchievement[] => {
+      const unlocked: MultiplayerAchievement[] = [];
 
       // Host Level Up (5+ players)
       if (playersHosted >= 5) {
@@ -168,11 +170,13 @@ export function useMultiplayerAchievements() {
       rank: number,
       score: number,
       totalQuestions: number,
+      maxStreak?: number,
       coinsEarned?: number,
       wavesCompleted?: number,
       fishRarity?: string
-    ): Achievement[] => {
-      const unlocked: Achievement[] = [];
+    ): MultiplayerAchievement[] => {
+      const unlocked: MultiplayerAchievement[] = [];
+      const streak = maxStreak || 0;
 
       const modeAchievements: Record<string, { id: string; condition: () => boolean }[]> = {
         'classic_race': [
@@ -187,7 +191,7 @@ export function useMultiplayerAchievements() {
             condition: () => score === totalQuestions * 100,
           },
         ],
-        'survival': [
+        'survival_mode': [
           {
             id: 'survival_master',
             condition: () => rank === 1,
@@ -217,7 +221,7 @@ export function useMultiplayerAchievements() {
             condition: () => fishRarity === 'legendary',
           },
         ],
-        'jeopardy': [
+        'jeopardy_mode': [
           {
             id: 'jeopardy_champion',
             condition: () => rank === 1,
@@ -229,10 +233,40 @@ export function useMultiplayerAchievements() {
             condition: () => rank === 1,
           },
         ],
-        'marathon': [
+        'marathon_mode': [
           {
             id: 'marathon_champion',
             condition: () => totalQuestions >= 50 && rank === 1,
+          },
+        ],
+        'elimination_round': [
+          {
+            id: 'elimination_survivor',
+            condition: () => rank === 1,
+          },
+        ],
+        'rapid_fire': [
+          {
+            id: 'rapid_fire_master',
+            condition: () => streak >= 10,
+          },
+        ],
+        'double_points': [
+          {
+            id: 'double_points_winner',
+            condition: () => rank === 1,
+          },
+        ],
+        'time_pressure': [
+          {
+            id: 'time_pressure_champion',
+            condition: () => rank === 1,
+          },
+        ],
+        'streak_master': [
+          {
+            id: 'streak_legend',
+            condition: () => streak >= 15,
           },
         ],
       };
@@ -252,8 +286,8 @@ export function useMultiplayerAchievements() {
 
   // Check streak achievements (3 wins in a row, etc.)
   const checkStreakAchievements = useCallback(
-    (winStreak: number, comebackWins: number): Achievement[] => {
-      const unlocked: Achievement[] = [];
+    (winStreak: number, comebackWins: number): MultiplayerAchievement[] => {
+      const unlocked: MultiplayerAchievement[] = [];
 
       if (winStreak >= 3) {
         const achievement = MULTIPLAYER_ACHIEVEMENTS.find((a) => a.id === 'three_game_streak');
@@ -292,7 +326,7 @@ export function useMultiplayerAchievements() {
         fishRarity?: string;
       }
     ): AchievementUnlock[] => {
-      const allUnlocked: Achievement[] = [];
+      const allUnlocked: MultiplayerAchievement[] = [];
 
       // Check all achievement categories
       const firstGame = checkFirstMultiplayerGame(userStats.gamesPlayedCount);
@@ -328,6 +362,7 @@ export function useMultiplayerAchievements() {
           rank,
           participant.current_score,
           totalQuestions,
+          participant.max_streak,
           userStats.coinsEarned,
           userStats.wavesCompleted,
           userStats.fishRarity

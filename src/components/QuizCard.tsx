@@ -158,23 +158,25 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
         <p className="mt-3 text-xs text-text-muted">
           Updated {formattedDate}
         </p>
-
-        {/* Play button - bottom right of content area */}
-        {quiz.questions.length > 0 && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onPlay();
-            }}
-            className="absolute bottom-4 right-4 z-20 w-11 h-11 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-105 hover:shadow-xl hover:shadow-accent/40 active:scale-95 transition-all duration-300 shadow-lg shadow-accent/25 group/play"
-            title="Play quiz"
-          >
-            <svg className="w-5 h-5 ml-0.5 transition-transform duration-300 group-hover/play:scale-105" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </button>
-        )}
       </div>
+
+      {/* Play button - bottom right of card */}
+      {quiz.questions.length > 0 && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            onPlay();
+          }}
+          className="absolute bottom-4 right-4 z-[60] w-12 h-12 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:scale-110 hover:shadow-xl hover:shadow-accent/40 active:scale-95 transition-all duration-300 shadow-lg shadow-accent/25 group/play"
+          title="Play quiz"
+          style={{ pointerEvents: 'auto' }}
+        >
+          <svg className="w-6 h-6 ml-0.5 transition-transform duration-300 group-hover/play:scale-110" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z" />
+          </svg>
+        </button>
+      )}
 
         {/* Actions - hide in public view */}
         {!isPublicView && (
@@ -225,8 +227,19 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
         {!isPublicView && (
           <button
             onClick={onEdit}
-            className="absolute inset-0 w-full h-full cursor-pointer z-5"
+            className="absolute inset-0 w-full h-full cursor-pointer z-0"
             aria-label={`Edit ${quiz.title}`}
+            style={{ pointerEvents: 'auto' }}
+            onPointerDown={(e) => {
+              // Don't trigger edit if clicking on play button or action buttons
+              const target = e.target as HTMLElement;
+              if (target.closest('button[title="Play quiz"]') || 
+                  target.closest('.absolute.top-3.right-3') ||
+                  target.closest('button[title*="favorite"]')) {
+                e.preventDefault();
+                e.stopPropagation();
+              }
+            }}
           />
         )}
       </article>

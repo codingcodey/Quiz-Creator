@@ -63,7 +63,7 @@ function App() {
   const { theme, toggleTheme } = useTheme();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { quizzes, getQuiz, saveQuiz, deleteQuiz, exportQuiz, exportQuizData, updateQuiz } = useQuizStore();
-  const { user, loading, signOut, signInWithGoogle } = useAuth();
+  const { user, loading, signOut } = useAuth();
   const { saveAttempt, getAttemptsForQuiz, totalStats } = useQuizAttempts();
   const { 
     achievements, 
@@ -118,24 +118,7 @@ function App() {
   }, [quizzes]);
 
   // Multiplayer handlers
-  const handlePlayQuizMultiplayer = useCallback(
-    (quizId: string) => {
-      const quiz = getQuiz(quizId);
-      if (!quiz) return;
-
-      if (quiz.questions.length === 0) {
-        setShowNoQuestionsWarning(true);
-        setQuizToPlay(quizId);
-        return;
-      }
-
-      setMultiplayerQuizToPlay(quizId);
-      setShowModeSelector(true);
-    },
-    [getQuiz]
-  );
-
-  const handleSelectPlayMode = useCallback(
+const handleSelectPlayMode = useCallback(
     (mode: 'solo' | 'multiplayer') => {
       if (mode === 'solo') {
         if (multiplayerQuizToPlay) {
@@ -717,9 +700,9 @@ function App() {
             userId={user?.id || ''}
             isHost={isHost}
             onStart={handleStartGame}
-            onSelectMode={(modeId) => {
-              // Placeholder for mode selection
-              console.log('Selected mode:', modeId);
+            onSelectMode={(_modeId) => {
+              // Mode selection handled by game mode selector
+              // This callback can be used for future mode-specific logic
             }}
             onKickPlayer={async (participantId) => {
               await multiplayerSession.kickParticipant(participantId);

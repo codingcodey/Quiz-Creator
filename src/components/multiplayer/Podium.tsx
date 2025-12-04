@@ -3,7 +3,7 @@ import type { SessionParticipant } from '../../types/multiplayer';
 import { getMedalForRank } from '../../utils/scoring';
 import { AchievementUnlockList } from './AchievementUnlock';
 import { useMultiplayerAchievements } from '../../hooks/useMultiplayerAchievements';
-import type { Achievement } from '../../hooks/useAchievements';
+import type { MultiplayerAchievement } from '../../data/multiplayerAchievements';
 
 interface PodiumProps {
   participants: SessionParticipant[];
@@ -22,7 +22,7 @@ export function Podium({
   onPlayAgain,
   onExit,
 }: PodiumProps) {
-  const [unlockedAchievements, setUnlockedAchievements] = useState<Achievement[]>([]);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<MultiplayerAchievement[]>([]);
   const { checkAllAchievements } = useMultiplayerAchievements();
 
   const rankedParticipants = useMemo(() => {

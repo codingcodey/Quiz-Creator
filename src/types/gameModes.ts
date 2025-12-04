@@ -666,6 +666,196 @@ export const AUCTION_MODE: GameMode = createGameMode(
 );
 
 // ============================================================================
+// ELIMINATION ROUND 💥
+// ============================================================================
+
+export const ELIMINATION_ROUND_SCORING: ScoringRules = {
+  basePoints: 100,
+  custom: {
+    wrongAnswerLives: 3,
+    liveBonus: 50,
+  },
+};
+
+export const ELIMINATION_ROUND: GameMode = createGameMode(
+  'elimination_round',
+  'Elimination Round',
+  'Get 3 wrong answers and you\'re out! Last player standing wins.',
+  '💥',
+  {
+    minPlayers: 2,
+    revealPattern: 'host_controlled',
+    scoring: ELIMINATION_ROUND_SCORING,
+    mechanics: ['lives', 'elimination'],
+    config: [
+      {
+        id: 'starting_lives',
+        label: 'Starting Lives',
+        type: 'number',
+        default: 3,
+        min: 1,
+        max: 5,
+        description: 'How many wrong answers before elimination',
+      },
+    ],
+  }
+);
+
+// ============================================================================
+// RAPID FIRE 🔫
+// ============================================================================
+
+export const RAPID_FIRE_SCORING: ScoringRules = {
+  basePoints: 50,
+  speedBonus: 100,
+  custom: {
+    timePerQuestion: 5000, // 5 seconds per question
+    acceleratingDifficulty: true,
+  },
+};
+
+export const RAPID_FIRE: GameMode = createGameMode(
+  'rapid_fire',
+  'Rapid Fire',
+  'Answer as many questions as possible in lightning speed!',
+  '🔫',
+  {
+    minPlayers: 1,
+    revealPattern: 'host_controlled',
+    scoring: RAPID_FIRE_SCORING,
+    mechanics: ['speed', 'quantity'],
+    config: [
+      {
+        id: 'time_per_question',
+        label: 'Time Per Question (ms)',
+        type: 'number',
+        default: 5000,
+        min: 2000,
+        max: 15000,
+        description: 'How long to answer each question',
+      },
+    ],
+  }
+);
+
+// ============================================================================
+// DOUBLE POINTS 💰
+// ============================================================================
+
+export const DOUBLE_POINTS_SCORING: ScoringRules = {
+  basePoints: 200,
+  speedBonus: 100,
+  streakMultiplier: 1.2,
+  custom: {
+    doublePointThreshold: 5, // First 5 correct answers double points
+  },
+};
+
+export const DOUBLE_POINTS: GameMode = createGameMode(
+  'double_points',
+  'Double Points',
+  'First correct answers are worth double! Build momentum and maximize rewards.',
+  '💰',
+  {
+    minPlayers: 2,
+    revealPattern: 'host_controlled',
+    scoring: DOUBLE_POINTS_SCORING,
+    mechanics: ['points', 'momentum'],
+    config: [
+      {
+        id: 'double_threshold',
+        label: 'Double Points For First X Correct',
+        type: 'number',
+        default: 5,
+        min: 1,
+        max: 15,
+      },
+    ],
+  }
+);
+
+// ============================================================================
+// TIME PRESSURE ⏰
+// ============================================================================
+
+export const TIME_PRESSURE_SCORING: ScoringRules = {
+  basePoints: 100,
+  custom: {
+    decreasePerSecond: 10,
+    minimumPoints: 10,
+    bonusTimeForCorrect: 2000,
+  },
+};
+
+export const TIME_PRESSURE: GameMode = createGameMode(
+  'time_pressure',
+  'Time Pressure',
+  'Points decrease every second! Answer correctly to gain time.',
+  '⏰',
+  {
+    minPlayers: 1,
+    revealPattern: 'host_controlled',
+    scoring: TIME_PRESSURE_SCORING,
+    mechanics: ['time', 'pressure', 'strategy'],
+    config: [
+      {
+        id: 'decrease_per_second',
+        label: 'Points Lost Per Second',
+        type: 'number',
+        default: 10,
+        min: 1,
+        max: 50,
+      },
+      {
+        id: 'bonus_time_seconds',
+        label: 'Bonus Time for Correct Answer',
+        type: 'number',
+        default: 2,
+        min: 1,
+        max: 10,
+      },
+    ],
+  }
+);
+
+// ============================================================================
+// STREAK MASTER 🔥
+// ============================================================================
+
+export const STREAK_MASTER_SCORING: ScoringRules = {
+  basePoints: 50,
+  streakMultiplier: 1.5,
+  custom: {
+    streakBonus: 200,
+    streakResetPenalty: -100,
+  },
+};
+
+export const STREAK_MASTER: GameMode = createGameMode(
+  'streak_master',
+  'Streak Master',
+  'Build the longest streak! Streaks are worth exponentially more.',
+  '🔥',
+  {
+    minPlayers: 2,
+    revealPattern: 'host_controlled',
+    scoring: STREAK_MASTER_SCORING,
+    mechanics: ['streaks', 'momentum', 'high_risk'],
+    config: [
+      {
+        id: 'streak_multiplier',
+        label: 'Streak Multiplier',
+        type: 'number',
+        default: 1.5,
+        min: 1,
+        max: 3,
+        description: 'Multiplier for streak bonuses (e.g., 1.5x)',
+      },
+    ],
+  }
+);
+
+// ============================================================================
 // REGISTRY - All modes
 // ============================================================================
 
@@ -686,6 +876,11 @@ export const ALL_GAME_MODES: Record<string, GameMode> = {
   relay_race: RELAY_RACE,
   powerup_mayhem: POWERUP_MAYHEM,
   auction_mode: AUCTION_MODE,
+  elimination_round: ELIMINATION_ROUND,
+  rapid_fire: RAPID_FIRE,
+  double_points: DOUBLE_POINTS,
+  time_pressure: TIME_PRESSURE,
+  streak_master: STREAK_MASTER,
 };
 
 export function getGameMode(id: string): GameMode | undefined {

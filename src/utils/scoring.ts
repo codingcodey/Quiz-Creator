@@ -1,4 +1,3 @@
-import type { ScoringRules } from '../types/multiplayer';
 import { ALL_GAME_MODES } from '../types/gameModes';
 
 // Calculate points for an answer
@@ -232,8 +231,7 @@ export function scorePointsBlitz(position: number): number {
 
 // Tower Defense damage calculation
 export function calculateTowerDamage(
-  isCorrect: boolean,
-  defenderHP: number
+  isCorrect: boolean
 ): number {
   return isCorrect ? 0 : 150; // 150 damage for wrong answer
 }
