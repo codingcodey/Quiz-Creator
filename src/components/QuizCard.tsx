@@ -42,7 +42,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
       />
 
       <article
-        className="group relative bg-bg-secondary border border-border-subtle rounded-2xl overflow-hidden hover:border-accent/60 transition-all duration-300 ease-out hover:shadow-xl hover:shadow-accent/20 hover:-translate-y-2 active:translate-y-0 active:shadow-lg opacity-0 animate-fade-in-up card-elevated"
+        className="group relative bg-bg-secondary border border-border-subtle rounded-2xl hover:border-accent/60 transition-all duration-300 ease-out hover:shadow-xl hover:shadow-accent/20 hover:-translate-y-2 active:translate-y-0 active:shadow-lg opacity-0 animate-fade-in-up card-elevated"
         style={{ animationDelay: `${0.15 + index * 0.08}s` }}
       >
       {/* Cover Image or Placeholder */}

@@ -151,7 +151,7 @@ export function Hero({ onCreateQuiz, onExplore, quizCount }: HeroProps) {
       {quizCount === 0 && (
         <button
           onClick={handleScrollDown}
-          className="absolute bottom-4 left-1/2 -translate-x-1/2 text-text-muted hover:text-accent transition-all duration-300 opacity-0 animate-fade-in-up stagger-7 group"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 text-text-muted hover:text-accent transition-all duration-300 opacity-0 animate-fade-in-up stagger-7 group"
           aria-label="Scroll down"
         >
           <div className="flex flex-col items-center gap-2">
