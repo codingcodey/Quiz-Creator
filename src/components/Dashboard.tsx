@@ -178,7 +178,7 @@ export function Dashboard({
                 <button
                   type="button"
                   onClick={() => setIsSortOpen((open) => !open)}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-bg-tertiary border border-border rounded-xl text-sm text-text-primary hover:border-accent/40 hover:text-accent transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
+                  className="inline-flex items-center gap-2 px-4 py-3 bg-bg-tertiary border border-border rounded-xl text-sm text-text-primary hover:border-accent/40 hover:text-accent transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent/30"
                 >
                   <span>
                     {sortBy === 'newest' && 'Newest'}

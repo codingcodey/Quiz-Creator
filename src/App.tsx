@@ -55,11 +55,6 @@ function App() {
   const [showGameModeSelector, setShowGameModeSelector] = useState(false);
   const [showJoinRoomModal, setShowJoinRoomModal] = useState(false);
   const [multiplayerQuizToPlay, setMultiplayerQuizToPlay] = useState<string | null>(null);
-
-  // Debug: log when showModeSelector changes
-  useEffect(() => {
-    console.log('showModeSelector state changed to:', showModeSelector);
-  }, [showModeSelector]);
   const [currentSession, setCurrentSession] = useState<MultiplayerSession | null>(null);
   const [sessionParticipants, setSessionParticipants] = useState<SessionParticipant[]>([]);
   const [multiplayerLoading, setMultiplayerLoading] = useState(false);
@@ -507,26 +502,20 @@ const handleSelectPlayMode = useCallback(
 
   const handlePlayQuiz = useCallback(
     (quizId: string) => {
-      console.log('handlePlayQuiz called with quizId:', quizId);
       // In demo mode, require sign-in before playing
       if (isDemo) {
-        console.log('Demo mode - showing sign in prompt');
         setShowSignInPrompt(true);
         return;
       }
 
       const quiz = getQuiz(quizId);
-      console.log('Quiz found:', quiz);
       if (quiz && quiz.questions.length === 0) {
-        console.log('No questions - showing warning');
         setQuizToPlay(quizId);
         setShowNoQuestionsWarning(true);
       } else {
         // Show mode selector (solo or multiplayer)
-        console.log('Setting up mode selector for quiz:', quizId);
         setMultiplayerQuizToPlay(quizId);
         setShowModeSelector(true);
-        console.log('Mode selector should be visible now');
       }
     },
     [getQuiz, isDemo]
@@ -685,7 +674,6 @@ const handleSelectPlayMode = useCallback(
         <ModeSelector
           isOpen={showModeSelector}
           onClose={() => {
-            console.log('ModeSelector closing');
             setShowModeSelector(false);
             setMultiplayerQuizToPlay(null);
           }}

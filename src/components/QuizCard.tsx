@@ -176,12 +176,9 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
               data-interactive="play"
               type="button"
               onClick={(e) => {
-                console.log('Play button clicked!', e.target);
                 e.stopPropagation();
                 e.preventDefault();
-                console.log('Calling onPlay function...');
                 onPlay();
-                console.log('onPlay completed');
               }}
               className="flex items-center gap-2 px-4 py-2 bg-accent rounded-lg text-bg-primary font-medium hover:bg-accent-hover hover:shadow-lg transition-all duration-300 z-30"
               title="Play quiz"
