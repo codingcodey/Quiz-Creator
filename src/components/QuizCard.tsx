@@ -41,11 +41,17 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
         }
       />
 
-      <div className="relative">
-        <article
-          className="group relative bg-bg-secondary border border-border-subtle rounded-2xl hover:border-accent/60 transition-colors duration-300 ease-out opacity-0 animate-fade-in-up card-elevated"
-          style={{ animationDelay: `${0.15 + index * 0.08}s` }}
-        >
+      <article
+        onClick={!isPublicView ? (e) => {
+          // Only trigger edit if not clicking on interactive elements
+          const target = e.target as HTMLElement;
+          if (!target.closest('[data-interactive]') && !target.closest('button')) {
+            onEdit();
+          }
+        } : undefined}
+        className="group relative overflow-hidden bg-bg-secondary border border-border-subtle rounded-2xl hover:border-accent/60 transition-colors duration-300 ease-out opacity-0 animate-fade-in-up card-elevated cursor-pointer"
+        style={{ animationDelay: `${0.15 + index * 0.08}s` }}
+      >
       {/* Cover Image or Placeholder */}
       <div className="relative h-40 bg-bg-tertiary overflow-hidden">
         {quiz.coverImage ? (
@@ -102,6 +108,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
         {/* Favorite button - top left */}
         {onToggleFavorite && (
           <button
+            data-interactive="favorite"
             onClick={(e) => {
               e.stopPropagation();
               onToggleFavorite();
@@ -126,45 +133,72 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
       </div>
 
       {/* Content */}
-      <div className="p-4">
-        <h3 className="font-serif text-xl text-text-primary line-clamp-1 group-hover:text-accent transition-colors pr-16">
-          {quiz.title}
-        </h3>
+      <div className="p-4 flex flex-col justify-between min-h-[140px]">
+        <div>
+          <h3 className={`font-serif text-xl text-text-primary line-clamp-1 group-hover:text-accent transition-colors ${!isPublicView ? 'pr-16' : 'pr-4'}`}>
+            {quiz.title}
+          </h3>
 
-        {quiz.description && (
-          <p className="mt-1 text-sm text-text-secondary line-clamp-2 pr-16">
-            {quiz.description}
+          {quiz.description && (
+            <p className={`mt-1 text-sm text-text-secondary line-clamp-2 ${!isPublicView ? 'pr-16' : 'pr-4'}`}>
+              {quiz.description}
+            </p>
+          )}
+
+          {/* Tags */}
+          {quiz.tags && quiz.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {quiz.tags.slice(0, 3).map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-0.5 text-xs bg-bg-tertiary text-text-muted rounded-full"
+                >
+                  {tag}
+                </span>
+              ))}
+              {quiz.tags.length > 3 && (
+                <span className="px-2 py-0.5 text-xs text-text-muted">
+                  +{quiz.tags.length - 3}
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-between mt-3">
+          <p className="text-xs text-text-muted">
+            Updated {formattedDate}
           </p>
-        )}
 
-        {/* Tags */}
-        {quiz.tags && quiz.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1 mt-2">
-            {quiz.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-0.5 text-xs bg-bg-tertiary text-text-muted rounded-full"
-              >
-                {tag}
-              </span>
-            ))}
-            {quiz.tags.length > 3 && (
-              <span className="px-2 py-0.5 text-xs text-text-muted">
-                +{quiz.tags.length - 3}
-              </span>
-            )}
-          </div>
-        )}
-
-        <p className="mt-3 text-xs text-text-muted">
-          Updated {formattedDate}
-        </p>
+          {/* Play button - inline in content footer */}
+          {quiz.questions.length > 0 && (
+            <button
+              data-interactive="play"
+              type="button"
+              onClick={(e) => {
+                console.log('Play button clicked!', e.target);
+                e.stopPropagation();
+                e.preventDefault();
+                console.log('Calling onPlay function...');
+                onPlay();
+                console.log('onPlay completed');
+              }}
+              className="flex items-center gap-2 px-4 py-2 bg-accent rounded-lg text-bg-primary font-medium hover:bg-accent-hover hover:shadow-lg transition-all duration-300 z-30"
+              title="Play quiz"
+            >
+              <svg className="w-4 h-4 pointer-events-none" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z" />
+              </svg>
+              <span className="pointer-events-none">Play</span>
+            </button>
+          )}
+        </div>
       </div>
 
 
         {/* Actions - hide in public view */}
         {!isPublicView && (
-          <div className="absolute top-3 right-3 z-20 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+          <div data-interactive="actions" className="absolute top-3 right-3 z-20 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
             {/* Duplicate button */}
             <button
               onClick={(e) => {
@@ -206,44 +240,7 @@ export function QuizCard({ quiz, onEdit, onDelete, onDuplicate, onExport, onPlay
             </button>
           </div>
         )}
-
-        {/* Click overlay to edit - hide in public view */}
-        {!isPublicView && (
-          <button
-            onClick={onEdit}
-            className="absolute inset-0 w-full h-full cursor-pointer z-0"
-            aria-label={`Edit ${quiz.title}`}
-            style={{ pointerEvents: 'auto' }}
-            onPointerDown={(e) => {
-              // Don't trigger edit if clicking on play button or action buttons
-              const target = e.target as HTMLElement;
-              if (target.closest('button[title="Play quiz"]') || 
-                  target.closest('.absolute.top-3.right-3') ||
-                  target.closest('button[title*="favorite"]')) {
-                e.preventDefault();
-                e.stopPropagation();
-              }
-            }}
-          />
-        )}
       </article>
-
-        {/* Play button - positioned at bottom right corner */}
-        {quiz.questions.length > 0 && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onPlay();
-            }}
-            className="absolute -bottom-7 -right-7 w-16 h-16 flex items-center justify-center bg-accent rounded-xl text-bg-primary hover:bg-accent-hover hover:shadow-lg hover:shadow-accent/40 transition-all duration-300"
-            title="Play quiz"
-          >
-            <svg className="w-8 h-8 ml-0.5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M8 5v14l11-7z" />
-            </svg>
-          </button>
-        )}
-      </div>
     </>
   );
 }
