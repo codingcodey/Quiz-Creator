@@ -25,13 +25,13 @@
   --color-warning: #fbbf24;
   
   /* Shadow system */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -2px rgba(0, 0, 0, 0.4);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.3);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
-  --shadow-accent: 0 10px 25px -5px rgba(212, 168, 83, 0.3);
-  --shadow-accent-lg: 0 20px 40px -10px rgba(212, 168, 83, 0.4);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.15);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  --shadow-accent: 0 10px 25px -5px rgba(212, 168, 83, 0.15);
+  --shadow-accent-lg: 0 20px 40px -10px rgba(212, 168, 83, 0.2);
 }
 
 * {
@@ -40,10 +40,18 @@
 
 button {
   cursor: pointer;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: none !important;
 }
 
 button:disabled {
   cursor: not-allowed;
+}
+
+button:active {
+  transform: scale(1.01);
+  opacity: 0.92;
 }
 
 html {
@@ -98,13 +106,13 @@ html.light {
   --color-warning: #d97706;
   
   /* Light theme shadows */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
-  --shadow-accent: 0 10px 25px -5px rgba(184, 134, 11, 0.2);
-  --shadow-accent-lg: 0 20px 40px -10px rgba(184, 134, 11, 0.25);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.025);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.025);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+  --shadow-2xl: 0 25px 50px -12px rgba(0, 0, 0, 0.075);
+  --shadow-accent: 0 10px 25px -5px rgba(184, 134, 11, 0.1);
+  --shadow-accent-lg: 0 20px 40px -10px rgba(184, 134, 11, 0.12);
 }
 
 body {
@@ -1099,17 +1107,17 @@ html.light .glass-effect {
   padding: 0.75rem 1.5rem;
   border-radius: 0.75rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-md);
+  box-shadow: none;
 }
 
 .btn-primary:hover {
   background: var(--color-accent-hover);
   transform: translateY(-2px);
-  box-shadow: var(--shadow-accent);
 }
 
 .btn-primary:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(0) scale(1.03);
+  opacity: 0.92;
 }
 
 .btn-secondary {
@@ -1127,7 +1135,11 @@ html.light .glass-effect {
   color: var(--color-accent);
   background: var(--color-bg-tertiary);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+}
+
+.btn-secondary:active {
+  transform: translateY(0) scale(1.01);
+  opacity: 0.92;
 }
 
 .input-enhanced {
