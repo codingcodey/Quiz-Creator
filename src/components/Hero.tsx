@@ -120,43 +120,20 @@ export function Hero({ onCreateQuiz, onExplore, quizCount }: HeroProps) {
             <p className="text-text-muted text-sm">
               You have <span className="text-accent font-medium">{quizCount}</span> quiz{quizCount !== 1 ? 'zes' : ''} saved locally
             </p>
-            {/* Scroll down indicator - below stats */}
-            <button
-              onClick={handleScrollDown}
-              className="mt-4 mx-auto text-text-muted hover:text-accent transition-all duration-300 group flex flex-col items-center gap-2"
-              aria-label="Scroll down"
-            >
-              <span className="text-xs uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
-                {quizCount > 0 ? 'View Quizzes' : 'Get Started'}
-              </span>
-              <svg
-                className="w-6 h-6 animate-bounce"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
-            </button>
           </div>
         )}
       </div>
 
-      {/* Scroll down indicator - show when no quizzes */}
-      {quizCount === 0 && (
+      {/* Scroll down indicator - unified positioning at bottom */}
+      <div className="absolute bottom-8 left-0 right-0 flex justify-center z-10">
         <button
           onClick={handleScrollDown}
-          className="fixed bottom-8 left-1/2 -translate-x-1/2 text-text-muted hover:text-accent transition-all duration-300 opacity-0 animate-fade-in-up stagger-7 group"
+          className="text-text-muted hover:text-accent transition-all duration-300 opacity-0 animate-fade-in-up stagger-7 group"
           aria-label="Scroll down"
         >
           <div className="flex flex-col items-center gap-2">
             <span className="text-xs uppercase tracking-wider opacity-0 group-hover:opacity-100 transition-opacity">
-              Get Started
+              {quizCount > 0 ? 'View Quizzes' : 'Get Started'}
             </span>
             <svg
               className="w-6 h-6 animate-bounce"
@@ -173,7 +150,7 @@ export function Hero({ onCreateQuiz, onExplore, quizCount }: HeroProps) {
             </svg>
           </div>
         </button>
-      )}
+      </div>
 
       {/* Decorative bottom line */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-accent/30 to-transparent opacity-0 animate-fade-in stagger-5" />
